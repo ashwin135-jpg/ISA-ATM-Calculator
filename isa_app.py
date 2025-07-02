@@ -107,7 +107,7 @@ elif tool == "City-to-City Flight Estimator" and lottie_city:
 # Home Page===========================================================================================================================
 if tool == "Home":
     # Redirect to external HTML homepage
-    homepage_url = "file:///Users/ashwinganesh/Documents/sample/my%20tool/%3C!DOCTYPE%20html%3E.html"  
+    homepage_url = "https://ashwin135-jpg.github.io/ISA-ATM-Calculator/"  
     st.markdown(f"""
         <meta http-equiv="refresh" content="0; url={homepage_url}">
         <script>
