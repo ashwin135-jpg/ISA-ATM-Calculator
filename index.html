@@ -75,27 +75,28 @@
     }
 
     lottie-player {
-  width: 300px;
-  height: 300px;
-  margin: 20px auto;
-  display: block;
-}
-
-@media (min-width: 768px) {
-  lottie-player {
-    width: 1000px;
-    height: 700px;
+    width: 300px;
+    height: 300px;
+    margin: 20px auto;
+    display: block;
   }
-}
+
+  @media (min-width: 768px) {
+    lottie-player {
+      width: 1000px !important;  /* ⬅ increase for laptop */
+      height: 500px !important; /* ⬅ adjust height */
+    }
+  }
+
   @media (max-width: 600px) {
     header {
       padding: 60px 20px 30px;
     }
 
     lottie-player {
-      width: 100%;
-      height: auto;
+      width: 90% !important;
       max-width: 320px;
+      height: auto !important;
     }
 
     .tool-button {
