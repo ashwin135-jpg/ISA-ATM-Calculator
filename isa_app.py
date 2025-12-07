@@ -45,11 +45,7 @@ lottie_common = load_lottieurl(lottie_url)
 if tool == "Home":
     st.markdown(
         """
-        <script>
-            window.location.href = "https://ashwin135-jpg.github.io/ISA-ATM-Calculator/";
-        </script>
-        <p>If you are not redirected, 
-        <a href="https://ashwin135-jpg.github.io/ISA-ATM-Calculator/">click here</a>.</p>
+        <meta http-equiv="refresh" content="0; url='https://ashwin135-jpg.github.io/ISA-ATM-Calculator/'" />
         """,
         unsafe_allow_html=True,
     )
