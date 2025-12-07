@@ -3,7 +3,7 @@ import streamlit as st
 
 
 def render():
-    st.subheader("⛽ Jet Fuel Consumption & Range Estimator")
+    st.subheader("Jet Fuel Consumption & Range Estimator")
     st.markdown(
         "Estimate aircraft **range**, **endurance**, and **fuel burn time** using "
         "the Breguet Jet Range Equation and a simple thrust-based fuel model."
