@@ -43,13 +43,16 @@ lottie_url = (
 lottie_common = load_lottieurl(lottie_url)
 
 if tool == "Home":
-    st.markdown("""
+    st.markdown(
+        """
         <script>
-            window.open("https://ashwin135-jpg.github.io/ISA-ATM-Calculator/", "_blank");
+            window.location.href = "https://ashwin135-jpg.github.io/ISA-ATM-Calculator/";
         </script>
-        <h3>Opening home page...</h3>
-        <p>If it did not open automatically, <a target="_blank" href="https://ashwin135-jpg.github.io/ISA-ATM-Calculator/">click here</a>.</p>
-    """, unsafe_allow_html=True)
+        <p>If you are not redirected, 
+        <a href="https://ashwin135-jpg.github.io/ISA-ATM-Calculator/">click here</a>.</p>
+        """,
+        unsafe_allow_html=True,
+    )
     st.stop()
     
 elif tool == "ISA Atmosphere Calculator":
