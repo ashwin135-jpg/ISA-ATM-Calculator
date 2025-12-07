@@ -45,7 +45,10 @@ lottie_common = load_lottieurl(lottie_url)
 if tool == "Home":
     st.markdown(
         """
-        <meta http-equiv="refresh" content="0; url='https://ashwin135-jpg.github.io/ISA-ATM-Calculator/'" />
+        <script>
+            // Replace the current page with your GitHub landing page
+            window.location.replace("https://ashwin135-jpg.github.io/ISA-ATM-Calculator/");
+        </script>
         """,
         unsafe_allow_html=True,
     )
