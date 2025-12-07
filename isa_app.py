@@ -44,7 +44,7 @@ lottie_common = load_lottieurl(lottie_url)
 
 if tool == "Home":
     st.markdown("""
-        <meta http-equiv="refresh" content="0; url="https://ashwin135-jpg.github.io/ISA-ATM-Calculator/" />
+        <meta http-equiv="refresh" content="0; url='https://ashwin135-jpg.github.io/ISA-ATM-Calculator/'" />
         <p>Redirecting...</p>
     """, unsafe_allow_html=True)
     st.stop()
