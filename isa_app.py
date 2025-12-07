@@ -46,8 +46,12 @@ if tool == "Home":
     st.markdown(
         """
         <script>
-            // Replace the current page with your GitHub landing page
-            window.location.replace("https://ashwin135-jpg.github.io/ISA-ATM-Calculator/");
+            const host = window.location.hostname;
+
+            // Only auto-redirect on the real public app domain
+            if (host.endsWith(".streamlit.app")) {
+                window.location.replace("https://ashwin135-jpg.github.io/ISA-ATM-Calculator/");
+            }
         </script>
         """,
         unsafe_allow_html=True,
