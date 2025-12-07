@@ -2,7 +2,7 @@ import streamlit as st
 from streamlit_lottie import st_lottie
 
 from utils import load_lottieurl
-from tools import isa_tool, mach_tool, lift_drag_tool, fuel_range_tool
+from tools import isa_tool, mach_tool, lift_drag_tool, fuel_range_tool, mission_planner_tool
 
 # -------------------------
 # Sidebar / query param setup
@@ -65,7 +65,7 @@ elif tool == "Fuel Consumption & Range Estimator":
     fuel_range_tool.render()
 
 elif tool == "Mission Planner":
-    st.info("Mission Planner page not split yet. Still in old code – coming soon!")
+    mission_planner_tool.render()
 
 elif tool == "City-to-City Flight Estimator":
     st.info("City-to-City page not split yet. Still in old code – coming soon!")
