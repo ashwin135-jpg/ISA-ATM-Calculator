@@ -2,7 +2,7 @@ import streamlit as st
 from streamlit_lottie import st_lottie
 
 from utils import load_lottieurl
-from tools import isa_tool, mach_tool  
+from tools import isa_tool, mach_tool, lift_drag_tool  
 
 # -------------------------
 # Sidebar / query param setup
@@ -59,7 +59,7 @@ elif tool == "Mach Number Calculator":
     mach_tool.render()
 
 elif tool == "Lift and Drag Calculator":
-    st.info("Lift & Drag page not split yet. Still in old code – coming soon!")
+    lift_drag_tool.render()
 
 elif tool == "Fuel Consumption & Range Estimator":
     st.info("Fuel & Range page not split yet. Still in old code – coming soon!")
