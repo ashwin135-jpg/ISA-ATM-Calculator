@@ -17,9 +17,9 @@ tool_options = [
     "City to City Flight Estimator",
 ]
 
-default_tool = st.query_params.get("tool", "Home")
+default_tool = st.query_params.get("tool", "ISA Atmosphere Calculator")
 if default_tool not in tool_options:
-    default_tool = "Home"
+    default_tool = "ISA Atmosphere Calculator"
 
 if "tool" not in st.session_state:
     st.session_state["tool"] = default_tool
