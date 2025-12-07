@@ -45,14 +45,11 @@ lottie_common = load_lottieurl(lottie_url)
 if tool == "Home":
     st.markdown(
         """
-        <script>
-            // Redirect the TOP-LEVEL window (works even when embedded in share.streamlit.io)
-            window.top.location.href = "https://ashwin135-jpg.github.io/ISA-ATM-Calculator/";
-        </script>
+        <meta http-equiv="refresh" content="0; url='https://ashwin135-jpg.github.io/ISA-ATM-Calculator/'" />
         """,
         unsafe_allow_html=True,
     )
-    st.stop()
+
     
 elif tool == "ISA Atmosphere Calculator":
     isa_tool.render()
