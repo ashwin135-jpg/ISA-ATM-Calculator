@@ -46,7 +46,8 @@ if tool == "Home":
     st.markdown(
         """
         <script>
-            window.location.replace("https://ashwin135-jpg.github.io/ISA-ATM-Calculator/");
+            // Redirect the TOP-LEVEL window (works even when embedded in share.streamlit.io)
+            window.top.location.href = "https://ashwin135-jpg.github.io/ISA-ATM-Calculator/";
         </script>
         """,
         unsafe_allow_html=True,
