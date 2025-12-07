@@ -3,7 +3,7 @@ import streamlit as st
 
 
 def render():
-    st.subheader("🛫 Simple Mission Planner")
+    st.subheader("Simple Mission Planner")
     st.markdown(
         "Estimate **range**, **fuel used**, and **flight time** "
         "based on aircraft weight and fuel availability."
