@@ -1,11 +1,9 @@
-import math
+# utils.py
 import requests
+import streamlit as st
 
-# -------------------------
-# Lottie loader
-# -------------------------
+@st.cache_data
 def load_lottieurl(url: str):
-    """Load a Lottie JSON from a URL, or return None on failure."""
     try:
         r = requests.get(url)
         if r.status_code != 200:
@@ -13,7 +11,6 @@ def load_lottieurl(url: str):
         return r.json()
     except Exception:
         return None
-
 
 # -------------------------
 # ISA atmosphere model
