@@ -1,8 +1,8 @@
 streamlit
 streamlit-lottie
+requests
 geopy
 pandas
 altair
-matplotlib
-folium
 streamlit-folium
+folium
