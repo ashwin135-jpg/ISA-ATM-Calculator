@@ -44,10 +44,14 @@ lottie_common = load_lottieurl(lottie_url)
 
 if tool == "Home":
     st.markdown("""
-        <meta http-equiv="refresh" content="0; url='https://ashwin135-jpg.github.io/ISA-ATM-Calculator/'" />
-        <p>Redirecting...</p>
-    """, unsafe_allow_html=True)
-    st.stop()
+    ## ISA Master Tool
+
+    This is the backend calculator app.
+
+    - Use the sidebar to choose a tool, or  
+    - [Click here to return to the main landing page](https://ashwin135-jpg.github.io/ISA-ATM-Calculator/)
+    """)
+
 
 
 elif tool == "ISA Atmosphere Calculator":
