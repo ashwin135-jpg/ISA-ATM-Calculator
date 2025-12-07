@@ -46,7 +46,6 @@ if tool == "Home":
     st.markdown(
         """
         <script>
-            // Replace the current page with your GitHub landing page
             window.location.replace("https://ashwin135-jpg.github.io/ISA-ATM-Calculator/");
         </script>
         """,
