@@ -2,7 +2,7 @@ import streamlit as st
 from streamlit_lottie import st_lottie
 
 from utils import load_lottieurl
-from tools import isa_tool  # we'll add more as we split them out
+from tools import isa_tool, mach_tool  
 
 # -------------------------
 # Sidebar / query param setup
@@ -56,7 +56,7 @@ elif tool == "ISA Atmosphere Calculator":
     isa_tool.render()
 
 elif tool == "Mach Number Calculator":
-    st.info("Mach Number page not split yet. Still in old code – coming soon!")
+    mach_tool.render()
 
 elif tool == "Lift and Drag Calculator":
     st.info("Lift & Drag page not split yet. Still in old code – coming soon!")
