@@ -1,6 +1,5 @@
 import streamlit as st
 from streamlit_lottie import st_lottie
-
 from utils import load_lottieurl
 from tools import isa_tool, mach_tool, lift_drag_tool, fuel_range_tool, mission_planner_tool,city_to_city_tool
 
