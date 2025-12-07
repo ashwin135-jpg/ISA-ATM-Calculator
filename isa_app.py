@@ -10,6 +10,95 @@ from tools import (
     mission_planner_tool,
     city_to_city_tool,
 )
+import streamlit as st
+from streamlit_lottie import st_lottie
+
+from utils import load_lottieurl
+from tools import (
+    isa_tool,
+    mach_tool,
+    lift_drag_tool,
+    fuel_range_tool,
+    mission_planner_tool,
+    city_to_city_tool,
+)
+
+# Page settings
+st.set_page_config(
+    page_title="ISA Master Tool",
+    page_icon="✈",
+    layout="wide",
+)
+
+# Global dark-ish styling
+st.markdown(
+    """
+    <style>
+    /* Make main background darker */
+    .main {
+        background-color: #000000;
+    }
+
+    /* Center content a bit and limit width */
+    .block-container {
+        max-width: 1150px;
+        padding-top: 2rem;
+        padding-bottom: 3rem;
+    }
+
+    /* Tool cards grid */
+    .tool-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+        gap: 1.5rem;
+        margin-top: 1rem;
+    }
+
+    .tool-card {
+        background: #111111;
+        border-radius: 16px;
+        padding: 18px 20px;
+        border: 1px solid #262626;
+    }
+
+    .tool-title {
+        font-weight: 600;
+        margin-bottom: 0.25rem;
+        color: #ffffff;
+    }
+
+    .tool-category {
+        font-size: 0.75rem;
+        text-transform: uppercase;
+        letter-spacing: 0.08em;
+        color: #888888;
+        margin-bottom: 0.4rem;
+    }
+
+    .tool-desc {
+        font-size: 0.9rem;
+        color: #dddddd;
+        margin-bottom: 0.9rem;
+    }
+
+    /* Make buttons look like your big black pills */
+    .stButton>button {
+        border-radius: 999px;
+        background-color: #000000;
+        color: #ffffff;
+        border: 1px solid #444444;
+        padding: 0.4rem 1.5rem;
+        font-weight: 500;
+    }
+    .stButton>button:hover {
+        background-color: #222222;
+        border-color: #aaaaaa;
+    }
+    </style>
+    """,
+    unsafe_allow_html=True,
+)
+
 
 # -------------------------
 # Tool definitions (single source of truth)
@@ -81,10 +170,11 @@ lottie_common = load_lottieurl(lottie_url)
 # HOME PAGE (Streamlit, no redirect)
 # -------------------------
 def render_home():
-    col1, col2 = st.columns([2, 3])
+    # Top hero section
+    left, right = st.columns([2, 3])
 
-    with col1:
-        st.subheader("Welcome to ISA Master Tool")
+    with left:
+        st.markdown("## ✈ ISA Master Tool")
         st.markdown(
             """
             A growing library of aerospace engineering tools for:
@@ -97,25 +187,42 @@ def render_home():
             """
         )
 
-    with col2:
+    with right:
+        # Show your "world map" feeling – using the Lottie we already load
         if lottie_common:
-            st_lottie(lottie_common, height=220, key="home_lottie")
+            st_lottie(lottie_common, height=260, key="home_lottie")
 
     st.markdown("---")
     st.markdown("### Available Tools")
 
-    # Create cards in a grid
-    cols = st.columns(3)
-    for i, t in enumerate(TOOLS):
-        c = cols[i % 3]
-        with c:
-            st.markdown(f"**{t['name']}**")
-            st.caption(t["category"])
-            st.write(t["short"])
-            if st.button("Open", key=f"open_{t['name']}"):
-                st.session_state["tool"] = t["name"]
-                st.query_params["tool"] = t["name"]
-                st.experimental_rerun()
+    # Tool cards grid
+    st.markdown('<div class="tool-grid">', unsafe_allow_html=True)
+
+    for t in TOOLS:
+        # Start card
+        st.markdown('<div class="tool-card">', unsafe_allow_html=True)
+
+        st.markdown(f'<div class="tool-title">{t["name"]}</div>', unsafe_allow_html=True)
+        st.markdown(
+            f'<div class="tool-category">{t["category"]}</div>',
+            unsafe_allow_html=True,
+        )
+        st.markdown(
+            f'<div class="tool-desc">{t["short"]}</div>',
+            unsafe_allow_html=True,
+        )
+
+        # Button inside the card
+        if st.button("Open", key=f"open_{t['name']}"):
+            st.session_state["tool"] = t["name"]
+            st.query_params["tool"] = t["name"]
+            st.experimental_rerun()
+
+        # End card
+        st.markdown("</div>", unsafe_allow_html=True)
+
+    st.markdown("</div>", unsafe_allow_html=True)
+
 
 
 # -------------------------
