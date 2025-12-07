@@ -23,6 +23,7 @@ if default_tool not in tool_options:
 
 if "tool" not in st.session_state:
     st.session_state["tool"] = default_tool
+
 st.title("✈ ISA Master Tool")
 
 tool = st.sidebar.selectbox(
@@ -34,7 +35,7 @@ st.session_state["tool"] = tool
 st.query_params["tool"] = tool
 
 # -------------------------
-# Lottie animation
+# Lottie animation for tool pages
 # -------------------------
 lottie_url = "https://lottie.host/68ecc80f-3865-4071-89bf-1db845e65c6e/O67It7eqk8.json"
 lottie_common = load_lottieurl(lottie_url)
@@ -48,14 +49,10 @@ if lottie_common and tool != "Home":
 if tool == "Home":
     st.markdown(
         """
-        <script>
-            // Redirect the TOP-LEVEL window (works even when embedded in share.streamlit.io)
-            window.top.location.href = "https://ashwin135-jpg.github.io/ISA-ATM-Calculator/";
-        </script>
+        <meta http-equiv="refresh" content="0; url='https://ashwin135-jpg.github.io/ISA-ATM-Calculator/'" />
         """,
         unsafe_allow_html=True,
     )
-    st.stop()
 
 elif tool == "ISA Atmosphere Calculator":
     isa_tool.render()
@@ -72,9 +69,5 @@ elif tool == "Fuel Consumption & Range Estimator":
 elif tool == "Mission Planner":
     mission_planner_tool.render()
 
-elif tool == "City-to-City Flight Estimator":
+elif tool == "City to City Flight Estimator":
     city_to_city_tool.render()
-
-
-
-
