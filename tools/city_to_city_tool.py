@@ -3,10 +3,36 @@ import time
 
 import pandas as pd
 import streamlit as st
-from geopy.geocoders import Nominatim
+import requests
 from geopy.distance import geodesic
 from streamlit_folium import st_folium
 import folium
+
+
+def geocode_city(city_name: str):
+    """
+    Geocode a city name using the free Open-Meteo geocoding API.
+
+    Returns (lat, lon) tuple or None if not found.
+    """
+    try:
+        url = (
+            "https://geocoding-api.open-meteo.com/v1/search"
+            f"?name={city_name}&count=1&language=en&format=json"
+        )
+        r = requests.get(url, timeout=10)
+        r.raise_for_status()
+        data = r.json()
+
+        if "results" in data and len(data["results"]) > 0:
+            lat = data["results"][0]["latitude"]
+            lon = data["results"][0]["longitude"]
+            return (lat, lon)
+        return None
+    except Exception as e:
+        # Let the caller handle the error message
+        st.error(f"🌐 Geocoding error for '{city_name}': {e}")
+        return None
 
 
 def render():
@@ -108,20 +134,16 @@ def render():
         st.info("Enter both a departure and destination city to begin.")
         return
 
-    geolocator = Nominatim(user_agent="flight_estimator")
-
     try:
         with st.spinner("Geocoding cities..."):
-            loc1 = geolocator.geocode(departure_city, timeout=10)
-            time.sleep(1)  # avoid hammering the service
-            loc2 = geolocator.geocode(destination_city, timeout=10)
+            coords_1 = geocode_city(departure_city)
+            time.sleep(0.3)  # tiny pause, not strictly needed
+            coords_2 = geocode_city(destination_city)
 
-        if not loc1 or not loc2:
+        if not coords_1 or not coords_2:
             st.error("❌ Could not locate one or both cities. Try more specific names.")
             return
 
-        coords_1 = (loc1.latitude, loc1.longitude)
-        coords_2 = (loc2.latitude, loc2.longitude)
         distance_km = geodesic(coords_1, coords_2).kilometers
         distance_m = distance_km * 1000.0
 
@@ -169,7 +191,6 @@ def render():
 
         # --- Summary stats ---
         avg_time = df_results["Flight Time (hr)"].mean()
-        min_fuel = df_results["Fuel Needed (kg)"].min()
 
         st.markdown("### ✈️ Route Summary")
         colA, colB = st.columns(2)
