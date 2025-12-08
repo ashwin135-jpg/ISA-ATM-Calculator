@@ -25,7 +25,7 @@ st.set_page_config(
 # Sidebar setup  (NO query params)
 # ---------------------------------
 tool_options = [
-    "ISA Atmosphere Calculator",
+    "ISA Air Properties",
     "Mach Number Calculator",
     "Lift and Drag Calculator",
     "Fuel Consumption & Range Estimator",
@@ -62,7 +62,7 @@ if lottie_common:
 # ---------------------------------
 # Routing
 # ---------------------------------
-if tool == "ISA Atmosphere Calculator":
+if tool == "ISA Air Propeeties":
     isa_tool.render()
 
 elif tool == "Mach Number Calculator":
