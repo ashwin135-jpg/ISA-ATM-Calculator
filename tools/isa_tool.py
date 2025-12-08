@@ -3,7 +3,7 @@ from utils import isa_atmosphere, convert_altitude
 
 
 def render():
-    st.subheader("ISA Atmosphere Calculator")
+    st.subheader("ISA Air Properties")
 
     unit = st.selectbox("Select input unit", ["meters", "feet", "kilometers"])
 
