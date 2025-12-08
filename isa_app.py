@@ -71,4 +71,3 @@ elif tool == "Mission Planner":
 elif tool == "City to City Flight Estimator":
     city_to_city_tool.render()
 
-back to this
