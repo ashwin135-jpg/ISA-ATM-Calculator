@@ -55,10 +55,13 @@ if lottie_common and tool != "Home":
 elif tool == "Home":
     st.markdown(
         """
-        <meta http-equiv="refresh" content="0; url='https://ashwin135-jpg.github.io/ISA-ATM-Calculator/'" />
+        <script>
+            window.location.href = "https://ashwin135-jpg.github.io/ISA-ATM-Calculator/";
+        </script>
         """,
         unsafe_allow_html=True,
     )
+
 
 elif tool == "ISA Atmosphere Calculator":
     isa_tool.render()
