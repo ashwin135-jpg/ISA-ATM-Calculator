@@ -53,12 +53,18 @@ if lottie_common and tool != "Home":
 # Routing
 # -------------------------
 if tool == "Home":
+    github_url = "https://ashwin135-jpg.github.io/ISA-ATM-Calculator/"
+    # Try both meta refresh and JS redirect
     st.markdown(
-        """
-        <meta http-equiv="refresh" content="0; url='https://ashwin135-jpg.github.io/ISA-ATM-Calculator/'" />
+        f"""
+        <meta http-equiv="refresh" content="0; url={github_url}">
+        <script>
+            window.location.href = "{github_url}";
+        </script>
         """,
         unsafe_allow_html=True,
     )
+    st.stop()
 
 elif tool == "ISA Atmosphere Calculator":
     isa_tool.render()
