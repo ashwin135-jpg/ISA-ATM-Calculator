@@ -58,18 +58,18 @@ if lottie_common and tool != "Home":
 # ---------------------------------
 # Routing
 # ---------------------------------
+import streamlit.components.v1 as components
+
 if tool == "Home":
-    st.markdown(
+    components.html(
         f"""
         <script>
-            window.location.href = "{GITHUB_HOME}";
+            window.location.replace("{GITHUB_HOME}");
         </script>
         """,
-        unsafe_allow_html=True,
+        height=0,
     )
     st.stop()
-
-
 
 elif tool == "ISA Atmosphere Calculator":
     isa_tool.render()
