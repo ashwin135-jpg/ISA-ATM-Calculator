@@ -36,7 +36,7 @@ tool_options = [
 
 # Default tool on first load
 if "tool" not in st.session_state:
-    st.session_state["tool"] = "ISA Air Properties"
+    st.session_state["tool"] = "ISA Atmosphere Calculator"
 
 # Top title that links back to GitHub landing page
 st.markdown(
