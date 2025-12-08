@@ -38,9 +38,10 @@ tool_options = [
 if "tool" not in st.session_state:
     st.session_state["tool"] = "ISA Air Properties"
 
+
 # Top title → link back to GitHub page
 st.markdown(
-    " ##[✈ ISA Master Tool](https://ashwin135-jpg.github.io/ISA-ATM-Calculator/)"
+    "## [✈ ISA Master Tool](https://ashwin135-jpg.github.io/ISA-ATM-Calculator/)"
 )
 
 tool = st.sidebar.selectbox(
