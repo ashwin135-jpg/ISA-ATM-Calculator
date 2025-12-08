@@ -36,7 +36,6 @@ st.markdown(
     "## [✈ ISA Master Tool](https://ashwin135-jpg.github.io/ISA-ATM-Calculator/)"
 )
 
-
 tool = st.sidebar.selectbox(
     "Select a Tool",
     tool_options,
@@ -51,15 +50,13 @@ st.query_params["tool"] = tool
 lottie_url = "https://lottie.host/68ecc80f-3865-4071-89bf-1db845e65c6e/O67It7eqk8.json"
 lottie_common = load_lottieurl(lottie_url)
 
-# Show animation on all tools except Home
-if lottie_common and tool != "Home":
+if lottie_common:
     st_lottie(lottie_common, height=250, key=tool.replace(" ", "_"))
 
 # ---------------------------------
 # Routing
 # ---------------------------------
-
-elif tool == "ISA Atmosphere Calculator":
+if tool == "ISA Atmosphere Calculator":
     isa_tool.render()
 
 elif tool == "Mach Number Calculator":
