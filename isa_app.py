@@ -179,48 +179,43 @@ def render_home():
         )
 
     with right:
-        # Show your "world map" feeling – using the Lottie we already load
         if lottie_common:
             st_lottie(lottie_common, height=260, key="home_lottie")
 
     st.markdown("---")
     st.markdown("### Available Tools")
 
-    # Tool cards grid
-    st.markdown('<div class="tool-grid">', unsafe_allow_html=True)
+    # Make 3 responsive columns
+    cols = st.columns(3)
 
-    for t in TOOLS:
-        # Start card
-        st.markdown('<div class="tool-card">', unsafe_allow_html=True)
+    for i, t in enumerate(TOOLS):
+        with cols[i % 3]:
+            st.markdown(
+                f"""
+                <div style="
+                    background-color:#111111;
+                    border:1px solid #262626;
+                    border-radius:16px;
+                    padding:20px;
+                    margin-bottom:20px;
+                ">
+                    <h4 style="color:white; margin-bottom:4px;">{t['name']}</h4>
+                    <p style="color:#888; font-size:12px; margin-top:0; text-transform:uppercase;">
+                        {t['category']}
+                    </p>
+                    <p style="color:#ddd; font-size:14px; margin-top:0;">
+                        {t['short']}
+                    </p>
+                </div>
+                """,
+                unsafe_allow_html=True,
+            )
 
-        st.markdown(
-            f'<div class="tool-title">{t["name"]}</div>',
-            unsafe_allow_html=True,
-        )
-        st.markdown(
-            f'<div class="tool-category">{t["category"]}</div>',
-            unsafe_allow_html=True,
-        )
-        st.markdown(
-            f'<div class="tool-desc">{t["short"]}</div>',
-            unsafe_allow_html=True,
-        )
+            if st.button("Open", key=f"open_{t['name']}"):
+                st.session_state["tool"] = t["name"]
+                st.query_params["tool"] = t["name"]
+                st.experimental_rerun()
 
-        # Button inside the card
-        if st.button("Open", key=f"open_{t['name']}"):
-            st.session_state["tool"] = t["name"]
-            st.query_params["tool"] = t["name"]
-            st.experimental_rerun()
-
-        # End card
-        st.markdown("</div>", unsafe_allow_html=True)
-
-    st.markdown("</div>", unsafe_allow_html=True)
-
-
-# -------------------------
-# ROUTING
-# -------------------------
 if tool == "Home":
     render_home()
 
