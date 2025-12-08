@@ -1,5 +1,6 @@
 import streamlit as st
 from streamlit_lottie import st_lottie
+
 from utils import load_lottieurl
 from tools import (
     isa_tool,
@@ -41,45 +42,61 @@ st.session_state["tool"] = tool
 st.query_params["tool"] = tool
 
 # -------------------------
-# Lottie animation for tool pages
+# Lottie animation
 # -------------------------
 lottie_url = "https://lottie.host/68ecc80f-3865-4071-89bf-1db845e65c6e/O67It7eqk8.json"
 lottie_common = load_lottieurl(lottie_url)
-
-if lottie_common and tool != "Home":
-    st_lottie(lottie_common, height=250, key=tool.replace(" ", "_"))
 
 # -------------------------
 # Routing
 # -------------------------
 if tool == "Home":
-    github_url = "https://ashwin135-jpg.github.io/ISA-ATM-Calculator/"
-    # Try both meta refresh and JS redirect
+    # Simple home page INSIDE Streamlit (no auto redirect)
+    st.subheader("ISA Master Tool")
+
     st.markdown(
-        f"""
-        <meta http-equiv="refresh" content="0; url={github_url}">
-        <script>
-            window.location.href = "{github_url}";
-        </script>
-        """,
-        unsafe_allow_html=True,
+        """
+        Welcome to **ISA Master Tool** — a growing library of aerospace engineering tools.
+
+        Use the sidebar to open:
+
+        - ISA Atmosphere Calculator  
+        - Mach Number Calculator  
+        - Lift and Drag Calculator  
+        - Fuel Consumption & Range Estimator  
+        - Mission Planner  
+        - City-to-City Flight Estimator  
+        """
     )
-    st.stop()
 
-elif tool == "ISA Atmosphere Calculator":
-    isa_tool.render()
+    # Optional: link back to your GitHub landing page (manual click, no loop)
+    st.link_button(
+        "Open marketing / landing page on GitHub",
+        "https://ashwin135-jpg.github.io/ISA-ATM-Calculator/",
+    )
 
-elif tool == "Mach Number Calculator":
-    mach_tool.render()
+    if lottie_common:
+        st_lottie(lottie_common, height=260, key="home_lottie")
 
-elif tool == "Lift and Drag Calculator":
-    lift_drag_tool.render()
+else:
+    # Show animation on all tools except Home
+    if lottie_common:
+        st_lottie(lottie_common, height=250, key=tool.replace(" ", "_"))
 
-elif tool == "Fuel Consumption & Range Estimator":
-    fuel_range_tool.render()
+    if tool == "ISA Atmosphere Calculator":
+        isa_tool.render()
 
-elif tool == "Mission Planner":
-    mission_planner_tool.render()
+    elif tool == "Mach Number Calculator":
+        mach_tool.render()
 
-elif tool == "City-to-City Flight Estimator":
-    city_to_city_tool.render()
+    elif tool == "Lift and Drag Calculator":
+        lift_drag_tool.render()
+
+    elif tool == "Fuel Consumption & Range Estimator":
+        fuel_range_tool.render()
+
+    elif tool == "Mission Planner":
+        mission_planner_tool.render()
+
+    elif tool == "City-to-City Flight Estimator":
+        city_to_city_tool.render()
