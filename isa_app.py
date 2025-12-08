@@ -13,6 +13,105 @@ from tools import (
 from groq import Groq
 
 # -------------------------
+# Page config & global style
+# -------------------------
+st.set_page_config(
+    page_title="ISA Master Tool",
+    page_icon="✈",
+    layout="wide",
+)
+
+# Dark / modern styling similar to your HTML landing page
+st.markdown(
+    """
+    <style>
+    /* Make main background dark */
+    .main {
+        background-color: #000000;
+    }
+
+    /* Tighter, centered content */
+    .block-container {
+        max-width: 1150px;
+        padding-top: 2rem;
+        padding-bottom: 3rem;
+    }
+
+    /* Hero card */
+    .hero-card {
+        background: #111111;
+        border-radius: 20px;
+        padding: 2.2rem 2.4rem;
+        border: 1px solid #262626;
+    }
+
+    .hero-title {
+        font-size: 2.3rem;
+        font-weight: 700;
+        margin-bottom: 0.5rem;
+        color: #ffffff;
+    }
+
+    .hero-sub {
+        color: #cccccc;
+        margin-bottom: 1.2rem;
+    }
+
+    .hero-list {
+        color: #dddddd;
+        padding-left: 1.2rem;
+    }
+
+    .hero-list li {
+        margin-bottom: 0.2rem;
+    }
+
+    /* AI search panel */
+    .ai-box {
+        margin-top: 2.2rem;
+        background: #111111;
+        border-radius: 16px;
+        padding: 1.5rem 1.8rem;
+        border: 1px solid #262626;
+    }
+
+    .ai-label {
+        font-weight: 600;
+        font-size: 1.05rem;
+        margin-bottom: 0.4rem;
+        color: #ffffff;
+    }
+
+    .ai-help {
+        font-size: 0.9rem;
+        color: #bbbbbb;
+        margin-bottom: 0.6rem;
+    }
+
+    /* Make the text input look more like a search bar */
+    .stTextInput > div > div > input {
+        border-radius: 999px;
+    }
+
+    /* Optional: darken buttons a bit */
+    .stButton>button {
+        border-radius: 999px;
+        background-color: #000000;
+        color: #ffffff;
+        border: 1px solid #444444;
+        padding: 0.35rem 1.3rem;
+        font-weight: 500;
+    }
+    .stButton>button:hover {
+        background-color: #222222;
+        border-color: #aaaaaa;
+    }
+    </style>
+    """,
+    unsafe_allow_html=True,
+)
+
+# -------------------------
 # Home AI system prompt
 # -------------------------
 HOME_AI_SYSTEM_PROMPT = """
@@ -52,8 +151,6 @@ if default_tool not in tool_options:
 if "tool" not in st.session_state:
     st.session_state["tool"] = default_tool
 
-st.title("✈ ISA Master Tool")
-
 tool = st.sidebar.selectbox(
     "Select a Tool",
     tool_options,
@@ -61,6 +158,9 @@ tool = st.sidebar.selectbox(
 )
 st.session_state["tool"] = tool
 st.query_params["tool"] = tool
+
+# Global title (shows on all pages)
+st.title("✈ ISA Master Tool")
 
 # -------------------------
 # Lottie animation (shared)
@@ -76,40 +176,53 @@ if lottie_common and tool != "Home":
 # Routing
 # -------------------------
 if tool == "Home":
-    # --- Hero / intro ---
+    # --- HERO CARD ---
+    st.markdown('<div class="hero-card">', unsafe_allow_html=True)
+    col_left, col_right = st.columns([3, 4])
+
+    with col_left:
+        st.markdown(
+            """
+<div class="hero-title">ISA Master Tool</div>
+<div class="hero-sub">
+A growing library of aerospace engineering tools with an integrated AI assistant.
+</div>
+<ul class="hero-list">
+  <li>✈ ISA Atmosphere & flight regimes</li>
+  <li>🧮 Aerodynamics & performance</li>
+  <li>🛰 Mission planning & routing</li>
+  <li>🤖 AI help for students and professionals</li>
+</ul>
+<p style="color:#bbbbbb;margin-top:0.7rem;">
+Use the <strong>sidebar</strong> to open a tool, or ask ISA AI below.
+</p>
+            """,
+            unsafe_allow_html=True,
+        )
+
+    with col_right:
+        if lottie_common:
+            st_lottie(lottie_common, height=230, key="home_lottie")
+
+    st.markdown("</div>", unsafe_allow_html=True)
+
+    # --- AI SEARCH BOX ---
+    st.markdown('<div class="ai-box">', unsafe_allow_html=True)
+    st.markdown('<div class="ai-label">🔎 Ask ISA AI (Home Search)</div>', unsafe_allow_html=True)
     st.markdown(
-        """
-Welcome to **ISA Master Tool** — a growing library of aerospace engineering tools and an integrated AI assistant.
-
-Use the sidebar to open:
-
-- ISA Atmosphere Calculator  
-- Mach Number Calculator  
-- Lift and Drag Calculator  
-- Fuel Consumption & Range Estimator  
-- Mission Planner  
-- City to City Flight Estimator  
-- AI Assistant  
-        """
-    )
-
-    # Optional: Lottie on Home page
-    if lottie_common:
-        st_lottie(lottie_common, height=250, key="home_lottie")
-
-    st.markdown("---")
-    st.subheader("Ask ISA AI (Home Search)")
-    st.markdown(
-        "Ask how to use a tool, which calculator is right for your problem, "
-        "or basic questions about atmosphere, aerodynamics, and performance."
+        '<div class="ai-help">'
+        "Ask how to use a tool, which calculator to choose, or a basic question about "
+        "atmosphere, aerodynamics, or performance."
+        "</div>",
+        unsafe_allow_html=True,
     )
 
     query = st.text_input(
-        "Ask a question about ISA Master Tool or basic aerospace topics:"
+        "",
+        placeholder="Example: “Which tool should I use to estimate range?”",
     )
 
     if query:
-        # Call Groq for a one-shot answer
         try:
             client = Groq(api_key=st.secrets["GROQ_API_KEY"])
         except KeyError:
@@ -129,10 +242,7 @@ Use the sidebar to open:
                 except Exception as e:
                     st.error(f"Groq API error: {e}")
 
-    st.markdown("---")
-    st.markdown(
-        " For a full chat experience, open the **AI Assistant** tool in the sidebar."
-    )
+    st.markdown("</div>", unsafe_allow_html=True)
 
 elif tool == "ISA Atmosphere Calculator":
     isa_tool.render()
