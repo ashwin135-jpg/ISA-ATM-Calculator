@@ -6,4 +6,4 @@ pandas
 altair
 streamlit-folium
 folium
-openai>=1.0.0
+groq
