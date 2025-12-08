@@ -1,7 +1,7 @@
 import streamlit as st
 from streamlit_lottie import st_lottie
 from utils import load_lottieurl
-from tools import isa_tool, mach_tool, lift_drag_tool, fuel_range_tool, mission_planner_tool,city_to_city_tool
+from tools import isa_tool, mach_tool, lift_drag_tool, fuel_range_tool, mission_planner_tool,city_to_city_tool,ai_assistant_tool
 
 # -------------------------
 # Sidebar / query param setup
@@ -71,3 +71,6 @@ elif tool == "Mission Planner":
 
 elif tool == "City to City Flight Estimator":
     city_to_city_tool.render()
+
+elif tool == "AI Assistant":
+    ai_assistant_tool.render()
