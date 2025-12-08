@@ -12,57 +12,38 @@ from tools import (
     ai_assistant_tool,
 )
 
+GITHUB_HOME = "https://ashwin135-jpg.github.io/ISA-ATM-Calculator/"
+
 # ---------------------------------
-# Mapping between internal keys and labels
+# Sidebar / query param setup
 # ---------------------------------
-tool_keys = [
-    "home",
-    "isa",
-    "mach",
-    "lift",
-    "fuel",
-    "mission",
-    "city",
-    "ai",
+tool_options = [
+    "Home",
+    "ISA Atmosphere Calculator",
+    "Mach Number Calculator",
+    "Lift and Drag Calculator",
+    "Fuel Consumption & Range Estimator",
+    "Mission Planner",
+    "City to City Flight Estimator",
+    "AI Assistant",
 ]
 
-key_to_label = {
-    "home": "Home",
-    "isa": "ISA Atmosphere Calculator",
-    "mach": "Mach Number Calculator",
-    "lift": "Lift and Drag Calculator",
-    "fuel": "Fuel Consumption & Range Estimator",
-    "mission": "Mission Planner",
-    "city": "City to City Flight Estimator",
-    "ai": "AI Assistant",
-}
+default_tool = st.query_params.get("tool", "ISA Atmosphere Calculator")
+if default_tool not in tool_options:
+    default_tool = "ISA Atmosphere Calculator"
 
-label_to_key = {label: key for key, label in key_to_label.items()}
-
-# ---------------------------------
-# Read default from query param (for GitHub links)
-# ---------------------------------
-default_label = st.query_params.get("tool", key_to_label["isa"])
-default_key = label_to_key.get(default_label, "isa")
-
-if "tool_key" not in st.session_state:
-    st.session_state["tool_key"] = default_key
+if "tool" not in st.session_state:
+    st.session_state["tool"] = default_tool
 
 st.title("✈ ISA Master Tool")
 
-# ---------------------------------
-# Sidebar selectbox (shows labels, stores keys)
-# ---------------------------------
-tool_key = st.sidebar.selectbox(
+tool = st.sidebar.selectbox(
     "Select a Tool",
-    options=tool_keys,
-    index=tool_keys.index(st.session_state["tool_key"]),
-    format_func=lambda k: key_to_label[k],
+    tool_options,
+    index=tool_options.index(st.session_state["tool"]),
 )
-
-st.session_state["tool_key"] = tool_key
-# Keep query param in sync for deep links
-st.query_params["tool"] = key_to_label[tool_key]
+st.session_state["tool"] = tool
+st.query_params["tool"] = tool
 
 # ---------------------------------
 # Lottie animation for tool pages
@@ -71,46 +52,38 @@ lottie_url = "https://lottie.host/68ecc80f-3865-4071-89bf-1db845e65c6e/O67It7eqk
 lottie_common = load_lottieurl(lottie_url)
 
 # Show animation on all tools except Home
-if lottie_common and tool_key != "home":
-    st_lottie(lottie_common, height=250, key=key_to_label[tool_key].replace(" ", "_"))
+if lottie_common and tool != "Home":
+    st_lottie(lottie_common, height=250, key=tool.replace(" ", "_"))
 
 # ---------------------------------
 # Routing
 # ---------------------------------
-if tool_key == "home":
-    # Redirect back to your GitHub landing page
-    github_url = "https://ashwin135-jpg.github.io/ISA-ATM-Calculator/"
-
+if tool == "Home":
+    st.subheader("Go to ISA Master Tool Home Page")
     st.markdown(
-        f"""
-        <meta http-equiv="refresh" content="0; url={github_url}">
-        <script>
-            window.location.href = "{github_url}";
-        </script>
-        <p>If you are not redirected automatically, 
-        <a href="{github_url}">click here to go to the ISA Master Tool home page</a>.</p>
-        """,
-        unsafe_allow_html=True,
+        "This app is the calculator backend. "
+        "Your main landing page lives on GitHub Pages."
     )
+    st.link_button("⬅ Back to ISA Master Tool Homepage", GITHUB_HOME)
     st.stop()
 
-elif tool_key == "isa":
+elif tool == "ISA Atmosphere Calculator":
     isa_tool.render()
 
-elif tool_key == "mach":
+elif tool == "Mach Number Calculator":
     mach_tool.render()
 
-elif tool_key == "lift":
+elif tool == "Lift and Drag Calculator":
     lift_drag_tool.render()
 
-elif tool_key == "fuel":
+elif tool == "Fuel Consumption & Range Estimator":
     fuel_range_tool.render()
 
-elif tool_key == "mission":
+elif tool == "Mission Planner":
     mission_planner_tool.render()
 
-elif tool_key == "city":
+elif tool == "City to City Flight Estimator":
     city_to_city_tool.render()
 
-elif tool_key == "ai":
+elif tool == "AI Assistant":
     ai_assistant_tool.render()
