@@ -25,12 +25,12 @@ st.set_page_config(
 # Sidebar setup  (NO query params)
 # ---------------------------------
 tool_options = [
-    "ISA Air Properties",
+    "ISA Air Properties",   
     "Mach Number Calculator",
     "Lift and Drag Calculator",
     "Fuel Consumption & Range Estimator",
     "Mission Planner",
-    "City-to-City Flight Estimator",   # keep this exact string to match your tool module
+    "City-to-City Flight Estimator",
     "AI Assistant",
 ]
 
@@ -38,7 +38,7 @@ tool_options = [
 if "tool" not in st.session_state:
     st.session_state["tool"] = "ISA Air Properties"
 
-# Top title that links back to GitHub landing page
+# Top title → link back to GitHub page
 st.markdown(
     "## [✈ ISA Master Tool](https://ashwin135-jpg.github.io/ISA-ATM-Calculator/)"
 )
@@ -51,7 +51,7 @@ tool = st.sidebar.selectbox(
 st.session_state["tool"] = tool
 
 # ---------------------------------
-# Lottie animation for tool pages
+# Lottie animation
 # ---------------------------------
 lottie_url = "https://lottie.host/68ecc80f-3865-4071-89bf-1db845e65c6e/O67It7eqk8.json"
 lottie_common = load_lottieurl(lottie_url)
@@ -62,7 +62,7 @@ if lottie_common:
 # ---------------------------------
 # Routing
 # ---------------------------------
-if tool == "ISA Air Propeeties":
+if tool == "ISA Air Properties":       
     isa_tool.render()
 
 elif tool == "Mach Number Calculator":
