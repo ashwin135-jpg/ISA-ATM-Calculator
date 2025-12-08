@@ -13,7 +13,16 @@ from tools import (
 )
 
 # ---------------------------------
-# Sidebar / query param setup
+# Basic page config (optional)
+# ---------------------------------
+st.set_page_config(
+    page_title="ISA Master Tool",
+    page_icon="✈",
+    layout="centered",
+)
+
+# ---------------------------------
+# Sidebar setup  (NO query params)
 # ---------------------------------
 tool_options = [
     "ISA Atmosphere Calculator",
@@ -21,17 +30,15 @@ tool_options = [
     "Lift and Drag Calculator",
     "Fuel Consumption & Range Estimator",
     "Mission Planner",
-    "City to City Flight Estimator",
+    "City-to-City Flight Estimator",   # keep this exact string to match your tool module
     "AI Assistant",
 ]
 
-default_tool = st.query_params.get("tool", "ISA Atmosphere Calculator")
-if default_tool not in tool_options:
-    default_tool = "ISA Atmosphere Calculator"
-
+# Default tool on first load
 if "tool" not in st.session_state:
-    st.session_state["tool"] = default_tool
+    st.session_state["tool"] = "ISA Atmosphere Calculator"
 
+# Top title that links back to GitHub landing page
 st.markdown(
     "## [✈ ISA Master Tool](https://ashwin135-jpg.github.io/ISA-ATM-Calculator/)"
 )
@@ -42,7 +49,6 @@ tool = st.sidebar.selectbox(
     index=tool_options.index(st.session_state["tool"]),
 )
 st.session_state["tool"] = tool
-st.query_params["tool"] = tool
 
 # ---------------------------------
 # Lottie animation for tool pages
@@ -71,7 +77,7 @@ elif tool == "Fuel Consumption & Range Estimator":
 elif tool == "Mission Planner":
     mission_planner_tool.render()
 
-elif tool == "City to City Flight Estimator":
+elif tool == "City-to-City Flight Estimator":
     city_to_city_tool.render()
 
 elif tool == "AI Assistant":
