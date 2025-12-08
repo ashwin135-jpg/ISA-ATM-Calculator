@@ -1,14 +1,7 @@
 import streamlit as st
 from streamlit_lottie import st_lottie
 from utils import load_lottieurl
-from tools import (
-    isa_tool,
-    mach_tool,
-    lift_drag_tool,
-    fuel_range_tool,
-    mission_planner_tool,
-    city_to_city_tool,
-)
+from tools import isa_tool, mach_tool, lift_drag_tool, fuel_range_tool, mission_planner_tool,city_to_city_tool
 
 # -------------------------
 # Sidebar / query param setup
@@ -20,7 +13,7 @@ tool_options = [
     "Lift and Drag Calculator",
     "Fuel Consumption & Range Estimator",
     "Mission Planner",
-    "City-to-City Flight Estimator",
+    "City to City Flight Estimator",
 ]
 
 default_tool = st.query_params.get("tool", "ISA Atmosphere Calculator")
@@ -53,7 +46,12 @@ if lottie_common and tool != "Home":
 # Routing
 # -------------------------
 if tool == "Home":
-    index.html.render()
+    st.markdown(
+        """
+        <meta http-equiv="refresh" content="0; url='https://ashwin135-jpg.github.io/ISA-ATM-Calculator/'" />
+        """,
+        unsafe_allow_html=True,
+    )
 
 elif tool == "ISA Atmosphere Calculator":
     isa_tool.render()
@@ -70,5 +68,7 @@ elif tool == "Fuel Consumption & Range Estimator":
 elif tool == "Mission Planner":
     mission_planner_tool.render()
 
-elif tool == "City-to-City Flight Estimator":
+elif tool == "City to City Flight Estimator":
     city_to_city_tool.render()
+
+back to this
