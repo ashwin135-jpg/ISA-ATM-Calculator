@@ -57,11 +57,12 @@ if lottie_common and tool != "Home":
 # Routing
 # ---------------------------------
 if tool == "Home":
-    # When HOME is selected → redirect back to your GitHub landing page
+    # Redirect back to your GitHub landing page (same tab)
     st.markdown(
         """
+        <meta http-equiv="refresh" content="0; url=https://ashwin135-jpg.github.io/ISA-ATM-Calculator/">
         <script>
-            window.top.location.href = "https://ashwin135-jpg.github.io/ISA-ATM-Calculator/";
+            window.location.href = "https://ashwin135-jpg.github.io/ISA-ATM-Calculator/";
         </script>
         """,
         unsafe_allow_html=True,
