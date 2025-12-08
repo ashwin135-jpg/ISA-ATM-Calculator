@@ -30,7 +30,7 @@ tool_options = [
     "Lift and Drag Calculator",
     "Fuel Consumption & Range Estimator",
     "Mission Planner",
-    "City-to-City Flight Estimator",
+    "City to City Flight Estimator",
     "AI Assistant",
 ]
 
@@ -77,7 +77,7 @@ elif tool == "Fuel Consumption & Range Estimator":
 elif tool == "Mission Planner":
     mission_planner_tool.render()
 
-elif tool == "City-to-City Flight Estimator":
+elif tool == "City to City Flight Estimator":
     city_to_city_tool.render()
 
 elif tool == "AI Assistant":
