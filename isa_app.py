@@ -2,21 +2,11 @@ import streamlit as st
 from streamlit_lottie import st_lottie
 
 from utils import load_lottieurl
-from tools import (
-    isa_tool,
-    mach_tool,
-    lift_drag_tool,
-    fuel_range_tool,
-    mission_planner_tool,
-    city_to_city_tool,
-    ai_assistant_tool,
-)
+from tools import isa_tool, mach_tool, lift_drag_tool, fuel_range_tool, mission_planner_tool,city_to_city_tool
 
-GITHUB_HOME = "https://ashwin135-jpg.github.io/ISA-ATM-Calculator/"
-
-# ---------------------------------
+# -------------------------
 # Sidebar / query param setup
-# ---------------------------------
+# -------------------------
 tool_options = [
     "Home",
     "ISA Atmosphere Calculator",
@@ -25,7 +15,6 @@ tool_options = [
     "Fuel Consumption & Range Estimator",
     "Mission Planner",
     "City to City Flight Estimator",
-    "AI Assistant",
 ]
 
 default_tool = st.query_params.get("tool", "ISA Atmosphere Calculator")
@@ -45,32 +34,27 @@ tool = st.sidebar.selectbox(
 st.session_state["tool"] = tool
 st.query_params["tool"] = tool
 
-# ---------------------------------
-# Lottie animation for tool pages
-# ---------------------------------
-lottie_url = "https://lottie.host/68ecc80f-3865-4071-89bf-1db845e65c6e/O67It7eqk8.json"
+# -------------------------
+# Lottie animation (one for now)
+# -------------------------
+lottie_url = (
+    "https://lottie.host/68ecc80f-3865-4071-89bf-1db845e65c6e/O67It7eqk8.json"
+)
 lottie_common = load_lottieurl(lottie_url)
 
-# Show animation on all tools except Home
-if lottie_common and tool != "Home":
-    st_lottie(lottie_common, height=250, key=tool.replace(" ", "_"))
-
-# ---------------------------------
-# Routing
-# ---------------------------------
-import streamlit.components.v1 as components
-
 if tool == "Home":
-    components.html(
-        f"""
+    st.markdown(
+        """
         <script>
-            window.location.replace("{GITHUB_HOME}");
+            window.location.href = "https://ashwin135-jpg.github.io/ISA-ATM-Calculator/";
         </script>
+        <p>If you are not redirected, 
+        <a href="https://ashwin135-jpg.github.io/ISA-ATM-Calculator/">click here</a>.</p>
         """,
-        height=0,
+        unsafe_allow_html=True,
     )
     st.stop()
-
+    
 elif tool == "ISA Atmosphere Calculator":
     isa_tool.render()
 
@@ -88,6 +72,3 @@ elif tool == "Mission Planner":
 
 elif tool == "City to City Flight Estimator":
     city_to_city_tool.render()
-
-elif tool == "AI Assistant":
-    ai_assistant_tool.render()
