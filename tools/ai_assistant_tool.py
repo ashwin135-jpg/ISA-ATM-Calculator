@@ -1,67 +1,77 @@
-import streamlit as st
-from openai import OpenAI
+# tools/ai_assistant_tool.py
 
-def get_client():
-    api_key = st.secrets.get("OPENAI_API_KEY")
-    if not api_key:
-        st.error(
-            "OPENAI_API_KEY is not set in Streamlit secrets. "
-            "Go to Settings → Secrets and add it."
-        )
-        return None
-    return OpenAI(api_key=api_key)
+import streamlit as st
+from groq import Groq
+
+# Use your secret key from Streamlit secrets
+client = Groq(api_key=st.secrets["GROQ_API_KEY"])
 
 SYSTEM_PROMPT = """
-You are ISA AI, an aerospace engineering assistant integrated into the ISA Master Tool.
+You are the ISA Master Tool AI assistant.
 
-- You help with: atmosphere, aerodynamics, performance, mission planning,
-  units, and basic aircraft design.
-- Explain things clearly for students, but be technically correct.
-- When relevant, refer to the tools the user has:
-  ISA Atmosphere Calculator, Mach Number Calculator, Lift & Drag Calculator,
-  Fuel & Range Estimator, Mission Planner, City-to-City Flight Estimator.
+You help aerospace engineering students and professionals with:
+- ISA atmosphere properties
+- Mach number, compressibility, and flow regimes
+- Lift, drag, performance, Breguet range/endurance
+- Mission planning and simple aircraft ops questions
+
+Be clear, step-by-step, and explain units.
+If the user asks for something outside your domain, you can still answer
+but keep responses concise.
 """
+
 
 def render():
     st.subheader("🤖 ISA AI Assistant")
-    st.markdown(
-        "Ask questions about atmosphere, aerodynamics, performance, "
-        "mission planning, or how to use the tools in this app."
-    )
 
-    client = get_client()
-    if client is None:
-        return  # stop if no API key
+    # Keep simple memory in session (optional)
+    if "ai_history" not in st.session_state:
+        st.session_state["ai_history"] = []
 
-    if "isa_ai_history" not in st.session_state:
-        st.session_state["isa_ai_history"] = []
+    # Show chat history
+    for role, content in st.session_state["ai_history"]:
+        if role == "user":
+            with st.chat_message("user"):
+                st.markdown(content)
+        else:
+            with st.chat_message("assistant"):
+                st.markdown(content)
 
-    # show history
-    for msg in st.session_state["isa_ai_history"]:
-        with st.chat_message(msg["role"]):
-            st.markdown(msg["content"])
-
-    user_input = st.chat_input("Ask ISA AI something...")
+    # Input box at the bottom
+    user_input = st.chat_input("Ask a question about atmosphere, performance, etc.")
     if not user_input:
         return
 
-    st.session_state["isa_ai_history"].append({"role": "user", "content": user_input})
+    # Add user message to history
+    st.session_state["ai_history"].append(("user", user_input))
 
+    # Show the user message immediately
+    with st.chat_message("user"):
+        st.markdown(user_input)
+
+    # Call Groq
     with st.chat_message("assistant"):
-        with st.spinner("Thinking..."):
-            try:
-                response = client.chat.completions.create(
-                    model="gpt-4o-mini",  # ✅ valid lightweight model
-                    messages=[
-                        {"role": "system", "content": SYSTEM_PROMPT},
-                        *st.session_state["isa_ai_history"],
+        message_placeholder = st.empty()
+        message_placeholder.markdown("_Thinking..._")
+
+        try:
+            chat_completion = client.chat.completions.create(
+                model="llama-3.3-70b-versatile",  # fast + strong general model
+                messages=[
+                    {"role": "system", "content": SYSTEM_PROMPT},
+                    *[
+                        {"role": r, "content": c}
+                        for (r, c) in st.session_state["ai_history"]
                     ],
-                )
-                reply = response.choices[0].message.content
-                st.markdown(reply)
-                st.session_state["isa_ai_history"].append(
-                    {"role": "assistant", "content": reply}
-                )
-            except Exception as e:
-                # show the raw error message so you know what's wrong
-                st.error(f"API error: {e}")
+                ],
+            )
+
+            answer = chat_completion.choices[0].message.content
+            message_placeholder.markdown(answer)
+
+            # Save assistant reply in history
+            st.session_state["ai_history"].append(("assistant", answer))
+
+        except Exception as e:
+            message_placeholder.markdown("")
+            st.error(f"Groq API error: {e}")
