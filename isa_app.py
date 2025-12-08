@@ -14,6 +14,7 @@ tool_options = [
     "Fuel Consumption & Range Estimator",
     "Mission Planner",
     "City to City Flight Estimator",
+    "AI Assistant",
 ]
 
 default_tool = st.query_params.get("tool", "ISA Atmosphere Calculator")
