@@ -52,10 +52,10 @@ if lottie_common and tool != "Home":
 # -------------------------
 # Routing
 # -------------------------
-if tool == "Home":
+elif tool == "Home":
     st.markdown(
         """
-        'https://ashwin135-jpg.github.io/ISA-ATM-Calculator/'" />
+        <meta http-equiv="refresh" content="0; url='https://ashwin135-jpg.github.io/ISA-ATM-Calculator/'" />
         """,
         unsafe_allow_html=True,
     )
