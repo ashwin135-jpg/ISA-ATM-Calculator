@@ -49,7 +49,6 @@ lottie_url = "https://lottie.host/68ecc80f-3865-4071-89bf-1db845e65c6e/O67It7eqk
 lottie_common = load_lottieurl(lottie_url)
 
 if tool == "Home":
-    # 🔴 redirect OUT of Streamlit to your GitHub Pages site
     components.html(
         """
         <script type="text/javascript">
@@ -70,3 +69,10 @@ elif tool == "Lift and Drag Calculator":
     lift_drag_tool.render()
 
 elif tool == "Fuel Consumption & Range Estimator":
+    fuel_range_tool.render()
+
+elif tool == "Mission Planner":
+    mission_planner_tool.render()
+
+elif tool == "City to City Flight Estimator":
+    city_to_city_tool.render()
