@@ -7,3 +7,4 @@ altair
 streamlit-folium
 folium
 groq
+geopy
