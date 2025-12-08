@@ -16,7 +16,6 @@ from tools import (
 # Sidebar / query param setup
 # ---------------------------------
 tool_options = [
-    "Home",
     "ISA Atmosphere Calculator",
     "Mach Number Calculator",
     "Lift and Drag Calculator",
@@ -33,7 +32,10 @@ if default_tool not in tool_options:
 if "tool" not in st.session_state:
     st.session_state["tool"] = default_tool
 
-st.title("✈ ISA Master Tool")
+st.markdown(
+    "## [✈ ISA Master Tool](https://ashwin135-jpg.github.io/ISA-ATM-Calculator/)"
+)
+
 
 tool = st.sidebar.selectbox(
     "Select a Tool",
@@ -56,17 +58,6 @@ if lottie_common and tool != "Home":
 # ---------------------------------
 # Routing
 # ---------------------------------
-if tool == "Home":
-    # When user selects "Home" in sidebar, send them back to your GitHub landing page
-    st.markdown(
-        """
-        <script>
-            window.top.location.href = "https://ashwin135-jpg.github.io/ISA-ATM-Calculator/";
-        </script>
-        """,
-        unsafe_allow_html=True,
-    )
-    st.stop()
 
 elif tool == "ISA Atmosphere Calculator":
     isa_tool.render()
