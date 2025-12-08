@@ -1,6 +1,7 @@
 # utils.py
 import requests
 import streamlit as st
+import math
 
 @st.cache_data
 def load_lottieurl(url: str):
