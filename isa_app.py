@@ -57,7 +57,7 @@ if lottie_common and tool != "Home":
 # Routing
 # ---------------------------------
 if tool == "Home":
-    # When user selects "Home" in sidebar, send them back to your GitHub landing page
+    # When HOME is selected → redirect back to your GitHub landing page
     st.markdown(
         """
         <script>
