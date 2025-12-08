@@ -36,7 +36,7 @@ def geocode_city(city_name: str):
 
 
 def render():
-    st.subheader("🌍 City-to-City Aircraft Suggestion Tool")
+    st.subheader("City to City Travel")
     st.markdown(
         "Given two cities, estimate which aircraft in a simple database "
         "can complete the route, along with approximate flight time and fuel."
