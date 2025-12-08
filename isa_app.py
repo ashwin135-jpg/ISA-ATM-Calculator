@@ -10,27 +10,19 @@ from tools import (
     mission_planner_tool,
     city_to_city_tool,
 )
-import streamlit as st
-from streamlit_lottie import st_lottie
 
-from utils import load_lottieurl
-from tools import (
-    isa_tool,
-    mach_tool,
-    lift_drag_tool,
-    fuel_range_tool,
-    mission_planner_tool,
-    city_to_city_tool,
-)
-
+# -------------------------
 # Page settings
+# -------------------------
 st.set_page_config(
     page_title="ISA Master Tool",
     page_icon="✈",
     layout="wide",
 )
 
+# -------------------------
 # Global dark-ish styling
+# -------------------------
 st.markdown(
     """
     <style>
@@ -98,7 +90,6 @@ st.markdown(
     """,
     unsafe_allow_html=True,
 )
-
 
 # -------------------------
 # Tool definitions (single source of truth)
@@ -202,7 +193,10 @@ def render_home():
         # Start card
         st.markdown('<div class="tool-card">', unsafe_allow_html=True)
 
-        st.markdown(f'<div class="tool-title">{t["name"]}</div>', unsafe_allow_html=True)
+        st.markdown(
+            f'<div class="tool-title">{t["name"]}</div>',
+            unsafe_allow_html=True,
+        )
         st.markdown(
             f'<div class="tool-category">{t["category"]}</div>',
             unsafe_allow_html=True,
@@ -222,7 +216,6 @@ def render_home():
         st.markdown("</div>", unsafe_allow_html=True)
 
     st.markdown("</div>", unsafe_allow_html=True)
-
 
 
 # -------------------------
