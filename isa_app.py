@@ -25,15 +25,9 @@ if "tool" not in st.session_state:
     st.session_state["tool"] = default_tool
 
 st.markdown(
-    """
-    <h1>
-        <a href="https://ashwin135-jpg.github.io/ISA-ATM-Calculator/" target="_self" style="text-decoration: none;">
-            ✈ ISA Master Tool
-        </a>
-    </h1>
-    """,
-    unsafe_allow_html=True
+    "## [✈ ISA Master Tool](https://ashwin135-jpg.github.io/ISA-ATM-Calculator/)"
 )
+
 
 tool = st.sidebar.selectbox(
     "Select a Tool",
