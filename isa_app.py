@@ -1,6 +1,6 @@
 import streamlit as st
 from streamlit_lottie import st_lottie
-import streamlit.components.v1 as components  # ⬅️ ADD THIS
+import streamlit.components.v1 as components  # ⬅ make sure this is here
 
 from utils import load_lottieurl
 from tools import (
@@ -11,6 +11,8 @@ from tools import (
     mission_planner_tool,
     city_to_city_tool,
 )
+
+GITHUB_HOME = "https://ashwin135-jpg.github.io/ISA-ATM-Calculator/"
 
 # -------------------------
 # Sidebar / query param setup
@@ -48,14 +50,33 @@ st.query_params["tool"] = tool
 lottie_url = "https://lottie.host/68ecc80f-3865-4071-89bf-1db845e65c6e/O67It7eqk8.json"
 lottie_common = load_lottieurl(lottie_url)
 
+# -------------------------
+# Routing
+# -------------------------
 if tool == "Home":
+    # Render a tiny HTML page whose only job is to redirect
     components.html(
-        """
-        <script type="text/javascript">
-            window.location.href = "https://ashwin135-jpg.github.io/ISA-ATM-Calculator/";
-        </script>
+        f"""
+        <!DOCTYPE html>
+        <html>
+        <head>
+            <meta http-equiv="refresh" content="0; url={GITHUB_HOME}" />
+            <script type="text/javascript">
+                // Try JS redirect
+                window.top.location.href = "{GITHUB_HOME}";
+            </script>
+        </head>
+        <body>
+            <p>
+                Redirecting to
+                <a href="{GITHUB_HOME}" target="_top">
+                    ISA Master Tool Homepage
+                </a>...
+            </p>
+        </body>
+        </html>
         """,
-        height=0,
+        height=100,
     )
     st.stop()
 
