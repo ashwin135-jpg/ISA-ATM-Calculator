@@ -59,13 +59,15 @@ if lottie_common and tool != "Home":
 # Routing
 # ---------------------------------
 if tool == "Home":
-    st.subheader("Go to ISA Master Tool Home Page")
+    # JavaScript redirect
     st.markdown(
-        "This app is the calculator backend. "
-        "Your main landing page lives on GitHub Pages."
+        f"""
+        <meta http-equiv="refresh" content="0; url={GITHUB_HOME}">
+        """,
+        unsafe_allow_html=True,
     )
-    st.link_button("⬅ Back to ISA Master Tool Homepage", GITHUB_HOME)
     st.stop()
+
 
 elif tool == "ISA Atmosphere Calculator":
     isa_tool.render()
