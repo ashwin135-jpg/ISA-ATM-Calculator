@@ -55,7 +55,7 @@ if lottie_common and tool != "Home":
 if tool == "Home":
     st.markdown(
         """
-        <meta http-equiv="refresh" content="0; url='https://ashwin135-jpg.github.io/ISA-ATM-Calculator/'" />
+        url='https://ashwin135-jpg.github.io/ISA-ATM-Calculator/'" />
         """,
         unsafe_allow_html=True,
     )
