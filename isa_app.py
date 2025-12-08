@@ -1,8 +1,16 @@
 import streamlit as st
 from streamlit_lottie import st_lottie
+import streamlit.components.v1 as components  # ⬅️ ADD THIS
 
 from utils import load_lottieurl
-from tools import isa_tool, mach_tool, lift_drag_tool, fuel_range_tool, mission_planner_tool,city_to_city_tool
+from tools import (
+    isa_tool,
+    mach_tool,
+    lift_drag_tool,
+    fuel_range_tool,
+    mission_planner_tool,
+    city_to_city_tool,
+)
 
 # -------------------------
 # Sidebar / query param setup
@@ -37,23 +45,21 @@ st.query_params["tool"] = tool
 # -------------------------
 # Lottie animation (one for now)
 # -------------------------
-lottie_url = (
-    "https://lottie.host/68ecc80f-3865-4071-89bf-1db845e65c6e/O67It7eqk8.json"
-)
+lottie_url = "https://lottie.host/68ecc80f-3865-4071-89bf-1db845e65c6e/O67It7eqk8.json"
 lottie_common = load_lottieurl(lottie_url)
 
 if tool == "Home":
-    st.markdown(
+    # 🔴 redirect OUT of Streamlit to your GitHub Pages site
+    components.html(
         """
-        <script>
-            // Redirect the TOP-LEVEL window (works even when embedded in share.streamlit.io)
-            window.top.location.href = "https://ashwin135-jpg.github.io/ISA-ATM-Calculator/";
+        <script type="text/javascript">
+            window.location.href = "https://ashwin135-jpg.github.io/ISA-ATM-Calculator/";
         </script>
         """,
-        unsafe_allow_html=True,
+        height=0,
     )
     st.stop()
-    
+
 elif tool == "ISA Atmosphere Calculator":
     isa_tool.render()
 
@@ -64,10 +70,3 @@ elif tool == "Lift and Drag Calculator":
     lift_drag_tool.render()
 
 elif tool == "Fuel Consumption & Range Estimator":
-    fuel_range_tool.render()
-
-elif tool == "Mission Planner":
-    mission_planner_tool.render()
-
-elif tool == "City to City Flight Estimator":
-    city_to_city_tool.render()
