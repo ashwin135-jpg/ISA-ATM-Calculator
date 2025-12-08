@@ -59,14 +59,16 @@ if lottie_common and tool != "Home":
 # Routing
 # ---------------------------------
 if tool == "Home":
-    # JavaScript redirect
     st.markdown(
         f"""
-        <meta http-equiv="refresh" content="0; url={GITHUB_HOME}">
+        <script>
+            window.location.href = "{GITHUB_HOME}";
+        </script>
         """,
         unsafe_allow_html=True,
     )
     st.stop()
+
 
 
 elif tool == "ISA Atmosphere Calculator":
