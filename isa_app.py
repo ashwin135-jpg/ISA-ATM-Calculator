@@ -7,7 +7,6 @@ from tools import isa_tool, mach_tool, lift_drag_tool, fuel_range_tool, mission_
 # Sidebar / query param setup
 # -------------------------
 tool_options = [
-    "Home",
     "ISA Atmosphere Calculator",
     "Mach Number Calculator",
     "Lift and Drag Calculator",
@@ -49,16 +48,6 @@ if lottie_common and tool != "Home":
 # -------------------------
 # Routing
 # -------------------------
-if tool == "Home":
-    st.markdown(
-        """
-        <script>
-            window.location.href = "https://ashwin135-jpg.github.io/ISA-ATM-Calculator/";
-        </script>
-        """,
-        unsafe_allow_html=True,
-    )
-    st.stop()
 
 elif tool == "ISA Atmosphere Calculator":
     isa_tool.render()
