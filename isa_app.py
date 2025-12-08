@@ -1,6 +1,5 @@
 import streamlit as st
 from streamlit_lottie import st_lottie
-
 from utils import load_lottieurl
 from tools import isa_tool, mach_tool, lift_drag_tool, fuel_range_tool, mission_planner_tool,city_to_city_tool
 
@@ -35,26 +34,25 @@ st.session_state["tool"] = tool
 st.query_params["tool"] = tool
 
 # -------------------------
-# Lottie animation (one for now)
+# Lottie animation for tool pages
 # -------------------------
-lottie_url = (
-    "https://lottie.host/68ecc80f-3865-4071-89bf-1db845e65c6e/O67It7eqk8.json"
-)
+lottie_url = "https://lottie.host/68ecc80f-3865-4071-89bf-1db845e65c6e/O67It7eqk8.json"
 lottie_common = load_lottieurl(lottie_url)
 
+if lottie_common and tool != "Home":
+    st_lottie(lottie_common, height=250, key=tool.replace(" ", "_"))
+
+# -------------------------
+# Routing
+# -------------------------
 if tool == "Home":
     st.markdown(
         """
-        <script>
-            window.location.href = "https://ashwin135-jpg.github.io/ISA-ATM-Calculator/";
-        </script>
-        <p>If you are not redirected, 
-        <a href="https://ashwin135-jpg.github.io/ISA-ATM-Calculator/">click here</a>.</p>
+        <meta http-equiv="refresh" content="0; url='https://ashwin135-jpg.github.io/ISA-ATM-Calculator/'" />
         """,
         unsafe_allow_html=True,
     )
-    st.stop()
-    
+
 elif tool == "ISA Atmosphere Calculator":
     isa_tool.render()
 
