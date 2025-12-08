@@ -53,12 +53,7 @@ if lottie_common and tool != "Home":
 # Routing
 # -------------------------
 if tool == "Home":
-    st.markdown(
-        """
-        'https://ashwin135-jpg.github.io/ISA-ATM-Calculator/'" />
-        """,
-        unsafe_allow_html=True,
-    )
+    index.html.render()
 
 elif tool == "ISA Atmosphere Calculator":
     isa_tool.render()
