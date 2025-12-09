@@ -667,7 +667,7 @@
   setInterval(updateClock, 1000);
 
   // -------- AI console (front-end calls backend API) --------
-  const ISA_AI_ENDPOINT = "https://YOUR-BACKEND-URL/ask"; // <-- replace after backend is deployed
+ const ISA_AI_ENDPOINT = "https://isa-ai-groq-backend.onrender.com/ask"; // for local testing
 
   async function askISA() {
     const input = document.getElementById("ai-query");
