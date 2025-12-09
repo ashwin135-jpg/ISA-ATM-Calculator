@@ -323,6 +323,78 @@
         width: 90%;
       }
     }
+        /* ---------- NEW: AI inline bubble + METAR controls ---------- */
+
+    /* AI inline answer bubble */
+    .ai-status {
+      font-size: 0.78rem;
+      color: #a5b4fc;
+      margin-top: 6px;
+    }
+
+    .ai-answer-bubble {
+      margin-top: 8px;
+      padding: 10px 12px;
+      border-radius: 16px;
+      background: radial-gradient(circle at top left, #0ea5e9 0, #1e293b 55%);
+      color: #ecfeff;
+      font-size: 0.9rem;
+      line-height: 1.4;
+      box-shadow: 0 14px 30px rgba(15, 23, 42, 0.9);
+      opacity: 0;
+      transform: translateY(8px) scale(0.98);
+      transition: opacity 0.25s ease-out, transform 0.25s ease-out;
+    }
+
+    .ai-answer-bubble.show {
+      opacity: 1;
+      transform: translateY(0) scale(1);
+    }
+
+    .hidden {
+      display: none;
+    }
+
+    /* Airport selector & location button */
+    .airport-row {
+      display: flex;
+      gap: 8px;
+      align-items: center;
+      margin-top: 4px;
+    }
+
+    .airport-select {
+      flex: 1;
+      padding: 6px 10px;
+      border-radius: 999px;
+      border: 1px solid rgba(148,163,184,0.7);
+      background: rgba(15,23,42,0.9);
+      color: #e5ecff;
+      font-size: 0.8rem;
+      outline: none;
+    }
+
+    .airport-select:focus {
+      border-color: rgba(56,189,248,0.9);
+      box-shadow: 0 0 12px rgba(56,189,248,0.6);
+    }
+
+    .geo-button {
+      padding: 6px 10px;
+      border-radius: 999px;
+      border: none;
+      font-size: 0.75rem;
+      cursor: pointer;
+      white-space: nowrap;
+      background: linear-gradient(135deg, #22c55e, #22d3ee);
+      color: #020617;
+      box-shadow: 0 10px 20px rgba(34,197,94,0.4);
+    }
+
+    .geo-button:hover {
+      filter: brightness(1.06);
+    }
+
   </style>
 
   <!-- Lottie Player -->
@@ -422,67 +494,84 @@
         </div>
       </div>
 
-      <!-- METAR / TAF card -->
-      <div class="dash-card" data-aos="zoom-in" data-aos-delay="250">
-        <h3>Airport METAR / TAF</h3>
-        <div class="metric-label">Primary Field</div>
-        <div class="metric-value">KLGB</div>
-        <div class="metric-small">
-          Quickly check conditions before running performance or city–to–city estimates.
-        </div>
+   <!-- METAR / TAF card -->
+<div class="dash-card" data-aos="zoom-in" data-aos-delay="250">
+  <h3>Airport METAR / TAF</h3>
 
-        <div class="divider-line"></div>
+  <div class="metric-label">Select Airport</div>
+  <div class="airport-row">
+    <select id="airport-select" class="airport-select" onchange="handleAirportChange()">
+      <option value="KLGB">KLGB – Long Beach</option>
+      <option value="KLAX">KLAX – Los Angeles Intl</option>
+      <option value="KSNA">KSNA – John Wayne</option>
+      <option value="KBUR">KBUR – Hollywood Burbank</option>
+      <option value="KONT">KONT – Ontario Intl</option>
+    </select>
+    <button type="button" class="geo-button" onclick="useMyLocation()">
+      Use my location
+    </button>
+  </div>
 
-        <div class="metric-label">Example METAR (static)</div>
-        <pre class="metric-small">
-KLGB 101753Z 23007KT 10SM FEW020 24/18 A2992
-        </pre>
-        <div class="metric-small">
-          For live data, you can link this card to aviationweather.gov or a METAR API later.
-        </div>
-      </div>
+  <div class="metric-small" id="airport-distance" style="margin-top:4px;">
+    Nearest known field: KLGB – Long Beach (demo)
+  </div>
 
-      <!-- Aerospace news + AI card -->
-      <div class="dash-card" data-aos="zoom-in" data-aos-delay="350">
-        <h3>Aerospace News &amp; AI Console</h3>
+  <div class="divider-line"></div>
 
-        <div class="metric-label">Live Headlines (Demo)</div>
-        <div class="news-bullet">
-          • <a class="news-link" href="https://www.nasa.gov/news-release/" target="_blank" rel="noopener">
-              NASA mission updates &amp; launch schedule
-            </a>
-        </div>
-        <div class="news-bullet">
-          • <a class="news-link" href="https://www.flightglobal.com/news" target="_blank" rel="noopener">
-              Commercial aviation: new aircraft orders &amp; test flights
-            </a>
-        </div>
-        <div class="news-bullet">
-          • <a class="news-link" href="https://spacenews.com/" target="_blank" rel="noopener">
-              Space industry briefs from SpaceNews
-            </a>
-        </div>
+  <div class="metric-label">Latest METAR</div>
+  <pre id="metar-raw" class="metric-small">Fetching METAR...</pre>
 
-        <div class="divider-line"></div>
+  <div class="divider-line"></div>
 
-        <div class="metric-label">Ask ISA AI about aerospace</div>
-        <div class="metric-small" style="margin-bottom:6px;">
-          Search aircraft, engines, missions, or any concept — opens the AI Assistant in a new tab.
-        </div>
+  <div class="metric-label">Decoded snapshot</div>
+  <div class="metric-small" id="metar-decoded">
+    Wind, temp, and altimeter will appear here once the METAR is loaded.
+  </div>
+</div>
 
-        <div class="ai-search">
-          <input
-            id="ai-query"
-            class="ai-input"
-            type="text"
-            placeholder="e.g. 'Explain RAE2822 airfoil characteristics'"/>
-          <button class="ai-button" type="button" onclick="launchAISearch()">
-            Ask ISA AI
-          </button>
-        </div>
-      </div>
-    </div>
-  </section>
+    <!-- Aerospace news + AI card -->
+<div class="dash-card" data-aos="zoom-in" data-aos-delay="350">
+  <h3>Aerospace News &amp; ISA AI</h3>
+
+  <div class="metric-label">Live Headlines (Demo)</div>
+  <div class="news-bullet">
+    • <a class="news-link" href="https://www.nasa.gov/news-release/" target="_blank" rel="noopener">
+        NASA mission updates &amp; launch schedule
+      </a>
+  </div>
+  <div class="news-bullet">
+    • <a class="news-link" href="https://www.flightglobal.com/news" target="_blank" rel="noopener">
+        Commercial aviation: new aircraft orders &amp; test flights
+      </a>
+  </div>
+  <div class="news-bullet">
+    • <a class="news-link" href="https://spacenews.com/" target="_blank" rel="noopener">
+        Space industry briefs from SpaceNews
+      </a>
+  </div>
+
+  <div class="divider-line"></div>
+
+  <div class="metric-label">Ask ISA AI</div>
+  <div class="metric-small" style="margin-bottom:6px;">
+    Ask any aerospace question. The answer will appear below in a live “chat bubble”.
+  </div>
+
+  <div class="ai-search">
+    <input
+      id="ai-query"
+      class="ai-input"
+      type="text"
+      placeholder="e.g. 'Explain lift vs. drag trade-off at high Mach'"/>
+    <button class="ai-button" type="button" onclick="askISA()">
+      Ask
+    </button>
+  </div>
+
+  <div id="ai-status" class="ai-status"></div>
+  <div id="ai-answer" class="ai-answer-bubble hidden"></div>
+</div>
+
   <!-- ========= END DASHBOARD ========= -->
 
   <section>
@@ -555,39 +644,230 @@ KLGB 101753Z 23007KT 10SM FEW020 24/18 A2992
   </footer>
 
   <!-- AOS JS -->
-  <script src="https://unpkg.com/aos@2.3.1/dist/aos.js"></script>
-  <script>
-    AOS.init({
-      duration: 900,
-      easing: 'ease-out-cubic',
-      offset: 120,
-      once: true
-    });
+ <script src="https://unpkg.com/aos@2.3.1/dist/aos.js"></script>
+<script>
+  AOS.init({
+    duration: 900,
+    easing: 'ease-out-cubic',
+    offset: 120,
+    once: true
+  });
 
-    // Simple live clock
-    function updateClock() {
-      const now = new Date();
-      const hours = String(now.getHours()).padStart(2, "0");
-      const mins = String(now.getMinutes()).padStart(2, "0");
-      document.getElementById("clock").textContent = `${hours}:${mins}`;
+  // -------- Live clock --------
+  function updateClock() {
+    const now = new Date();
+    const hours = String(now.getHours()).padStart(2, "0");
+    const mins = String(now.getMinutes()).padStart(2, "0");
+    document.getElementById("clock").textContent = `${hours}:${mins}`;
 
-      const options = { weekday: "long", day: "numeric", month: "short", year: "numeric" };
-      document.getElementById("date-line").textContent = now.toLocaleDateString(undefined, options);
+    const options = { weekday: "long", day: "numeric", month: "short", year: "numeric" };
+    document.getElementById("date-line").textContent = now.toLocaleDateString(undefined, options);
+  }
+  updateClock();
+  setInterval(updateClock, 1000);
+
+  // -------- AI console (front-end calls backend API) --------
+  const ISA_AI_ENDPOINT = "https://YOUR-BACKEND-URL/ask"; // <-- replace after backend is deployed
+
+  async function askISA() {
+    const input = document.getElementById("ai-query");
+    const statusEl = document.getElementById("ai-status");
+    const answerEl = document.getElementById("ai-answer");
+    const question = (input.value || "").trim();
+
+    if (!question) {
+      return;
     }
-    updateClock();
-    setInterval(updateClock, 1000);
 
-    // AI search -> open Streamlit AI Assistant tab
-    function launchAISearch() {
-      const input = document.getElementById("ai-query");
-      if (!input) return;
-      const q = input.value.trim();
-      if (!q) return;
+    statusEl.textContent = "Thinking...";
+    answerEl.classList.add("hidden");
+    answerEl.classList.remove("show");
 
-      const base = "https://isa-atm-calculator-tmepkr7qfrryb65yvtjg7j.streamlit.app/";
-      const url = base + "?tool=AI+Assistant&query=" + encodeURIComponent(q);
-      window.open(url, "_blank");
+    try {
+      const resp = await fetch(ISA_AI_ENDPOINT, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ question })
+      });
+
+      if (!resp.ok) {
+        throw new Error("Bad response: " + resp.status);
+      }
+
+      const data = await resp.json();
+      answerEl.textContent = data.answer || "No answer returned from ISA AI.";
+    } catch (err) {
+      console.error(err);
+      answerEl.textContent =
+        "Error contacting ISA AI backend. Check your server URL or internet connection.";
+    } finally {
+      statusEl.textContent = "";
+      answerEl.classList.remove("hidden");
+      // trigger animation
+      requestAnimationFrame(() => {
+        answerEl.classList.add("show");
+      });
     }
+  }
+
+  // Allow pressing Enter in the AI box
+  document.addEventListener("DOMContentLoaded", () => {
+    const input = document.getElementById("ai-query");
+    if (input) {
+      input.addEventListener("keydown", (e) => {
+        if (e.key === "Enter") {
+          askISA();
+        }
+      });
+    }
+  });
+
+  // -------- METAR with geolocation & nearest airport --------
+
+  const AIRPORTS = [
+    { icao: "KLGB", name: "Long Beach",      lat: 33.8177, lon: -118.1516 },
+    { icao: "KLAX", name: "Los Angeles Intl",lat: 33.9416, lon: -118.4085 },
+    { icao: "KSNA", name: "John Wayne",      lat: 33.6757, lon: -117.8682 },
+    { icao: "KBUR", name: "Hollywood Burbank",lat:34.2007, lon: -118.3587 },
+    { icao: "KONT", name: "Ontario Intl",    lat: 34.0560, lon: -117.6012 }
+  ];
+
+  function haversine(lat1, lon1, lat2, lon2) {
+    const R = 6371; // km
+    const toRad = (deg) => (deg * Math.PI) / 180;
+    const dLat = toRad(lat2 - lat1);
+    const dLon = toRad(lon2 - lon1);
+    const a =
+      Math.sin(dLat / 2) * Math.sin(dLat / 2) +
+      Math.cos(toRad(lat1)) * Math.cos(toRad(lat2)) *
+      Math.sin(dLon / 2) * Math.sin(dLon / 2);
+    const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
+    return R * c;
+  }
+
+  async function fetchMetar(icao) {
+    const rawEl = document.getElementById("metar-raw");
+    const decEl = document.getElementById("metar-decoded");
+    if (!rawEl || !decEl) return;
+
+    rawEl.textContent = `Fetching METAR for ${icao}...`;
+    decEl.textContent = "";
+
+    try {
+      const url =
+        "https://aviationweather.gov/adds/dataserver_current/httpparam?" +
+        "dataSource=metars&requestType=retrieve&format=xml&hoursBeforeNow=1&" +
+        "stationString=" + encodeURIComponent(icao);
+
+      const res = await fetch(url);
+      if (!res.ok) throw new Error("METAR fetch failed");
+
+      const text = await res.text();
+      const start = text.indexOf("<raw_text>");
+      const end = text.indexOf("</raw_text>");
+      if (start === -1 || end === -1) {
+        rawEl.textContent = "No recent METAR found.";
+        decEl.textContent = "";
+        return;
+      }
+
+      const metar = text.slice(start + "<raw_text>".length, end).trim();
+      rawEl.textContent = metar;
+
+      // Simple decode: wind, temp/dewpoint, altimeter
+      let decoded = "";
+
+      const windMatch = metar.match(/\s(\d{5})KT/);
+      if (windMatch) {
+        const group = windMatch[1];
+        const dir = group.slice(0, 3);
+        const spd = parseInt(group.slice(3), 10);
+        decoded += `Wind: ${dir}° at ${spd} kt. `;
+      }
+
+      const tempMatch = metar.match(/\s(M?\d{2})\/(M?\d{2})\s/);
+      if (tempMatch) {
+        const tStr = tempMatch[1].replace("M", "-");
+        const dStr = tempMatch[2].replace("M", "-");
+        decoded += `Temp/Dew: ${tStr}°C / ${dStr}°C. `;
+      }
+
+      const altMatch = metar.match(/A(\d{4})/);
+      if (altMatch) {
+        const alt = altMatch[1];
+        const inHg = (parseInt(alt, 10) / 100).toFixed(2);
+        decoded += `Altimeter: ${inHg} inHg.`;
+      }
+
+      if (!decoded) {
+        decoded = "Could not decode basic fields. See raw METAR above.";
+      }
+
+      decEl.textContent = decoded;
+    } catch (err) {
+      console.error(err);
+      rawEl.textContent = "Error fetching METAR data.";
+      decEl.textContent = "";
+    }
+  }
+
+  function handleAirportChange() {
+    const select = document.getElementById("airport-select");
+    if (!select) return;
+    const icao = select.value;
+    const airport = AIRPORTS.find(a => a.icao === icao);
+    const distEl = document.getElementById("airport-distance");
+    if (airport && distEl) {
+      distEl.textContent = `${icao} – ${airport.name}`;
+    }
+    fetchMetar(icao);
+  }
+
+  function useMyLocation() {
+    if (!navigator.geolocation) {
+      alert("Geolocation is not supported by this browser.");
+      return;
+    }
+    navigator.geolocation.getCurrentPosition(
+      (pos) => {
+        const { latitude, longitude } = pos.coords;
+        let best = AIRPORTS[0];
+        let bestDist = Infinity;
+        AIRPORTS.forEach((a) => {
+          const d = haversine(latitude, longitude, a.lat, a.lon);
+          if (d < bestDist) {
+            bestDist = d;
+            best = a;
+          }
+        });
+        const select = document.getElementById("airport-select");
+        const distEl = document.getElementById("airport-distance");
+        if (select) select.value = best.icao;
+        if (distEl) {
+          distEl.textContent =
+            `Nearest known field: ${best.icao} – ${best.name} (${bestDist.toFixed(1)} km)`;
+        }
+        fetchMetar(best.icao);
+      },
+      (err) => {
+        console.error(err);
+        alert("Could not get location. Check permissions.");
+      }
+    );
+  }
+
+  // Initial METAR and auto-refresh
+  document.addEventListener("DOMContentLoaded", () => {
+    handleAirportChange(); // initial fetch for default airport
+    setInterval(() => {
+      const select = document.getElementById("airport-select");
+      if (select) {
+        fetchMetar(select.value);
+      }
+    }, 5 * 60 * 1000); // every 5 minutes
+  });
+</script>
+
   </script>
 
 </body>
