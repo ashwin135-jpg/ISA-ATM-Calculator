@@ -12,7 +12,7 @@
     body {
       margin: 0;
       font-family: 'Segoe UI', sans-serif;
-      background: #111;
+      background: #050816;
       color: white;
     }
 
@@ -35,11 +35,12 @@
       margin-bottom: 40px;
     }
 
-    /* ---------- NEW: Cockpit Dashboard styles ---------- */
+    /* ---------- ISA COCKPIT DASHBOARD ---------- */
 
     .dashboard-section {
       padding: 40px 20px 60px;
-      background: #111;
+      background: radial-gradient(circle at top, #050816 0, #020617 55%, #000000 100%);
+      color: #e5ecff;
     }
 
     .dashboard-title {
@@ -54,11 +55,12 @@
     .dashboard-title-main {
       font-size: 1.4rem;
       font-weight: 600;
+      letter-spacing: 0.03em;
     }
 
     .dashboard-subtext {
       font-size: 0.9rem;
-      color: #bbbbbb;
+      color: #a6b4d9;
     }
 
     .tag-pill {
@@ -70,9 +72,10 @@
       font-size: 0.7rem;
       text-transform: uppercase;
       letter-spacing: 0.09em;
-      background: rgba(0, 255, 200, 0.1);
-      color: #aefcff;
-      border: 1px solid rgba(0, 255, 200, 0.4);
+      background: linear-gradient(135deg, rgba(34,211,238,0.18), rgba(129,140,248,0.25));
+      color: #e0faff;
+      border: 1px solid rgba(56,189,248,0.6);
+      box-shadow: 0 0 16px rgba(45,212,191,0.5);
     }
 
     .dashboard-grid {
@@ -85,11 +88,19 @@
     }
 
     .dash-card {
-      background: #1b1f27;
+      background: radial-gradient(circle at top left, #111827 0, #020617 75%);
       border-radius: 22px;
       padding: 18px 20px;
-      box-shadow: 0 18px 40px rgba(0, 0, 0, 0.55);
-      border: 1px solid rgba(255, 255, 255, 0.05);
+      box-shadow: 0 22px 50px rgba(0,0,0,0.75);
+      border: 1px solid rgba(148,163,184,0.25);
+      color: #e5ecff;
+      transition: transform 0.2s ease, box-shadow 0.2s ease, border-color 0.2s ease;
+    }
+
+    .dash-card:hover {
+      transform: translateY(-4px);
+      box-shadow: 0 28px 70px rgba(15,23,42,0.95);
+      border-color: rgba(56,189,248,0.6);
     }
 
     .dash-card h3 {
@@ -97,6 +108,9 @@
       margin-bottom: 8px;
       font-size: 1rem;
       font-weight: 600;
+      letter-spacing: 0.06em;
+      text-transform: uppercase;
+      color: #f9fbff;
     }
 
     .dash-row {
@@ -109,16 +123,18 @@
     .big-city {
       font-size: 1.4rem;
       font-weight: 600;
+      color: #f9fafb;
     }
 
     .big-time {
       font-size: 2.7rem;
       font-weight: 700;
+      color: #e5f3ff;
     }
 
     .date-line {
       font-size: 0.85rem;
-      color: #b3c0d4;
+      color: #9ca9c9;
       margin-top: 4px;
     }
 
@@ -126,23 +142,24 @@
       font-size: 0.75rem;
       text-transform: uppercase;
       letter-spacing: 0.1em;
-      color: #9eafc7;
+      color: #9ca3ff;
       margin-bottom: 4px;
     }
 
     .metric-value {
       font-size: 1.2rem;
       font-weight: 600;
+      color: #e0f2ff;
     }
 
     .metric-small {
       font-size: 0.85rem;
-      color: #c8d4e6;
+      color: #c0cbe9;
     }
 
     .divider-line {
       height: 1px;
-      background: linear-gradient(to right, transparent, rgba(255, 255, 255, 0.12), transparent);
+      background: linear-gradient(to right, transparent, rgba(148,163,184,0.5), transparent);
       margin: 10px 0 12px;
     }
 
@@ -154,22 +171,74 @@
       margin: 3px 0;
     }
 
-    .checklist-item {
-      display: flex;
-      align-items: center;
-      gap: 8px;
-      font-size: 0.85rem;
-      margin: 4px 0;
+    pre.metric-small {
+      background: rgba(15,23,42,0.8);
+      border-radius: 12px;
+      padding: 6px 10px;
+      color: #cbd5ff;
     }
 
-    .checklist-item input {
-      accent-color: #00f0ff;
-    }
-
-    .brief-bullet {
+    /* News & AI styles */
+    .news-bullet {
       font-size: 0.82rem;
       margin: 3px 0;
       color: #d3e2ff;
+    }
+
+    .news-link {
+      color: #7dd3fc;
+      text-decoration: none;
+    }
+
+    .news-link:hover {
+      text-decoration: underline;
+      color: #a5b4fc;
+    }
+
+    .ai-search {
+      margin-top: 12px;
+      display: flex;
+      gap: 8px;
+      align-items: center;
+    }
+
+    .ai-input {
+      flex: 1;
+      padding: 8px 10px;
+      border-radius: 999px;
+      border: 1px solid rgba(148,163,184,0.6);
+      background: rgba(15,23,42,0.9);
+      color: #e5ecff;
+      font-size: 0.85rem;
+      outline: none;
+      box-shadow: 0 0 0 1px rgba(15,23,42,0.7);
+    }
+
+    .ai-input::placeholder {
+      color: #9ca3c7;
+    }
+
+    .ai-input:focus {
+      border-color: rgba(56,189,248,0.9);
+      box-shadow: 0 0 18px rgba(56,189,248,0.55);
+    }
+
+    .ai-button {
+      padding: 8px 14px;
+      border-radius: 999px;
+      border: none;
+      font-size: 0.85rem;
+      font-weight: 600;
+      cursor: pointer;
+      background: linear-gradient(135deg, #22c55e, #22d3ee);
+      color: #020617;
+      box-shadow: 0 18px 35px rgba(34,197,94,0.45);
+      white-space: nowrap;
+    }
+
+    .ai-button:hover {
+      filter: brightness(1.08);
+      box-shadow: 0 20px 45px rgba(34,197,94,0.7);
     }
 
     /* Responsive layout for dashboard */
@@ -184,7 +253,7 @@
       }
     }
 
-    /* ---------- Existing sections ---------- */
+    /* ---------- EXISTING WHITE TOOL SECTION ---------- */
 
     section {
       background: white;
@@ -276,7 +345,7 @@
     </lottie-player>
   </header>
 
-  <!-- ========= NEW: ISA COMMAND CENTER DASHBOARD ========= -->
+  <!-- ========= ISA COMMAND CENTER DASHBOARD ========= -->
   <section class="dashboard-section">
     <div class="dashboard-title" data-aos="fade-up">
       <div>
@@ -310,7 +379,7 @@
           <div>
             <div class="metric-label">Cruise Altitude (ft)</div>
             <div class="metric-value">8,000</div>
-            <div class="metric-small">Use ISA tools to explore density, temperature & a/c performance.</div>
+            <div class="metric-small">Use ISA tools to explore density, temperature &amp; a/c performance.</div>
           </div>
           <div>
             <div class="metric-label">Winds Aloft</div>
@@ -365,7 +434,7 @@
         <div class="divider-line"></div>
 
         <div class="metric-label">Example METAR (static)</div>
-        <pre class="metric-small" style="white-space:pre-wrap; background:none; margin:6px 0 10px 0;">
+        <pre class="metric-small">
 KLGB 101753Z 23007KT 10SM FEW020 24/18 A2992
         </pre>
         <div class="metric-small">
@@ -373,29 +442,44 @@ KLGB 101753Z 23007KT 10SM FEW020 24/18 A2992
         </div>
       </div>
 
-      <!-- Checklist & Daily Brief card -->
+      <!-- Aerospace news + AI card -->
       <div class="dash-card" data-aos="zoom-in" data-aos-delay="350">
-        <h3>Mission Checklist & Daily Brief</h3>
-        <div class="metric-label">Today’s Checklist</div>
-        <div class="checklist-item">
-          <input type="checkbox" />
-          <span>MAE homework problem set</span>
+        <h3>Aerospace News &amp; AI Console</h3>
+
+        <div class="metric-label">Live Headlines (Demo)</div>
+        <div class="news-bullet">
+          • <a class="news-link" href="https://www.nasa.gov/news-release/" target="_blank" rel="noopener">
+              NASA mission updates &amp; launch schedule
+            </a>
         </div>
-        <div class="checklist-item">
-          <input type="checkbox" />
-          <span>Update ISA project / GitHub</span>
+        <div class="news-bullet">
+          • <a class="news-link" href="https://www.flightglobal.com/news" target="_blank" rel="noopener">
+              Commercial aviation: new aircraft orders &amp; test flights
+            </a>
         </div>
-        <div class="checklist-item">
-          <input type="checkbox" />
-          <span>Review aircraft performance notes</span>
+        <div class="news-bullet">
+          • <a class="news-link" href="https://spacenews.com/" target="_blank" rel="noopener">
+              Space industry briefs from SpaceNews
+            </a>
         </div>
 
         <div class="divider-line"></div>
 
-        <div class="metric-label">Daily Aerospace Brief</div>
-        <div class="brief-bullet">• Check latest launch / flight test news.</div>
-        <div class="brief-bullet">• Log today’s study hours & progress.</div>
-        <div class="brief-bullet">• Plan tomorrow’s tasks in the checklist.</div>
+        <div class="metric-label">Ask ISA AI about aerospace</div>
+        <div class="metric-small" style="margin-bottom:6px;">
+          Search aircraft, engines, missions, or any concept — opens the AI Assistant in a new tab.
+        </div>
+
+        <div class="ai-search">
+          <input
+            id="ai-query"
+            class="ai-input"
+            type="text"
+            placeholder="e.g. 'Explain RAE2822 airfoil characteristics'"/>
+          <button class="ai-button" type="button" onclick="launchAISearch()">
+            Ask ISA AI
+          </button>
+        </div>
       </div>
     </div>
   </section>
@@ -474,7 +558,9 @@ KLGB 101753Z 23007KT 10SM FEW020 24/18 A2992
   <script src="https://unpkg.com/aos@2.3.1/dist/aos.js"></script>
   <script>
     AOS.init({
-      duration: 800,
+      duration: 900,
+      easing: 'ease-out-cubic',
+      offset: 120,
       once: true
     });
 
@@ -490,6 +576,18 @@ KLGB 101753Z 23007KT 10SM FEW020 24/18 A2992
     }
     updateClock();
     setInterval(updateClock, 1000);
+
+    // AI search -> open Streamlit AI Assistant tab
+    function launchAISearch() {
+      const input = document.getElementById("ai-query");
+      if (!input) return;
+      const q = input.value.trim();
+      if (!q) return;
+
+      const base = "https://isa-atm-calculator-tmepkr7qfrryb65yvtjg7j.streamlit.app/";
+      const url = base + "?tool=AI+Assistant&query=" + encodeURIComponent(q);
+      window.open(url, "_blank");
+    }
   </script>
 
 </body>
