@@ -7,4 +7,6 @@ altair
 streamlit-folium
 folium
 groq
-
+fastapi
+uvicorn[standard]
+openai
