@@ -31,15 +31,166 @@
       color: #ccc;
     }
 
+    h2 {
+      margin-bottom: 40px;
+    }
+
+    /* ---------- NEW: Cockpit Dashboard styles ---------- */
+
+    .dashboard-section {
+      padding: 40px 20px 60px;
+      background: #111;
+    }
+
+    .dashboard-title {
+      max-width: 1100px;
+      margin: 0 auto 20px auto;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .dashboard-title-main {
+      font-size: 1.4rem;
+      font-weight: 600;
+    }
+
+    .dashboard-subtext {
+      font-size: 0.9rem;
+      color: #bbbbbb;
+    }
+
+    .tag-pill {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      padding: 4px 10px;
+      border-radius: 999px;
+      font-size: 0.7rem;
+      text-transform: uppercase;
+      letter-spacing: 0.09em;
+      background: rgba(0, 255, 200, 0.1);
+      color: #aefcff;
+      border: 1px solid rgba(0, 255, 200, 0.4);
+    }
+
+    .dashboard-grid {
+      max-width: 1100px;
+      margin: 0 auto;
+      display: grid;
+      grid-template-columns: 1.2fr 1.8fr;
+      grid-template-rows: auto auto;
+      gap: 20px;
+    }
+
+    .dash-card {
+      background: #1b1f27;
+      border-radius: 22px;
+      padding: 18px 20px;
+      box-shadow: 0 18px 40px rgba(0, 0, 0, 0.55);
+      border: 1px solid rgba(255, 255, 255, 0.05);
+    }
+
+    .dash-card h3 {
+      margin-top: 0;
+      margin-bottom: 8px;
+      font-size: 1rem;
+      font-weight: 600;
+    }
+
+    .dash-row {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .big-city {
+      font-size: 1.4rem;
+      font-weight: 600;
+    }
+
+    .big-time {
+      font-size: 2.7rem;
+      font-weight: 700;
+    }
+
+    .date-line {
+      font-size: 0.85rem;
+      color: #b3c0d4;
+      margin-top: 4px;
+    }
+
+    .metric-label {
+      font-size: 0.75rem;
+      text-transform: uppercase;
+      letter-spacing: 0.1em;
+      color: #9eafc7;
+      margin-bottom: 4px;
+    }
+
+    .metric-value {
+      font-size: 1.2rem;
+      font-weight: 600;
+    }
+
+    .metric-small {
+      font-size: 0.85rem;
+      color: #c8d4e6;
+    }
+
+    .divider-line {
+      height: 1px;
+      background: linear-gradient(to right, transparent, rgba(255, 255, 255, 0.12), transparent);
+      margin: 10px 0 12px;
+    }
+
+    .forecast-row {
+      display: flex;
+      justify-content: space-between;
+      font-size: 0.8rem;
+      color: #d2deef;
+      margin: 3px 0;
+    }
+
+    .checklist-item {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      font-size: 0.85rem;
+      margin: 4px 0;
+    }
+
+    .checklist-item input {
+      accent-color: #00f0ff;
+    }
+
+    .brief-bullet {
+      font-size: 0.82rem;
+      margin: 3px 0;
+      color: #d3e2ff;
+    }
+
+    /* Responsive layout for dashboard */
+    @media (max-width: 900px) {
+      .dashboard-title {
+        flex-direction: column;
+        align-items: flex-start;
+      }
+
+      .dashboard-grid {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    /* ---------- Existing sections ---------- */
+
     section {
       background: white;
       color: black;
       padding: 60px 30px;
       text-align: center;
-    }
-
-    h2 {
-      margin-bottom: 40px;
     }
 
     .button-grid {
@@ -75,34 +226,34 @@
     }
 
     lottie-player {
-    width: 300px;
-    height: 300px;
-    margin: 20px auto;
-    display: block;
-  }
-
-  @media (min-width: 768px) {
-    lottie-player {
-      width: 800px !important;  /* ⬅ increase for laptop */
-      height: 400px !important; /* ⬅ adjust height */
-    }
-  }
-
-  @media (max-width: 600px) {
-    header {
-      padding: 60px 20px 30px;
+      width: 300px;
+      height: 300px;
+      margin: 20px auto;
+      display: block;
     }
 
-    lottie-player {
-      width: 90% !important;
-      max-width: 320px;
-      height: auto !important;
+    @media (min-width: 768px) {
+      lottie-player {
+        width: 800px !important;
+        height: 400px !important;
+      }
     }
 
-    .tool-button {
-      width: 90%;
+    @media (max-width: 600px) {
+      header {
+        padding: 60px 20px 30px;
+      }
+
+      lottie-player {
+        width: 90% !important;
+        max-width: 320px;
+        height: auto !important;
+      }
+
+      .tool-button {
+        width: 90%;
+      }
     }
-  }
   </style>
 
   <!-- Lottie Player -->
@@ -117,79 +268,203 @@
     <h3>Created by Ashwin Ganesh</h3>
 
     <lottie-player
-    src="https://lottie.host/68ecc80f-3865-4071-89bf-1db845e65c6e/O67It7eqk8.json"
-    background="transparent"
-    speed="1"
-    loop
-    autoplay>
-  </lottie-player>
+      src="https://lottie.host/68ecc80f-3865-4071-89bf-1db845e65c6e/O67It7eqk8.json"
+      background="transparent"
+      speed="1"
+      loop
+      autoplay>
+    </lottie-player>
   </header>
 
- <section>
-  <h2 data-aos="fade-up">Choose a Tool</h2>
-  <div class="button-grid">
-    <!-- ISA Atmosphere -->
-    <a
-      href="https://isa-atm-calculator-tmepkr7qfrryb65yvtjg7j.streamlit.app/?tool=ISA+Atmosphere+Calculator"
-      class="tool-button"
-      data-aos="zoom-in"
-      data-aos-delay="100"
-    >
-      ISA Air Properties
-    </a>
+  <!-- ========= NEW: ISA COMMAND CENTER DASHBOARD ========= -->
+  <section class="dashboard-section">
+    <div class="dashboard-title" data-aos="fade-up">
+      <div>
+        <div class="dashboard-title-main">ISA Command Center</div>
+        <div class="dashboard-subtext">
+          A digital cockpit for aerospace students — weather, winds, METARs, tasks, and a quick daily brief.
+        </div>
+      </div>
+      <div class="tag-pill">Student Flight Deck</div>
+    </div>
 
-    <!-- Mach Number -->
-    <a
-      href="https://isa-atm-calculator-tmepkr7qfrryb65yvtjg7j.streamlit.app/?tool=Mach+Number+Calculator"
-      class="tool-button"
-      data-aos="zoom-in"
-      data-aos-delay="200"
-    >
-      Mach Number Calculator
-    </a>
+    <div class="dashboard-grid">
+      <!-- Time & City card -->
+      <div class="dash-card" data-aos="zoom-in" data-aos-delay="50">
+        <h3>Local Time & Campus</h3>
+        <div class="dash-row">
+          <div>
+            <div class="metric-label">City</div>
+            <div class="big-city" id="city-label">Long Beach, CA</div>
+            <div class="date-line" id="date-line"></div>
+          </div>
+          <div style="text-align:right;">
+            <div class="metric-label">Current Time</div>
+            <div class="big-time" id="clock">--:--</div>
+          </div>
+        </div>
 
-    <!-- Lift & Drag -->
-    <a
-      href="https://isa-atm-calculator-tmepkr7qfrryb65yvtjg7j.streamlit.app/?tool=Lift+and+Drag+Calculator"
-      class="tool-button"
-      data-aos="zoom-in"
-      data-aos-delay="300"
-    >
-      Lift &amp; Drag Calculator
-    </a>
+        <div class="divider-line"></div>
 
-    <!-- Fuel & Range -->
-    <a
-      href="https://isa-atm-calculator-tmepkr7qfrryb65yvtjg7j.streamlit.app/?tool=Fuel+Consumption+%26+Range+Estimator"
-      class="tool-button"
-      data-aos="zoom-in"
-      data-aos-delay="400"
-    >
-      Fuel &amp; Range Estimator
-    </a>
+        <div class="dash-row">
+          <div>
+            <div class="metric-label">Cruise Altitude (ft)</div>
+            <div class="metric-value">8,000</div>
+            <div class="metric-small">Use ISA tools to explore density, temperature & a/c performance.</div>
+          </div>
+          <div>
+            <div class="metric-label">Winds Aloft</div>
+            <div class="metric-value">240° / 25 kt</div>
+            <div class="metric-small">Placeholder — later connect to winds-aloft data.</div>
+          </div>
+        </div>
+      </div>
 
-    <!-- Mission Planner -->
-    <a
-      href="https://isa-atm-calculator-tmepkr7qfrryb65yvtjg7j.streamlit.app/?tool=Mission+Planner"
-      class="tool-button"
-      data-aos="zoom-in"
-      data-aos-delay="500"
-    >
-      Mission Planner
-    </a>
+      <!-- Weather & short forecast card -->
+      <div class="dash-card" data-aos="zoom-in" data-aos-delay="150">
+        <h3>Surface Weather Snapshot</h3>
+        <div class="dash-row">
+          <div>
+            <div class="metric-label">Conditions</div>
+            <div class="metric-value">24°C • Sunny</div>
+            <div class="metric-small">Feels like 22°C · 41% humidity</div>
+          </div>
+          <div style="text-align:right;">
+            <div class="metric-label">Wind • QNH</div>
+            <div class="metric-value">040° / 6 kt</div>
+            <div class="metric-small">1013 hPa (ISA)</div>
+          </div>
+        </div>
 
-    <!-- City to City -->
-    <a
-      href="https://isa-atm-calculator-tmepkr7qfrryb65yvtjg7j.streamlit.app/?tool=City+to+City+Flight+Estimator"
-      class="tool-button"
-      data-aos="zoom-in"
-      data-aos-delay="600"
-    >
-      City to City Estimator
-    </a>
-  </div>
-</section>
+        <div class="divider-line"></div>
 
+        <div class="metric-label" style="margin-bottom:6px;">Next Hours (Demo)</div>
+        <div class="forecast-row">
+          <span>12:00</span><span>☀ 26°C</span><span>3 kt</span>
+        </div>
+        <div class="forecast-row">
+          <span>15:00</span><span>☀ 27°C</span><span>2 kt</span>
+        </div>
+        <div class="forecast-row">
+          <span>18:00</span><span>⛅ 27°C</span><span>2 kt</span>
+        </div>
+        <div class="forecast-row">
+          <span>21:00</span><span>☁ 25°C</span><span>3 kt</span>
+        </div>
+      </div>
+
+      <!-- METAR / TAF card -->
+      <div class="dash-card" data-aos="zoom-in" data-aos-delay="250">
+        <h3>Airport METAR / TAF</h3>
+        <div class="metric-label">Primary Field</div>
+        <div class="metric-value">KLGB</div>
+        <div class="metric-small">
+          Quickly check conditions before running performance or city–to–city estimates.
+        </div>
+
+        <div class="divider-line"></div>
+
+        <div class="metric-label">Example METAR (static)</div>
+        <pre class="metric-small" style="white-space:pre-wrap; background:none; margin:6px 0 10px 0;">
+KLGB 101753Z 23007KT 10SM FEW020 24/18 A2992
+        </pre>
+        <div class="metric-small">
+          For live data, you can link this card to aviationweather.gov or a METAR API later.
+        </div>
+      </div>
+
+      <!-- Checklist & Daily Brief card -->
+      <div class="dash-card" data-aos="zoom-in" data-aos-delay="350">
+        <h3>Mission Checklist & Daily Brief</h3>
+        <div class="metric-label">Today’s Checklist</div>
+        <div class="checklist-item">
+          <input type="checkbox" />
+          <span>MAE homework problem set</span>
+        </div>
+        <div class="checklist-item">
+          <input type="checkbox" />
+          <span>Update ISA project / GitHub</span>
+        </div>
+        <div class="checklist-item">
+          <input type="checkbox" />
+          <span>Review aircraft performance notes</span>
+        </div>
+
+        <div class="divider-line"></div>
+
+        <div class="metric-label">Daily Aerospace Brief</div>
+        <div class="brief-bullet">• Check latest launch / flight test news.</div>
+        <div class="brief-bullet">• Log today’s study hours & progress.</div>
+        <div class="brief-bullet">• Plan tomorrow’s tasks in the checklist.</div>
+      </div>
+    </div>
+  </section>
+  <!-- ========= END DASHBOARD ========= -->
+
+  <section>
+    <h2 data-aos="fade-up">Choose a Tool</h2>
+    <div class="button-grid">
+      <!-- ISA Atmosphere -->
+      <a
+        href="https://isa-atm-calculator-tmepkr7qfrryb65yvtjg7j.streamlit.app/?tool=ISA+Atmosphere+Calculator"
+        class="tool-button"
+        data-aos="zoom-in"
+        data-aos-delay="100"
+      >
+        ISA Air Properties
+      </a>
+
+      <!-- Mach Number -->
+      <a
+        href="https://isa-atm-calculator-tmepkr7qfrryb65yvtjg7j.streamlit.app/?tool=Mach+Number+Calculator"
+        class="tool-button"
+        data-aos="zoom-in"
+        data-aos-delay="200"
+      >
+        Mach Number Calculator
+      </a>
+
+      <!-- Lift & Drag -->
+      <a
+        href="https://isa-atm-calculator-tmepkr7qfrryb65yvtjg7j.streamlit.app/?tool=Lift+and+Drag+Calculator"
+        class="tool-button"
+        data-aos="zoom-in"
+        data-aos-delay="300"
+      >
+        Lift &amp; Drag Calculator
+      </a>
+
+      <!-- Fuel & Range -->
+      <a
+        href="https://isa-atm-calculator-tmepkr7qfrryb65yvtjg7j.streamlit.app/?tool=Fuel+Consumption+%26+Range+Estimator"
+        class="tool-button"
+        data-aos="zoom-in"
+        data-aos-delay="400"
+      >
+        Fuel &amp; Range Estimator
+      </a>
+
+      <!-- Mission Planner -->
+      <a
+        href="https://isa-atm-calculator-tmepkr7qfrryb65yvtjg7j.streamlit.app/?tool=Mission+Planner"
+        class="tool-button"
+        data-aos="zoom-in"
+        data-aos-delay="500"
+      >
+        Mission Planner
+      </a>
+
+      <!-- City to City -->
+      <a
+        href="https://isa-atm-calculator-tmepkr7qfrryb65yvtjg7j.streamlit.app/?tool=City+to+City+Flight+Estimator"
+        class="tool-button"
+        data-aos="zoom-in"
+        data-aos-delay="600"
+      >
+        City to City Estimator
+      </a>
+    </div>
+  </section>
 
   <footer>
     &copy; 2025 Ashwin Ganesh — All rights reserved
@@ -202,6 +477,19 @@
       duration: 800,
       once: true
     });
+
+    // Simple live clock
+    function updateClock() {
+      const now = new Date();
+      const hours = String(now.getHours()).padStart(2, "0");
+      const mins = String(now.getMinutes()).padStart(2, "0");
+      document.getElementById("clock").textContent = `${hours}:${mins}`;
+
+      const options = { weekday: "long", day: "numeric", month: "short", year: "numeric" };
+      document.getElementById("date-line").textContent = now.toLocaleDateString(undefined, options);
+    }
+    updateClock();
+    setInterval(updateClock, 1000);
   </script>
 
 </body>
