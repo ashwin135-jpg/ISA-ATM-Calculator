@@ -9,4 +9,3 @@ folium
 groq
 fastapi
 uvicorn[standard]
-openai
