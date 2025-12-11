@@ -1,9 +1,12 @@
 import math
 import streamlit as st
+import requests
+
+BACKEND_URL = "http://127.0.0.1:8000"
 
 
 def render():
-    st.subheader("Jet Fuel Consumption & Range Estimator")
+    st.subheader("Fuel Consumption & Range Estimator")
     st.markdown(
         "Estimate aircraft **range**, **endurance**, and **fuel burn time** using "
         "the Breguet Jet Range Equation and a simple thrust-based fuel model."
@@ -43,17 +46,15 @@ def render():
         )
         W_fuel = W_fuel_lb * 0.453592  # lb → kg
 
-    # Derived weights
+    # Derived weights (for validation + display)
     W_pax = pax * pax_wt                    # kg
     Wi = W_empty + W_fuel + W_pax           # initial mass [kg]
     Wf = Wi - W_fuel                        # final mass [kg] after fuel burned
-    g = 9.81                                # m/s²
 
     # Performance inputs
     c = st.number_input(
         "Specific fuel consumption (1/hr)", min_value=0.1, value=0.6
     )
-    c_sec = c / 3600.0                      # 1/s
     LD = st.number_input(
         "Lift-to-drag ratio (L/D)", min_value=5.0, value=15.0
     )
@@ -69,7 +70,7 @@ def render():
         value=0.8,
     )
 
-    # --- SAFETY CHECK ---
+    # --- SAFETY CHECK (same logic as before) ---
     if Wf <= 0 or Wi <= Wf:
         st.error(
             "Invalid weight combination. Make sure fuel weight is positive and "
@@ -77,57 +78,82 @@ def render():
         )
         return
 
-    # --- CALCULATIONS ---
+    # --- Call backend for Breguet + drag math ---
+    if st.button("Compute Fuel & Range"):
+        payload = {
+            "V_ms": V,
+            "pax": int(pax),
+            "pax_wt_kg": pax_wt,
+            "W_empty_kg": W_empty,
+            "W_fuel_kg": W_fuel,
+            "c_per_hr": c,
+            "LD": LD,
+            "S_m2": S,
+            "b_m": b,
+            "CD0": CD0,
+            "e": e,
+        }
 
-    # Breguet Jet Range (using mass; g cancels in Wi/Wf ratio)
-    range_m = (V / c_sec) * LD * math.log(Wi / Wf)
-    range_km = range_m / 1000.0
-    range_nm = range_km * 0.539957
+        try:
+            with st.spinner("Querying ISA backend for fuel & range..."):
+                resp = requests.post(
+                    f"{BACKEND_URL}/api/fuel-range/estimate",
+                    json=payload,
+                    timeout=10,
+                )
+                resp.raise_for_status()
+                data = resp.json()
+        except Exception as ex:
+            st.error(f"Error calling Fuel & Range backend: {ex}")
+            return
 
-    # Endurance (time in hours)
-    endurance_hr = (1.0 / c) * LD * math.log(Wi / Wf)
+        # Unpack backend results
+        Wi_kg = data.get("Wi_kg", Wi)
+        Wf_kg = data.get("Wf_kg", Wf)
+        W_pax_kg = data.get("W_pax_kg", W_pax)
 
-    # Simple drag-based thrust/fuel model (sea-level approx)
-    rho = 1.225  # kg/m³
-    q = 0.5 * rho * V**2
-    L = Wi * g
-    CL = L / (q * S)
-    AR = b**2 / S
-    k = 1.0 / (math.pi * e * AR)
-    CD = CD0 + k * CL**2
-    D = q * S * CD                       # drag [N] ≈ thrust required [N]
+        range_km = data.get("range_km")
+        range_nm = data.get("range_nm")
+        endurance_hr = data.get("endurance_hr")
+        t_hr = data.get("fuel_burn_time_hr")
+        t_min = data.get("fuel_burn_time_min")
 
-    fuel_burn_rate = c_sec * D           # kg/s (approx)
-    t_sec = (W_fuel * g) / (fuel_burn_rate * g)  # kg / (kg/s) = s
-    t_min = t_sec / 60.0
-    t_hr = t_sec / 3600.0
+        V_ms = data.get("V_ms", V)
 
-    # --- UNIT CONVERSIONS FOR DISPLAY ---
-    if unit_system == "Imperial (English)":
-        Wi_disp = Wi / 0.453592
-        Wf_disp = Wf / 0.453592
-        W_pax_disp = W_pax / 0.453592
-        range_disp = f"{range_km * 0.621371:.1f} mi / {range_nm:.1f} nmi"
-        speed_disp = f"{V * 3.28084:.1f} ft/s"
-        weight_unit = "lb"
-    else:
-        Wi_disp = Wi
-        Wf_disp = Wf
-        W_pax_disp = W_pax
-        range_disp = f"{range_km:.1f} km / {range_nm:.1f} nmi"
-        speed_disp = f"{V:.1f} m/s"
-        weight_unit = "kg"
+        # --- UNIT CONVERSIONS FOR DISPLAY (same format as original) ---
+        if unit_system == "Imperial (English)":
+            Wi_disp = Wi_kg / 0.453592
+            Wf_disp = Wf_kg / 0.453592
+            W_pax_disp = W_pax_kg / 0.453592
+            range_disp = f"{range_km * 0.621371:.1f} mi / {range_nm:.1f} nmi"
+            speed_disp = f"{V_ms * 3.28084:.1f} ft/s"
+            weight_unit = "lb"
+        else:
+            Wi_disp = Wi_kg
+            Wf_disp = Wf_kg
+            W_pax_disp = W_pax_kg
+            range_disp = f"{range_km:.1f} km / {range_nm:.1f} nmi"
+            speed_disp = f"{V_ms:.1f} m/s"
+            weight_unit = "kg"
 
-    # --- OUTPUTS ---
-    st.markdown("### 📊 Summary of Results")
+        # --- OUTPUTS (same layout as before) ---
+        st.markdown("### 📊 Summary of Results")
 
-    col1, col2 = st.columns(2)
-    with col1:
-        st.metric("Initial Weight", f"{Wi_disp:.1f} {weight_unit}")
-        st.metric("Final Weight", f"{Wf_disp:.1f} {weight_unit}")
-        st.metric("Passenger Mass", f"{W_pax_disp:.1f} {weight_unit}")
-    with col2:
-        st.metric("Cruise Speed", speed_disp)
-        st.metric("Range", range_disp)
-        st.metric("Endurance", f"{endurance_hr:.2f} hr")
-        st.metric("Fuel Burn Time", f"{t_hr:.2f} hr ({t_min:.0f} min)")
+        col1, col2 = st.columns(2)
+        with col1:
+            st.metric("Initial Weight", f"{Wi_disp:.1f} {weight_unit}")
+            st.metric("Final Weight", f"{Wf_disp:.1f} {weight_unit}")
+            st.metric("Passenger Mass", f"{W_pax_disp:.1f} {weight_unit}")
+        with col2:
+            st.metric("Cruise Speed", speed_disp)
+            st.metric("Range", range_disp)
+            st.metric(
+                "Endurance",
+                f"{endurance_hr:.2f} hr" if endurance_hr is not None else "—",
+            )
+            st.metric(
+                "Fuel Burn Time",
+                f"{t_hr:.2f} hr ({t_min:.0f} min)"
+                if t_hr is not None and t_min is not None
+                else "—",
+            )

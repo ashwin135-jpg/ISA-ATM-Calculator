@@ -1,5 +1,8 @@
 import streamlit as st
-from utils import isa_atmosphere, convert_altitude
+import requests
+from utils import convert_altitude
+
+BACKEND_URL = "http://127.0.0.1:8000"
 
 
 def render():
@@ -20,6 +23,7 @@ def render():
         )
 
     with col2:
+        # Match backend units: "m/s", "ft/s", "knots"
         speed_unit = st.selectbox("Airspeed unit", ["m/s", "ft/s", "knots"])
         V_input = st.number_input(
             "Airspeed",
@@ -27,42 +31,73 @@ def render():
             value=250.0,
         )
 
-    # Convert altitude to meters
+    # Convert altitude to meters for backend
     alt_m = convert_altitude(user_alt, alt_unit, "meters")
 
-    # Convert speed to m/s
-    if speed_unit == "m/s":
-        V_ms = V_input
-    elif speed_unit == "ft/s":
-        V_ms = V_input / 3.28084
-    else:  # knots
-        V_ms = V_input * 0.514444
-
-    # --- Atmosphere & Mach ---
-    results = isa_atmosphere(alt_m)
-    if results is None:
-        st.error("Altitude must be less than 47,000 meters for the ISA model.")
+    # Limitation aligned with backend & ISA endpoint
+    if alt_m > 11000.0:
+        st.error(
+            "Backend Mach model currently supports up to 11,000 m (11 km). "
+            "Please enter an altitude <= 11 km for now."
+        )
         return
 
-    _, _, _, a = results  # speed of sound [m/s]
-    mach = V_ms / a if a > 0 else 0.0
+    # --- Backend call ---
+    if st.button("Calculate Mach Number"):
+        payload = {
+            "altitude_m": alt_m,
+            "speed_value": V_input,
+            "speed_unit": speed_unit,
+        }
 
-    # Flow regime classification
-    if mach < 0.3:
-        regime = "Incompressible"
-    elif mach < 0.8:
-        regime = "Subsonic"
-    elif mach < 1.2:
-        regime = "Transonic"
-    elif mach < 5.0:
-        regime = "Supersonic"
-    else:
-        regime = "Hypersonic"
+        try:
+            with st.spinner("Querying ISA backend for Mach..."):
+                resp = requests.post(
+                    f"{BACKEND_URL}/api/mach/compute",
+                    json=payload,
+                    timeout=10,
+                )
+                resp.raise_for_status()
+                data = resp.json()
+        except Exception as e:
+            st.error(f"Error calling Mach backend: {e}")
+            return
 
-    # --- Outputs ---
-    st.markdown(
-        f"**ISA Speed of Sound at {user_alt:.0f} {alt_unit}:** {a:.2f} m/s"
-    )
+        # --- Unpack backend result ---
+        mach = data.get("mach")
+        a = data.get("speed_of_sound_m_s")
+        regime = data.get("flow_regime")
+        T_K = data.get("temperature_K")
+        V_ms = data.get("speed_m_s")
 
-    st.metric("Mach Number", f"{mach:.3f}")
-    st.success(f"Flow Regime: {regime}")
+        T_C = T_K - 273.15 if T_K is not None else None
+
+        # --- Outputs ---
+        if a is not None:
+            st.markdown(
+                f"**ISA Speed of Sound at {user_alt:.0f} {alt_unit}:** {a:.2f} m/s"
+            )
+
+        st.metric("Mach Number", f"{mach:.3f}" if mach is not None else "—")
+
+        if regime:
+            st.success(f"Flow Regime: {regime}")
+
+        col_left, col_right = st.columns(2)
+
+        with col_left:
+            st.markdown("**Static Temperature**")
+            if T_K is not None:
+                st.write(f"{T_K:,.2f} K")
+            if T_C is not None:
+                st.write(f"{T_C:,.2f} °C")
+
+        with col_right:
+            st.markdown("**True Airspeed (normalized)**")
+            if V_ms is not None:
+                st.write(f"{V_ms:,.2f} m/s")
+
+        st.caption(
+            "Mach is computed as V/a, where a is the ISA speed of sound at the given altitude. "
+            "Core physics are computed by the private ISA backend."
+        )

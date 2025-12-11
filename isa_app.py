@@ -1,5 +1,6 @@
 import streamlit as st
 from streamlit_lottie import st_lottie
+import requests 
 
 from utils import load_lottieurl
 from tools import (
@@ -12,9 +13,9 @@ from tools import (
     ai_assistant_tool,
 )
 
-# ---------------------------------
-# Basic page config (optional)
-# ---------------------------------
+
+BACKEND_URL = "http://127.0.0.1:8000"  
+
 st.set_page_config(
     page_title="ISA Master Tool",
     page_icon="✈",
@@ -81,3 +82,34 @@ elif tool == "City to City Flight Estimator":
 
 elif tool == "AI Assistant":
     ai_assistant_tool.render()
+
+# ---------------------------------
+# Backend connectivity test
+# ---------------------------------
+st.markdown("---")
+st.subheader("🛠 Backend Connection (Developer Test)")
+
+col1, col2 = st.columns(2)
+
+with col1:
+    if st.button("Ping ISA Backend"):
+        try:
+            resp = requests.get(f"{BACKEND_URL}/ping", timeout=5)
+            st.write("Response from /ping:")
+            st.json(resp.json())
+        except Exception as e:
+            st.error(f"Error talking to backend: {e}")
+
+with col2:
+    altitude_m = st.number_input("Test altitude (m) [backend]", value=1000.0)
+    if st.button("Run ISA Atmosphere via Backend"):
+        try:
+            resp = requests.post(
+                f"{BACKEND_URL}/api/isa/atmosphere",
+                json={"altitude_m": altitude_m},
+                timeout=10,
+            )
+            st.write("Response from /api/isa/atmosphere:")
+            st.json(resp.json())
+        except Exception as e:
+            st.error(f"Error calling ISA backend: {e}")

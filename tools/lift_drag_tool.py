@@ -1,6 +1,32 @@
 import math
 import streamlit as st
-from utils import isa_atmosphere, convert_altitude
+import requests  # 👈 NEW
+from utils import convert_altitude
+
+BACKEND_URL = "http://127.0.0.1:8000" 
+
+
+def call_backend_isa(altitude_m: float):
+    """
+    Call ISA backend to get T, P, rho, a for a given altitude in meters.
+    Returns (T_K, P_Pa, rho, a) or (None, None, None, None) on error.
+    """
+    try:
+        resp = requests.post(
+            f"{BACKEND_URL}/api/isa/atmosphere",
+            json={"altitude_m": altitude_m},
+            timeout=10,
+        )
+        resp.raise_for_status()
+        data = resp.json()
+        T_K = data.get("temperature_K")
+        P_Pa = data.get("pressure_Pa")
+        rho = data.get("density_kg_m3")
+        a = data.get("speed_of_sound_m_s")
+        return T_K, P_Pa, rho, a
+    except Exception as e:
+        st.error(f"Error calling ISA backend: {e}")
+        return None, None, None, None
 
 
 def render():
@@ -23,6 +49,14 @@ def render():
         value=0.0,
     )
     alt_m = convert_altitude(user_alt, alt_unit, "meters")
+
+    # For now, match backend ISA limit (0–11 km) like other tools
+    if alt_m > 11000.0:
+        st.error(
+            "Backend ISA model currently supports up to 11,000 m (11 km). "
+            "Please enter an altitude <= 11 km for now."
+        )
+        return
 
     # --- Aircraft inputs (unit-dependent) ---
     if unit_system == "Imperial (English)":
@@ -54,15 +88,13 @@ def render():
         value=0.8,
     )
 
-    # --- Atmosphere ---
-    results = isa_atmosphere(alt_m)
-    if results is None:
-        st.error("Altitude must be less than 47,000 meters for the ISA model.")
+    # --- Atmosphere from backend ---
+    T_K, P, rho, a = call_backend_isa(alt_m)
+    if rho is None or a is None:
+        # Error already shown by call_backend_isa
         return
 
-    _, _, rho, _ = results
-
-    # --- Aerodynamic calculations ---
+    # --- Aerodynamic calculations (UNCHANGED) ---
     q = 0.5 * rho * V**2               # dynamic pressure
     CL = W / (q * S)                   # lift coefficient (Lift = Weight)
     AR = b**2 / S                      # aspect ratio
@@ -70,7 +102,7 @@ def render():
     CD = CD0 + k * CL**2               # total drag coefficient
     D = q * S * CD                     # drag force [N]
 
-    # --- Convert to imperial outputs if needed ---
+    # --- Convert to imperial outputs if needed (UNCHANGED) ---
     if unit_system == "Imperial (English)":
         L_out = W / 4.44822            # N → lb
         D_out = D / 4.44822
@@ -88,7 +120,7 @@ def render():
         rho_unit = "kg/m³"
         speed_unit = "m/s"
 
-    # --- Output dashboard ---
+    # --- Output dashboard (UNCHANGED) ---
     st.markdown("### 📊 Results Dashboard")
 
     # Forces
@@ -110,3 +142,4 @@ def render():
     with col4:
         st.metric(label="Aspect Ratio (AR)", value=f"{AR:.2f}")
         st.metric(label="Induced Drag Factor (k)", value=f"{k:.5f}")
+        st.metric(label="Drag Coefficient (CD)", value=f"{CD:.4f}")

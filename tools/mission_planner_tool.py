@@ -1,9 +1,12 @@
 import math
 import streamlit as st
+import requests
+
+BACKEND_URL = "http://127.0.0.1:8000"
 
 
 def render():
-    st.subheader("Simple Mission Planner")
+    st.subheader("Mission Planner")
     st.markdown(
         "Estimate **range**, **fuel used**, and **flight time** "
         "based on aircraft weight and fuel availability."
@@ -56,7 +59,7 @@ def render():
     )
     LD = st.number_input("Lift-to-drag ratio (L/D)", value=15.0, min_value=1.0)
 
-    # --- Basic sanity check ---
+    # --- Basic sanity check (same as before) ---
     Wi = W_total
     Wf = Wi - fuel_weight
     if Wf <= 0 or Wi <= Wf:
@@ -66,35 +69,55 @@ def render():
         )
         return
 
-    # --- Calculations ---
-    c_sec = c / 3600.0  # 1/s
+    # --- Call backend instead of doing math here ---
+    if st.button("Compute Mission Performance"):
+        payload = {
+            "Wi_kg": Wi,
+            "fuel_weight_kg": fuel_weight,
+            "cruise_speed_ms": cruise_speed,
+            "c_per_hr": c,
+            "LD": LD,
+        }
 
-    try:
-        # Breguet range (mass form; g cancels in Wi/Wf)
-        R_m = (cruise_speed / c_sec) * LD * math.log(Wi / Wf)
-        R_km = R_m / 1000.0
-        R_nm = R_km * 0.539957
-        R_mi = R_km * 0.621371
+        try:
+            with st.spinner("Querying backend for mission estimate..."):
+                resp = requests.post(
+                    f"{BACKEND_URL}/api/mission-planner/estimate",
+                    json=payload,
+                    timeout=10,
+                )
+                resp.raise_for_status()
+                data = resp.json()
+        except Exception as e:
+            st.error(f"Error calling Mission Planner backend: {e}")
+            return
 
-        # Flight time (seconds → hours)
-        time_hr = R_m / cruise_speed / 3600.0
+        # --- Extract backend results ---
+        Wi_kg = data.get("Wi_kg", Wi)
+        Wf_kg = data.get("Wf_kg", Wf)
+        fuel_kg = data.get("fuel_weight_kg", fuel_weight)
 
-        # --- Outputs ---
+        R_km = data.get("range_km")
+        R_nm = data.get("range_nm")
+        R_mi = data.get("range_mi")
+        time_hr = data.get("time_hr")
+
+        # --- Outputs (same behavior as before) ---
         st.markdown("### 📊 Estimated Mission Performance")
 
         col1, col2 = st.columns(2)
         with col1:
             if unit_system == "SI (Metric)":
-                st.metric("Fuel Used", f"{fuel_weight:.1f} kg")
+                st.metric("Fuel Used", f"{fuel_kg:.1f} kg")
             else:
-                st.metric("Fuel Used", f"{from_kg(fuel_weight):.1f} lb")
-            st.metric("Flight Time", f"{time_hr:.2f} hr")
+                st.metric("Fuel Used", f"{from_kg(fuel_kg):.1f} lb")
+            st.metric("Flight Time", f"{time_hr:.2f} hr" if time_hr is not None else "—")
 
         with col2:
             if unit_system == "SI (Metric)":
-                st.metric("Range", f"{R_km:.1f} km")
+                st.metric("Range", f"{R_km:.1f} km" if R_km is not None else "—")
             else:
-                st.metric("Range", f"{R_mi:.1f} mi / {R_nm:.1f} nmi")
-
-    except ValueError:
-        st.error("Invalid input combination. Ensure Wi > Wf and values are realistic.")
+                if R_mi is not None and R_nm is not None:
+                    st.metric("Range", f"{R_mi:.1f} mi / {R_nm:.1f} nmi")
+                else:
+                    st.metric("Range", "—")

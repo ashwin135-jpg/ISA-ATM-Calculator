@@ -5,8 +5,7 @@ import pandas as pd
 import streamlit as st
 import requests
 from geopy.distance import geodesic
-from streamlit_folium import st_folium
-import folium
+from streamlit_echarts import st_echarts  # <-- 3D globe
 
 
 def geocode_city(city_name: str):
@@ -30,16 +29,132 @@ def geocode_city(city_name: str):
             return (lat, lon)
         return None
     except Exception as e:
-        # Let the caller handle the error message
         st.error(f"🌐 Geocoding error for '{city_name}': {e}")
         return None
+
+
+def great_circle_path(coord1, coord2, n_points: int = 200):
+    """
+    Compute intermediate points along the great-circle between coord1 and coord2.
+
+    coord1, coord2: (lat, lon) in degrees
+    Returns: list of (lat, lon) in degrees
+    """
+    lat1, lon1 = map(math.radians, coord1)
+    lat2, lon2 = map(math.radians, coord2)
+
+    # Convert to Cartesian
+    def to_xyz(lat, lon):
+        return [
+            math.cos(lat) * math.cos(lon),
+            math.cos(lat) * math.sin(lon),
+            math.sin(lat),
+        ]
+
+    p1 = to_xyz(lat1, lon1)
+    p2 = to_xyz(lat2, lon2)
+
+    # Angle between the points
+    dot = sum(a * b for a, b in zip(p1, p2))
+    dot = max(-1.0, min(1.0, dot))  # numerical safety
+    omega = math.acos(dot)
+    sin_omega = math.sin(omega)
+
+    if sin_omega == 0:
+        # Points are identical or extremely close
+        return [coord1, coord2]
+
+    points = []
+    for i in range(n_points + 1):
+        t = i / n_points
+        k1 = math.sin((1 - t) * omega) / sin_omega
+        k2 = math.sin(t * omega) / sin_omega
+        x = k1 * p1[0] + k2 * p2[0]
+        y = k1 * p1[1] + k2 * p2[1]
+        z = k1 * p1[2] + k2 * p2[2]
+        lat = math.atan2(z, (x * x + y * y) ** 0.5)
+        lon = math.atan2(y, x)
+        points.append((math.degrees(lat), math.degrees(lon)))
+
+    return points
+
+
+def render_globe(coords_1, coords_2, progress: float):
+    """
+    Renders a 3D globe showing a great-circle route between two coordinates.
+    progress: 0.0 → departure, 1.0 → arrival
+    """
+    lat1, lon1 = coords_1
+    lat2, lon2 = coords_2
+
+    path = great_circle_path(coords_1, coords_2, n_points=200)
+    idx = int(progress * (len(path) - 1))
+    plane_lat, plane_lon = path[idx]
+
+    # NO external textures – just colored, shaded sphere
+    option = {
+        "backgroundColor": "#000000",
+        "globe": {
+            "shading": "lambert",
+            "baseColor": "#1b4f72",      # ocean blue
+            "environment": "#000000",
+            "displacementScale": 0.0,    # smooth sphere
+            "light": {
+                "ambient": {"intensity": 0.6},
+                "main": {"intensity": 0.8},
+            },
+            "viewControl": {
+                "autoRotate": False,
+                "autoRotateAfterStill": 5,
+                "distance": 180,
+            },
+        },
+        "series": [
+            {
+                "type": "lines3D",
+                "coordinateSystem": "globe",
+                "blendMode": "lighter",
+                "effect": {
+                    "show": True,
+                    "trailWidth": 4,
+                    "trailOpacity": 0.7,
+                    "trailLength": 0.3,
+                },
+                "lineStyle": {
+                    "width": 2,
+                    "color": "#00aaff",
+                    "opacity": 0.9,
+                },
+                "data": [
+                    {
+                        "coords": [
+                            [lon1, lat1],
+                            [lon2, lat2],
+                        ]
+                    }
+                ],
+            },
+            {
+                "type": "scatter3D",
+                "coordinateSystem": "globe",
+                "symbol": "pin",
+                "symbolSize": 26,
+                "itemStyle": {"color": "yellow"},
+                "data": [[plane_lon, plane_lat, 0]],
+            },
+        ],
+    }
+
+    st_echarts(option, height="600px")
+
 
 
 def render():
     st.subheader("City to City Travel")
     st.markdown(
         "Given two cities, estimate which aircraft in a simple database "
-        "can complete the route, along with approximate flight time and fuel."
+        "can complete the route, along with approximate flight time and fuel, "
+        "and visualize the great-circle route on a **3D globe**."
     )
 
     # --- Aircraft database (very simplified) ---
@@ -137,13 +252,14 @@ def render():
     try:
         with st.spinner("Geocoding cities..."):
             coords_1 = geocode_city(departure_city)
-            time.sleep(0.3)  # tiny pause, not strictly needed
+            time.sleep(0.3)
             coords_2 = geocode_city(destination_city)
 
         if not coords_1 or not coords_2:
             st.error("❌ Could not locate one or both cities. Try more specific names.")
             return
 
+        # Great-circle distance (geodesic)
         distance_km = geodesic(coords_1, coords_2).kilometers
         distance_m = distance_km * 1000.0
 
@@ -180,7 +296,6 @@ def render():
                         }
                     )
             except (ValueError, ZeroDivisionError):
-                # Skip aircraft with invalid parameters
                 continue
 
         if not output_rows:
@@ -209,34 +324,16 @@ def render():
             use_container_width=True,
         )
 
-        # --- Route map ---
-        theme = st.get_option("theme.base")
-        tiles = "CartoDB dark_matter" if theme == "dark" else "CartoDB positron"
-
-        mid_lat = (coords_1[0] + coords_2[0]) / 2.0
-        mid_lon = (coords_1[1] + coords_2[1]) / 2.0
-
-        m = folium.Map(location=[mid_lat, mid_lon], zoom_start=3, tiles=tiles)
-
-        folium.Marker(
-            coords_1,
-            popup=f"Departure: {departure_city}",
-            icon=folium.Icon(color="green"),
-        ).add_to(m)
-        folium.Marker(
-            coords_2,
-            popup=f"Destination: {destination_city}",
-            icon=folium.Icon(color="red"),
-        ).add_to(m)
-        folium.PolyLine(
-            [coords_1, coords_2],
-            color="blue",
-            weight=3,
-            opacity=0.8,
-        ).add_to(m)
-
-        st.subheader("🗺 Route Map")
-        st_folium(m, width=700, height=300)
+        # --- 3D Globe ---
+        st.markdown("### 🌍 3D Globe Route Visualization")
+        progress = st.slider(
+            "Route progress (0 = departure, 1 = arrival)",
+            0.0,
+            1.0,
+            0.0,
+            0.01,
+        )
+        render_globe(coords_1, coords_2, progress)
 
     except Exception as e:
         st.error(f"🌐 Location lookup failed: {e}")
