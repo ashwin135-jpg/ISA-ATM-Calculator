@@ -1,0 +1,208 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>ISA 3D Flight Globe</title>
+  <style>
+    html, body {
+      margin: 0;
+      padding: 0;
+      overflow: hidden;
+      background: #000;
+      color: #fff;
+      font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+    }
+    #info {
+      position: absolute;
+      top: 10px;
+      left: 10px;
+      z-index: 10;
+      padding: 8px 12px;
+      background: rgba(0, 0, 0, 0.5);
+      border-radius: 8px;
+      font-size: 14px;
+    }
+    #globe {
+      width: 100vw;
+      height: 100vh;
+      display: block;
+    }
+  </style>
+</head>
+<body>
+  <div id="info">
+    <strong>ISA 3D Flight Globe</strong><br />
+    Drag to rotate • Scroll to zoom
+  </div>
+  <canvas id="globe"></canvas>
+
+  <!-- Three.js & OrbitControls from CDN -->
+  <script src="https://unpkg.com/three@0.157.0/build/three.min.js"></script>
+  <script src="https://unpkg.com/three@0.157.0/examples/js/controls/OrbitControls.js"></script>
+
+  <script>
+    // ==============================
+    // 1. BASIC SCENE SETUP
+    // ==============================
+    const canvas = document.getElementById("globe");
+    const renderer = new THREE.WebGLRenderer({ canvas, antialias: true });
+    renderer.setPixelRatio(window.devicePixelRatio || 1);
+    renderer.setSize(window.innerWidth, window.innerHeight);
+
+    const scene = new THREE.Scene();
+    scene.background = new THREE.Color(0x000000);
+
+    const camera = new THREE.PerspectiveCamera(
+      45,
+      window.innerWidth / window.innerHeight,
+      0.1,
+      1000
+    );
+    camera.position.set(0, 0, 4);
+
+    const controls = new THREE.OrbitControls(camera, renderer.domElement);
+    controls.enableDamping = true;
+    controls.dampingFactor = 0.05;
+
+    // Lighting
+    const ambient = new THREE.AmbientLight(0xffffff, 0.6);
+    scene.add(ambient);
+    const directional = new THREE.DirectionalLight(0xffffff, 1.0);
+    directional.position.set(5, 3, 5);
+    scene.add(directional);
+
+    // ==============================
+    // 2. EARTH SPHERE WITH TEXTURE
+    // ==============================
+    // IMPORTANT: earth.jpg must be in the same folder as this HTML file.
+    const EARTH_TEXTURE_URL = "earth.jpg";
+
+    const sphereGeometry = new THREE.SphereGeometry(1, 64, 64);
+    const earthMaterial = new THREE.MeshPhongMaterial({
+      color: 0xffffff,
+    });
+    const earth = new THREE.Mesh(sphereGeometry, earthMaterial);
+    scene.add(earth);
+
+    // Load texture
+    const textureLoader = new THREE.TextureLoader();
+    textureLoader.load(
+      EARTH_TEXTURE_URL,
+      (texture) => {
+        earthMaterial.map = texture;
+        earthMaterial.needsUpdate = true;
+      },
+      undefined,
+      (err) => {
+        console.error("Error loading Earth texture:", err);
+        // Fallback: blue Earth
+        earthMaterial.color.set(0x1565c0);
+      }
+    );
+
+    // ==============================
+    // 3. GREAT-CIRCLE MATH HELPERS
+    // ==============================
+    /**
+     * Convert lat/lon in degrees to 3D Cartesian coordinates on unit sphere.
+     */
+    function latLonToXYZ(latDeg, lonDeg, radius = 1.001) {
+      const lat = THREE.MathUtils.degToRad(latDeg);
+      const lon = THREE.MathUtils.degToRad(lonDeg);
+
+      const x = radius * Math.cos(lat) * Math.cos(lon);
+      const y = radius * Math.sin(lat);
+      const z = radius * Math.cos(lat) * Math.sin(lon);
+      return new THREE.Vector3(x, y, z);
+    }
+
+    /**
+     * Compute points along the great-circle path between two lat/lon pairs.
+     */
+    function greatCirclePath(lat1, lon1, lat2, lon2, segments = 200) {
+      const p1 = latLonToXYZ(lat1, lon1, 1.001);
+      const p2 = latLonToXYZ(lat2, lon2, 1.001);
+
+      const pathPoints = [];
+      for (let i = 0; i <= segments; i++) {
+        const t = i / segments;
+        // Spherical linear interpolation (slerp)
+        const v = new THREE.Vector3().copy(p1).lerp(p2, t).normalize().multiplyScalar(1.001);
+        pathPoints.push(v);
+      }
+      return pathPoints;
+    }
+
+    // ==============================
+    // 4. ROUTE DEFINITION
+    // ==============================
+    // Set your route here (degrees):
+    // Example: Singapore (SIN) -> Los Angeles (LAX)
+    const route = {
+      from: { lat: 1.3644, lon: 103.9915 },   // Singapore Changi
+      to:   { lat: 33.9416, lon: -118.4085 }, // LAX
+    };
+
+    const routePoints = greatCirclePath(
+      route.from.lat,
+      route.from.lon,
+      route.to.lat,
+      route.to.lon,
+      256
+    );
+
+    // ==============================
+    // 5. DRAW ROUTE AS LINE
+    // ==============================
+    const routeGeometry = new THREE.BufferGeometry().setFromPoints(routePoints);
+    const routeMaterial = new THREE.LineBasicMaterial({
+      color: 0x00e5ff,
+      linewidth: 2,
+    });
+    const routeLine = new THREE.Line(routeGeometry, routeMaterial);
+    scene.add(routeLine);
+
+    // ==============================
+    // 6. "PLANE" MARKER
+    // ==============================
+    const planeGeometry = new THREE.SphereGeometry(0.02, 16, 16);
+    const planeMaterial = new THREE.MeshBasicMaterial({ color: 0xffff00 });
+    const plane = new THREE.Mesh(planeGeometry, planeMaterial);
+    scene.add(plane);
+
+    let t = 0;           // 0 → 1 along the route
+    const speed = 0.02;  // animation speed
+
+    // ==============================
+    // 7. ANIMATION LOOP
+    // ==============================
+    function animate() {
+      requestAnimationFrame(animate);
+
+      // Auto-move plane along the route
+      t += speed * 0.01;
+      if (t > 1) t = 0;
+      const idx = Math.floor(t * (routePoints.length - 1));
+      plane.position.copy(routePoints[idx]);
+
+      // Slow auto-rotation of Earth
+      earth.rotation.y += 0.0005;
+
+      controls.update();
+      renderer.render(scene, camera);
+    }
+    animate();
+
+    // ==============================
+    // 8. RESIZE HANDLER
+    // ==============================
+    window.addEventListener("resize", () => {
+      const width = window.innerWidth;
+      const height = window.innerHeight;
+      camera.aspect = width / height;
+      camera.updateProjectionMatrix();
+      renderer.setSize(width, height);
+    });
+  </script>
+</body>
+</html>
