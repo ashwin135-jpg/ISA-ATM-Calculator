@@ -2,10 +2,9 @@ import math
 import time
 
 import pandas as pd
-import streamlit as st
 import requests
+import streamlit as st
 from geopy.distance import geodesic
-from streamlit_echarts import st_echarts  # <-- 3D globe
 
 
 def geocode_city(city_name: str):
@@ -33,128 +32,41 @@ def geocode_city(city_name: str):
         return None
 
 
-def great_circle_path(coord1, coord2, n_points: int = 200):
+def get_weather(lat: float, lon: float):
     """
-    Compute intermediate points along the great-circle between coord1 and coord2.
+    Fetch current weather at a given lat/lon using Open-Meteo.
 
-    coord1, coord2: (lat, lon) in degrees
-    Returns: list of (lat, lon) in degrees
+    Returns a dict with temperature (°C), wind speed (m/s), wind direction (deg),
+    or None on error.
     """
-    lat1, lon1 = map(math.radians, coord1)
-    lat2, lon2 = map(math.radians, coord2)
+    try:
+        url = (
+            "https://api.open-meteo.com/v1/forecast"
+            f"?latitude={lat}&longitude={lon}&current_weather=true"
+        )
+        r = requests.get(url, timeout=8)
+        r.raise_for_status()
+        data = r.json()
+        current = data.get("current_weather")
+        if not current:
+            return None
 
-    # Convert to Cartesian
-    def to_xyz(lat, lon):
-        return [
-            math.cos(lat) * math.cos(lon),
-            math.cos(lat) * math.sin(lon),
-            math.sin(lat),
-        ]
-
-    p1 = to_xyz(lat1, lon1)
-    p2 = to_xyz(lat2, lon2)
-
-    # Angle between the points
-    dot = sum(a * b for a, b in zip(p1, p2))
-    dot = max(-1.0, min(1.0, dot))  # numerical safety
-    omega = math.acos(dot)
-    sin_omega = math.sin(omega)
-
-    if sin_omega == 0:
-        # Points are identical or extremely close
-        return [coord1, coord2]
-
-    points = []
-    for i in range(n_points + 1):
-        t = i / n_points
-        k1 = math.sin((1 - t) * omega) / sin_omega
-        k2 = math.sin(t * omega) / sin_omega
-        x = k1 * p1[0] + k2 * p2[0]
-        y = k1 * p1[1] + k2 * p2[1]
-        z = k1 * p1[2] + k2 * p2[2]
-        lat = math.atan2(z, (x * x + y * y) ** 0.5)
-        lon = math.atan2(y, x)
-        points.append((math.degrees(lat), math.degrees(lon)))
-
-    return points
-
-
-def render_globe(coords_1, coords_2, progress: float):
-    """
-    Renders a 3D globe showing a great-circle route between two coordinates.
-    progress: 0.0 → departure, 1.0 → arrival
-    """
-    lat1, lon1 = coords_1
-    lat2, lon2 = coords_2
-
-    path = great_circle_path(coords_1, coords_2, n_points=200)
-    idx = int(progress * (len(path) - 1))
-    plane_lat, plane_lon = path[idx]
-
-    # NO external textures – just colored, shaded sphere
-    option = {
-        "backgroundColor": "#000000",
-        "globe": {
-            "shading": "lambert",
-            "baseColor": "#1b4f72",      # ocean blue
-            "environment": "#000000",
-            "displacementScale": 0.0,    # smooth sphere
-            "light": {
-                "ambient": {"intensity": 0.6},
-                "main": {"intensity": 0.8},
-            },
-            "viewControl": {
-                "autoRotate": False,
-                "autoRotateAfterStill": 5,
-                "distance": 180,
-            },
-        },
-        "series": [
-            {
-                "type": "lines3D",
-                "coordinateSystem": "globe",
-                "blendMode": "lighter",
-                "effect": {
-                    "show": True,
-                    "trailWidth": 4,
-                    "trailOpacity": 0.7,
-                    "trailLength": 0.3,
-                },
-                "lineStyle": {
-                    "width": 2,
-                    "color": "#00aaff",
-                    "opacity": 0.9,
-                },
-                "data": [
-                    {
-                        "coords": [
-                            [lon1, lat1],
-                            [lon2, lat2],
-                        ]
-                    }
-                ],
-            },
-            {
-                "type": "scatter3D",
-                "coordinateSystem": "globe",
-                "symbol": "pin",
-                "symbolSize": 26,
-                "itemStyle": {"color": "yellow"},
-                "data": [[plane_lon, plane_lat, 0]],
-            },
-        ],
-    }
-
-    st_echarts(option, height="600px")
-
+        return {
+            "temperature_C": current.get("temperature"),
+            "windspeed_ms": current.get("windspeed"),
+            "winddirection_deg": current.get("winddirection"),
+        }
+    except Exception as e:
+        st.warning(f"🌦 Weather lookup failed at ({lat:.2f}, {lon:.2f}): {e}")
+        return None
 
 
 def render():
     st.subheader("City to City Travel")
     st.markdown(
         "Given two cities, estimate which aircraft in a simple database "
-        "can complete the route, along with approximate flight time and fuel, "
-        "and visualize the great-circle route on a **3D globe**."
+        "can complete the route, with approximate **flight time**, **fuel** and "
+        "**current weather** at each end."
     )
 
     # --- Aircraft database (very simplified) ---
@@ -259,7 +171,7 @@ def render():
             st.error("❌ Could not locate one or both cities. Try more specific names.")
             return
 
-        # Great-circle distance (geodesic)
+        # Great-circle distance
         distance_km = geodesic(coords_1, coords_2).kilometers
         distance_m = distance_km * 1000.0
 
@@ -269,8 +181,8 @@ def render():
             V = ac["cruise_speed"]        # m/s
             c = ac["SFC"]                 # 1/hr
             LD = ac["LD"]
-            fuel_capacity = ac["fuel_capacity"]           # kg
-            MTOW = ac["max_takeoff_weight"]               # kg (approx)
+            fuel_capacity = ac["fuel_capacity"]     # kg
+            MTOW = ac["max_takeoff_weight"]         # kg (approx)
             c_sec = c / 3600.0
 
             try:
@@ -284,7 +196,7 @@ def render():
                     Wf = MTOW / math.exp((c_sec * distance_m) / (V * LD))
                     fuel_needed = MTOW - Wf
 
-                    # Effective speed ~ 85% of cruise
+                    # Effective cruise ~ 85% of nominal cruise
                     effective_speed_ms = V * 0.85
                     time_hr = distance_km * 1000.0 / effective_speed_ms / 3600.0
 
@@ -303,19 +215,18 @@ def render():
             return
 
         df_results = pd.DataFrame(output_rows)
-
-        # --- Summary stats ---
         avg_time = df_results["Flight Time (hr)"].mean()
 
+        # --- Summary ---
         st.markdown("### ✈️ Route Summary")
         colA, colB = st.columns(2)
         with colA:
-            st.metric(label="📏 Route Distance", value=f"{distance_km:.1f} km")
+            st.metric("📏 Route Distance", f"{distance_km:.1f} km")
         with colB:
-            st.metric(label="⏱ Average Flight Time", value=f"{avg_time:.2f} hr")
+            st.metric("⏱ Average Flight Time", f"{avg_time:.2f} hr")
 
         st.subheader(
-            f"{departure_city} → {destination_city}  "
+            f"{departure_city} → {destination_city} "
             f"({distance_km:.1f} km)"
         )
 
@@ -324,16 +235,41 @@ def render():
             use_container_width=True,
         )
 
-        # --- 3D Globe ---
-        st.markdown("### 🌍 3D Globe Route Visualization")
-        progress = st.slider(
-            "Route progress (0 = departure, 1 = arrival)",
-            0.0,
-            1.0,
-            0.0,
-            0.01,
-        )
-        render_globe(coords_1, coords_2, progress)
+        # --- Weather at departure and destination ---
+        st.subheader("🌦 Weather at Departure & Destination")
+
+        dep_weather = get_weather(*coords_1)
+        arr_weather = get_weather(*coords_2)
+
+        colW1, colW2 = st.columns(2)
+
+        if dep_weather:
+            with colW1:
+                st.markdown(f"**{departure_city}**")
+                st.metric("Temperature (°C)", f"{dep_weather['temperature_C']:.1f}")
+                st.metric("Wind Speed (m/s)", f"{dep_weather['windspeed_ms']:.1f}")
+                st.metric(
+                    "Wind Direction (°)",
+                    f"{dep_weather['winddirection_deg']:.0f}",
+                )
+        else:
+            with colW1:
+                st.markdown(f"**{departure_city}**")
+                st.info("No weather data available.")
+
+        if arr_weather:
+            with colW2:
+                st.markdown(f"**{destination_city}**")
+                st.metric("Temperature (°C)", f"{arr_weather['temperature_C']:.1f}")
+                st.metric("Wind Speed (m/s)", f"{arr_weather['windspeed_ms']:.1f}")
+                st.metric(
+                    "Wind Direction (°)",
+                    f"{arr_weather['winddirection_deg']:.0f}",
+                )
+        else:
+            with colW2:
+                st.markdown(f"**{destination_city}**")
+                st.info("No weather data available.")
 
     except Exception as e:
-        st.error(f"🌐 Location lookup failed: {e}")
+        st.error(f"🌐 Location or route computation failed: {e}")
