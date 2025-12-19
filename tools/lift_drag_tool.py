@@ -12,13 +12,16 @@ def call_backend_isa(altitude_m: float):
     Returns (T_K, P_Pa, rho, a) or (None, None, None, None) on error.
     """
     try:
-        resp = requests.post(
-            f"{BACKEND_URL}/api/isa/atmosphere",
-            json={"altitude_m": altitude_m},
-            timeout=10,
+        resp = requests.get(
+        f"{BACKEND_URL}/api/isa",
+        params={"altitude_m": altitude_m},
+        timeout=10,
         )
         resp.raise_for_status()
         data = resp.json()
+
+
+
         T_K = data.get("temperature_K")
         P_Pa = data.get("pressure_Pa")
         rho = data.get("density_kg_m3")

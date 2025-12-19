@@ -12,9 +12,9 @@ def call_backend_isa(altitude_m: float):
     Returns (data_dict, error_message).
     """
     try:
-        resp = requests.post(
-            f"{BACKEND_URL}/api/isa/atmosphere",
-            json={"altitude_m": altitude_m},
+        resp = requests.get(
+            f"{BACKEND_URL}/api/isa",
+            params={"altitude_m": altitude_m},
             timeout=10,
         )
         resp.raise_for_status()

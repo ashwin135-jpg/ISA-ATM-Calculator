@@ -34,7 +34,7 @@ def render():
     # Convert altitude to meters for backend
     alt_m = convert_altitude(user_alt, alt_unit, "meters")
 
-    # Limitation aligned with backend & ISA endpoint
+    # Backend Mach model is limited to 0–11 km
     if alt_m > 11000.0:
         st.error(
             "Backend Mach model currently supports up to 11,000 m (11 km). "
@@ -45,7 +45,7 @@ def render():
     # --- Backend call ---
     if st.button("Calculate Mach Number"):
         payload = {
-            "altitude_m": alt_m,
+            "altitude_m": alt_m,      # 👈 this is what backend expects
             "speed_value": V_input,
             "speed_unit": speed_unit,
         }
@@ -99,5 +99,5 @@ def render():
 
         st.caption(
             "Mach is computed as V/a, where a is the ISA speed of sound at the given altitude. "
-            "Core physics are computed by the private ISA backend."
+            "Core physics are computed by the ISA backend."
         )

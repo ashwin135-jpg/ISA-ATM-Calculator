@@ -16,17 +16,14 @@ def render():
     unit_system = st.radio("Select unit system", ["SI (Metric)", "Imperial (English)"])
 
     # --- Unit conversion helpers ---
-    def to_kg(lb):
+    def to_kg(lb: float) -> float:
         return lb * 0.453592
 
-    def to_mps(knots):
+    def to_mps(knots: float) -> float:
         return knots * 0.514444
 
-    def from_kg(kg):
+    def from_kg(kg: float) -> float:
         return kg / 0.453592
-
-    def from_km(km):
-        return km / 1.852
 
     # --- Inputs ---
     if unit_system == "SI (Metric)":
@@ -59,17 +56,17 @@ def render():
     )
     LD = st.number_input("Lift-to-drag ratio (L/D)", value=15.0, min_value=1.0)
 
-    # --- Basic sanity check (same as before) ---
+    # --- Basic sanity check ---
     Wi = W_total
     Wf = Wi - fuel_weight
     if Wf <= 0 or Wi <= Wf:
         st.error(
-            "Invalid weight combination. Make sure fuel_weight < total weight "
+            "Invalid weight combination. Make sure fuel weight < total weight "
             "and greater than zero."
         )
         return
 
-    # --- Call backend instead of doing math here ---
+    # --- Call backend ---
     if st.button("Compute Mission Performance"):
         payload = {
             "Wi_kg": Wi,
@@ -102,7 +99,7 @@ def render():
         R_mi = data.get("range_mi")
         time_hr = data.get("time_hr")
 
-        # --- Outputs (same behavior as before) ---
+        # --- Outputs ---
         st.markdown("### 📊 Estimated Mission Performance")
 
         col1, col2 = st.columns(2)
@@ -111,6 +108,7 @@ def render():
                 st.metric("Fuel Used", f"{fuel_kg:.1f} kg")
             else:
                 st.metric("Fuel Used", f"{from_kg(fuel_kg):.1f} lb")
+
             st.metric("Flight Time", f"{time_hr:.2f} hr" if time_hr is not None else "—")
 
         with col2:
