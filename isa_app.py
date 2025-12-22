@@ -11,9 +11,7 @@ from tools import (
     mission_planner_tool,
     city_to_city_tool,
     ai_assistant_tool,
-)
-
-BACKEND_URL = "http://127.0.0.1:8000"  
+) 
 
 st.set_page_config(
     page_title="ISA Master Tool",
@@ -37,6 +35,11 @@ tool_options = [
 # Default tool on first load
 if "tool" not in st.session_state:
     st.session_state["tool"] = "ISA Air Properties"
+
+tool_param = st.query_params.get("tool")
+
+if tool_param and tool_param in tool_options:
+    st.session_state["tool"] = tool_param
 
 st.markdown(
     "## [✈ ISA Master Tool](https://ashwin135-jpg.github.io/ISA-ATM-Calculator/)"
