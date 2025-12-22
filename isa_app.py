@@ -32,9 +32,10 @@ tool_options = [
     "AI Assistant",
 ]
 
-# Default tool on first load
+
 if "tool" not in st.session_state:
     st.session_state["tool"] = "ISA Air Properties"
+
 
 tool_param = st.query_params.get("tool")
 

@@ -12,7 +12,7 @@
     body {
       margin: 0;
       font-family: 'Segoe UI', sans-serif;
-      background: #111;
+      background: #050816;
       color: white;
     }
 
@@ -31,16 +31,295 @@
       color: #ccc;
     }
 
-    section {
+    /* ---------- ISA COCKPIT DASHBOARD ---------- */
+
+    .dashboard-section {
+      padding: 40px 20px 60px;
+      background: radial-gradient(circle at top, #050816 0, #020617 55%, #000000 100%);
+      color: #e5ecff;
+    }
+
+    .dashboard-title {
+      max-width: 1100px;
+      margin: 0 auto 20px auto;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .dashboard-title-main {
+      font-size: 1.4rem;
+      font-weight: 600;
+      letter-spacing: 0.03em;
+    }
+
+    .dashboard-subtext {
+      font-size: 0.9rem;
+      color: #a6b4d9;
+    }
+
+    .tag-pill {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      padding: 4px 10px;
+      border-radius: 999px;
+      font-size: 0.7rem;
+      text-transform: uppercase;
+      letter-spacing: 0.09em;
+      background: linear-gradient(135deg, rgba(34,211,238,0.18), rgba(129,140,248,0.25));
+      color: #e0faff;
+      border: 1px solid rgba(56,189,248,0.6);
+      box-shadow: 0 0 16px rgba(45,212,191,0.5);
+    }
+
+    .dashboard-grid {
+      max-width: 1100px;
+      margin: 0 auto;
+      display: grid;
+      grid-template-columns: 1.2fr 1.8fr;
+      grid-template-rows: auto auto;
+      gap: 20px;
+    }
+
+    .dash-card {
+      background: radial-gradient(circle at top left, #111827 0, #020617 75%);
+      border-radius: 22px;
+      padding: 18px 20px;
+      box-shadow: 0 22px 50px rgba(0,0,0,0.75);
+      border: 1px solid rgba(148,163,184,0.25);
+      color: #e5ecff;
+      transition: transform 0.2s ease, box-shadow 0.2s ease, border-color 0.2s ease;
+    }
+
+    .dash-card:hover {
+      transform: translateY(-4px);
+      box-shadow: 0 28px 70px rgba(15,23,42,0.95);
+      border-color: rgba(56,189,248,0.6);
+    }
+
+    .dash-card h3 {
+      margin-top: 0;
+      margin-bottom: 8px;
+      font-size: 1rem;
+      font-weight: 600;
+      letter-spacing: 0.06em;
+      text-transform: uppercase;
+      color: #f9fbff;
+    }
+
+    .dash-row {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .big-city {
+      font-size: 1.4rem;
+      font-weight: 600;
+      color: #f9fafb;
+    }
+
+    .big-time {
+      font-size: 2.7rem;
+      font-weight: 700;
+      color: #e5f3ff;
+    }
+
+    .date-line {
+      font-size: 0.85rem;
+      color: #9ca9c9;
+      margin-top: 4px;
+    }
+
+    .metric-label {
+      font-size: 0.75rem;
+      text-transform: uppercase;
+      letter-spacing: 0.1em;
+      color: #9ca3ff;
+      margin-bottom: 4px;
+    }
+
+    .metric-value {
+      font-size: 1.2rem;
+      font-weight: 600;
+      color: #e0f2ff;
+    }
+
+    .metric-small {
+      font-size: 0.85rem;
+      color: #c0cbe9;
+    }
+
+    .divider-line {
+      height: 1px;
+      background: linear-gradient(to right, transparent, rgba(148,163,184,0.5), transparent);
+      margin: 10px 0 12px;
+    }
+
+    .forecast-row {
+      display: flex;
+      justify-content: space-between;
+      font-size: 0.8rem;
+      color: #d2deef;
+      margin: 3px 0;
+    }
+
+    pre.metric-small {
+      background: rgba(15,23,42,0.8);
+      border-radius: 12px;
+      padding: 6px 10px;
+      color: #cbd5ff;
+      white-space: pre-wrap;
+    }
+
+    /* AI + News */
+    .news-bullet {
+      font-size: 0.82rem;
+      margin: 3px 0;
+      color: #d3e2ff;
+    }
+
+    .news-link {
+      color: #7dd3fc;
+      text-decoration: none;
+    }
+
+    .news-link:hover {
+      text-decoration: underline;
+      color: #a5b4fc;
+    }
+
+    .ai-search {
+      margin-top: 12px;
+      display: flex;
+      gap: 8px;
+      align-items: center;
+    }
+
+    .ai-input {
+      flex: 1;
+      padding: 8px 10px;
+      border-radius: 999px;
+      border: 1px solid rgba(148,163,184,0.6);
+      background: rgba(15,23,42,0.9);
+      color: #e5ecff;
+      font-size: 0.85rem;
+      outline: none;
+      box-shadow: 0 0 0 1px rgba(15,23,42,0.7);
+    }
+
+    .ai-input::placeholder { color: #9ca3c7; }
+
+    .ai-input:focus {
+      border-color: rgba(56,189,248,0.9);
+      box-shadow: 0 0 18px rgba(56,189,248,0.55);
+    }
+
+    .ai-button {
+      padding: 8px 14px;
+      border-radius: 999px;
+      border: none;
+      font-size: 0.85rem;
+      font-weight: 600;
+      cursor: pointer;
+      background: linear-gradient(135deg, #22c55e, #22d3ee);
+      color: #020617;
+      box-shadow: 0 18px 35px rgba(34,197,94,0.45);
+      white-space: nowrap;
+    }
+
+    .ai-button:hover {
+      filter: brightness(1.08);
+      box-shadow: 0 20px 45px rgba(34,197,94,0.7);
+    }
+
+    .ai-status {
+      font-size: 0.78rem;
+      color: #a5b4fc;
+      margin-top: 6px;
+    }
+
+    .ai-answer-bubble {
+      margin-top: 8px;
+      padding: 10px 12px;
+      border-radius: 16px;
+      background: radial-gradient(circle at top left, #0ea5e9 0, #1e293b 55%);
+      color: #ecfeff;
+      font-size: 0.9rem;
+      line-height: 1.4;
+      box-shadow: 0 14px 30px rgba(15, 23, 42, 0.9);
+      opacity: 0;
+      transform: translateY(8px) scale(0.98);
+      transition: opacity 0.25s ease-out, transform 0.25s ease-out;
+    }
+
+    .ai-answer-bubble.show {
+      opacity: 1;
+      transform: translateY(0) scale(1);
+    }
+
+    .hidden { display: none; }
+
+    /* METAR controls */
+    .airport-row {
+      display: flex;
+      gap: 8px;
+      align-items: center;
+      margin-top: 4px;
+    }
+
+    .airport-select {
+      flex: 1;
+      padding: 6px 10px;
+      border-radius: 999px;
+      border: 1px solid rgba(148,163,184,0.7);
+      background: rgba(15,23,42,0.9);
+      color: #e5ecff;
+      font-size: 0.8rem;
+      outline: none;
+    }
+
+    .airport-select:focus {
+      border-color: rgba(56,189,248,0.9);
+      box-shadow: 0 0 12px rgba(56,189,248,0.6);
+    }
+
+    .geo-button {
+      padding: 6px 10px;
+      border-radius: 999px;
+      border: none;
+      font-size: 0.75rem;
+      cursor: pointer;
+      white-space: nowrap;
+      background: linear-gradient(135deg, #22c55e, #22d3ee);
+      color: #020617;
+      box-shadow: 0 10px 20px rgba(34,197,94,0.4);
+    }
+
+    .geo-button:hover { filter: brightness(1.06); }
+
+    /* Winds aloft slider */
+    #alt-ft { accent-color: #22d3ee; }
+    #wx-conditions, #wx-wind, #winds-aloft { text-shadow: 0 0 18px rgba(56,189,248,0.25); }
+
+    /* Responsive */
+    @media (max-width: 900px) {
+      .dashboard-title { flex-direction: column; align-items: flex-start; }
+      .dashboard-grid { grid-template-columns: 1fr; }
+    }
+
+    /* ---------- TOOL SECTION ---------- */
+    section.tools-section {
       background: white;
       color: black;
       padding: 60px 30px;
       text-align: center;
     }
 
-    h2 {
-      margin-bottom: 40px;
-    }
+    h2 { margin-bottom: 40px; }
 
     .button-grid {
       display: flex;
@@ -75,34 +354,28 @@
     }
 
     lottie-player {
-    width: 300px;
-    height: 300px;
-    margin: 20px auto;
-    display: block;
-  }
-
-  @media (min-width: 768px) {
-    lottie-player {
-      width: 800px !important;  /* ⬅ increase for laptop */
-      height: 400px !important; /* ⬅ adjust height */
-    }
-  }
-
-  @media (max-width: 600px) {
-    header {
-      padding: 60px 20px 30px;
+      width: 300px;
+      height: 300px;
+      margin: 20px auto;
+      display: block;
     }
 
-    lottie-player {
-      width: 90% !important;
-      max-width: 320px;
-      height: auto !important;
+    @media (min-width: 768px) {
+      lottie-player {
+        width: 800px !important;
+        height: 400px !important;
+      }
     }
 
-    .tool-button {
-      width: 90%;
+    @media (max-width: 600px) {
+      header { padding: 60px 20px 30px; }
+      lottie-player {
+        width: 90% !important;
+        max-width: 320px;
+        height: auto !important;
+      }
+      .tool-button { width: 90%; }
     }
-  }
   </style>
 
   <!-- Lottie Player -->
@@ -110,98 +383,434 @@
 </head>
 
 <body>
-
   <header data-aos="fade-down">
     <h1>✈ ISA Master Tool</h1>
     <p>Aerospace engineering tools for atmosphere, performance, and mission planning</p>
     <h3>Created by Ashwin Ganesh</h3>
 
     <lottie-player
-    src="https://lottie.host/68ecc80f-3865-4071-89bf-1db845e65c6e/O67It7eqk8.json"
-    background="transparent"
-    speed="1"
-    loop
-    autoplay>
-  </lottie-player>
+      src="https://lottie.host/68ecc80f-3865-4071-89bf-1db845e65c6e/O67It7eqk8.json"
+      background="transparent"
+      speed="1"
+      loop
+      autoplay>
+    </lottie-player>
   </header>
 
- <section>
-  <h2 data-aos="fade-up">Choose a Tool</h2>
+  <!-- ========= ISA COMMAND CENTER DASHBOARD ========= -->
+  <section class="dashboard-section">
+    <div class="dashboard-title" data-aos="fade-up">
+      <div>
+        <div class="dashboard-title-main">ISA Command Center</div>
+        <div class="dashboard-subtext">
+          Live cockpit: weather, winds aloft, METAR, and ISA AI.
+        </div>
+      </div>
+      <div class="tag-pill">Student Flight Deck</div>
+    </div>
 
-  <div class="button-grid">
-    <!-- ISA Atmosphere -->
-    <a
-      href="https://isa-atm-calculator-tmepkr7qfrryb65yvtjg7j.streamlit.app/?tool=ISA+Atmosphere+Calculator"
-      class="tool-button"
-      data-aos="zoom-in"
-      data-aos-delay="100"
-    >
-      ISA Air Properties
-    </a>
+    <div class="dashboard-grid">
+      <!-- Time + Winds Aloft -->
+      <div class="dash-card" data-aos="zoom-in" data-aos-delay="50">
+        <h3>Local Time & Winds Aloft</h3>
+        <div class="dash-row">
+          <div>
+            <div class="metric-label">City</div>
+            <div class="big-city" id="city-label">Long Beach, CA</div>
+            <div class="date-line" id="date-line"></div>
+          </div>
+          <div style="text-align:right;">
+            <div class="metric-label">Current Time</div>
+            <div class="big-time" id="clock">--:--</div>
+          </div>
+        </div>
 
-    <!-- Mach Number -->
-    <a
-      href="https://isa-atm-calculator-tmepkr7qfrryb65yvtjg7j.streamlit.app/?tool=Mach+Number+Calculator"
-      class="tool-button"
-      data-aos="zoom-in"
-      data-aos-delay="200"
-    >
-      Mach Number Calculator
-    </a>
+        <div class="divider-line"></div>
 
-    <!-- Lift & Drag -->
-    <a
-      href="https://isa-atm-calculator-tmepkr7qfrryb65yvtjg7j.streamlit.app/?tool=Lift+and+Drag+Calculator"
-      class="tool-button"
-      data-aos="zoom-in"
-      data-aos-delay="300"
-    >
-      Lift &amp; Drag Calculator
-    </a>
+        <div class="dash-row">
+          <div style="flex:1;">
+            <div class="metric-label">Cruise Altitude (ft)</div>
+            <input id="alt-ft" type="range" min="0" max="42000" step="1000" value="8000" style="width:100%;">
+            <div class="metric-small"><span id="alt-ft-label">8,000</span> ft</div>
+          </div>
 
-    <!-- Fuel & Range -->
-    <a
-      href="https://isa-atm-calculator-tmepkr7qfrryb65yvtjg7j.streamlit.app/?tool=Fuel+Consumption+%26+Range+Estimator"
-      class="tool-button"
-      data-aos="zoom-in"
-      data-aos-delay="400"
-    >
-      Fuel &amp; Range Estimator
-    </a>
+          <div style="text-align:right; min-width: 160px;">
+            <div class="metric-label">Winds Aloft</div>
+            <div class="metric-value" id="winds-aloft">Loading…</div>
+            <div class="metric-small" id="winds-aloft-sub">—</div>
+          </div>
+        </div>
+      </div>
 
-    <!-- Mission Planner -->
-    <a
-      href="https://isa-atm-calculator-tmepkr7qfrryb65yvtjg7j.streamlit.app/?tool=Mission+Planner"
-      class="tool-button"
-      data-aos="zoom-in"
-      data-aos-delay="500"
-    >
-      Mission Planner
-    </a>
+      <!-- Surface Weather -->
+      <div class="dash-card" data-aos="zoom-in" data-aos-delay="150">
+        <h3>Surface Weather Snapshot</h3>
 
-    <!-- City to City -->
-    <a
-      href="https://isa-atm-calculator-tmepkr7qfrryb65yvtjg7j.streamlit.app/?tool=City+to+City+Flight+Estimator"
-      class="tool-button"
-      data-aos="zoom-in"
-      data-aos-delay="600"
-    >
-      City to City Estimator
-    </a>
-  </div>
-</section>
+        <div class="dash-row">
+          <div>
+            <div class="metric-label">Conditions</div>
+            <div class="metric-value" id="wx-conditions">Loading…</div>
+            <div class="metric-small" id="wx-sub">—</div>
+          </div>
 
+          <div style="text-align:right;">
+            <div class="metric-label">Wind • Pressure</div>
+            <div class="metric-value" id="wx-wind">—</div>
+            <div class="metric-small" id="wx-pressure">—</div>
+          </div>
+        </div>
+
+        <div class="divider-line"></div>
+
+        <div class="metric-label" style="margin-bottom:6px;">Next Hours</div>
+        <div class="forecast-row"><span id="fh-1t">—</span><span id="fh-1w">—</span><span id="fh-1s">—</span></div>
+        <div class="forecast-row"><span id="fh-2t">—</span><span id="fh-2w">—</span><span id="fh-2s">—</span></div>
+        <div class="forecast-row"><span id="fh-3t">—</span><span id="fh-3w">—</span><span id="fh-3s">—</span></div>
+        <div class="forecast-row"><span id="fh-4t">—</span><span id="fh-4w">—</span><span id="fh-4s">—</span></div>
+      </div>
+
+      <!-- METAR -->
+      <div class="dash-card" data-aos="zoom-in" data-aos-delay="250">
+        <h3>Airport METAR / TAF</h3>
+
+        <div class="metric-label">Select Airport</div>
+        <div class="airport-row">
+          <select id="airport-select" class="airport-select" onchange="handleAirportChange()">
+            <option value="KLGB">KLGB – Long Beach</option>
+            <option value="KLAX">KLAX – Los Angeles Intl</option>
+            <option value="KSNA">KSNA – John Wayne</option>
+            <option value="KBUR">KBUR – Hollywood Burbank</option>
+            <option value="KONT">KONT – Ontario Intl</option>
+          </select>
+          <button type="button" class="geo-button" onclick="useMyLocation()">Use my location</button>
+        </div>
+
+        <div class="metric-small" id="airport-distance" style="margin-top:4px;">
+          Nearest known field: KLGB – Long Beach (demo)
+        </div>
+
+        <div class="divider-line"></div>
+
+        <div class="metric-label">Latest METAR</div>
+        <pre id="metar-raw" class="metric-small">Fetching METAR...</pre>
+
+        <div class="divider-line"></div>
+
+        <div class="metric-label">Decoded snapshot</div>
+        <div class="metric-small" id="metar-decoded">Loading…</div>
+      </div>
+
+      <!-- News + AI -->
+      <div class="dash-card" data-aos="zoom-in" data-aos-delay="350">
+        <h3>Aerospace News &amp; ISA AI</h3>
+
+        <div class="metric-label">Links (news feed comes next)</div>
+        <div class="news-bullet">• <a class="news-link" href="https://www.nasa.gov/news-release/" target="_blank" rel="noopener">NASA updates</a></div>
+        <div class="news-bullet">• <a class="news-link" href="https://www.flightglobal.com/news" target="_blank" rel="noopener">FlightGlobal</a></div>
+        <div class="news-bullet">• <a class="news-link" href="https://spacenews.com/" target="_blank" rel="noopener">SpaceNews</a></div>
+
+        <div class="divider-line"></div>
+
+        <div class="metric-label">Ask ISA AI</div>
+        <div class="metric-small" style="margin-bottom:6px;">
+          Ask any aerospace question. Answer appears below.
+        </div>
+
+        <div class="ai-search">
+          <input id="ai-query" class="ai-input" type="text" placeholder="e.g. Explain lift vs drag at high Mach"/>
+          <button class="ai-button" type="button" onclick="askISA()">Ask</button>
+        </div>
+
+        <div id="ai-status" class="ai-status"></div>
+        <div id="ai-answer" class="ai-answer-bubble hidden"></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Tools appear when scrolling -->
+  <section class="tools-section">
+    <h2 data-aos="fade-up">Choose a Tool</h2>
+
+    <div class="button-grid">
+      <a href="https://isa-atm-calculator-tmepkr7qfrryb65yvtjg7j.streamlit.app/?tool=ISA%20Air%20Properties"
+      class="tool-button" data-aos="zoom-in" data-aos-delay="100">ISA Air Properties</a>
+
+      <a href="https://isa-atm-calculator-tmepkr7qfrryb65yvtjg7j.streamlit.app/?tool=Mach%20Number%20Calculator"
+      class="tool-button" data-aos="zoom-in" data-aos-delay="200">Mach Number Calculator</a>
+
+      <a href="https://isa-atm-calculator-tmepkr7qfrryb65yvtjg7j.streamlit.app/?tool=Lift%20and%20Drag%20Calculator"
+      class="tool-button" data-aos="zoom-in" data-aos-delay="300">Lift &amp; Drag Calculator</a>
+
+      <a href="https://isa-atm-calculator-tmepkr7qfrryb65yvtjg7j.streamlit.app/?tool=Fuel%20Consumption%20%26%20Range%20Estimator"
+      class="tool-button" data-aos="zoom-in" data-aos-delay="400">Fuel &amp; Range Estimator</a>
+
+      <a href="https://isa-atm-calculator-tmepkr7qfrryb65yvtjg7j.streamlit.app/?tool=Mission%20Planner"
+      class="tool-button" data-aos="zoom-in" data-aos-delay="500">Mission Planner</a>
+
+      <a href="https://isa-atm-calculator-tmepkr7qfrryb65yvtjg7j.streamlit.app/?tool=City%20to%20City%20Flight%20Estimator"
+      class="tool-button" data-aos="zoom-in" data-aos-delay="600">City to City Estimator</a>
+
+    </div>
+  </section>
 
   <footer>
     &copy; 2025 Ashwin Ganesh — All rights reserved
   </footer>
 
-  <!-- AOS JS -->
   <script src="https://unpkg.com/aos@2.3.1/dist/aos.js"></script>
   <script>
-    AOS.init({
-      duration: 800,
-      once: true
+    AOS.init({ duration: 900, easing: 'ease-out-cubic', offset: 120, once: true });
+
+    // -------- Live clock --------
+    function updateClock() {
+      const now = new Date();
+      const hours = String(now.getHours()).padStart(2, "0");
+      const mins = String(now.getMinutes()).padStart(2, "0");
+      document.getElementById("clock").textContent = `${hours}:${mins}`;
+      const options = { weekday: "long", day: "numeric", month: "short", year: "numeric" };
+      document.getElementById("date-line").textContent = now.toLocaleDateString(undefined, options);
+    }
+    updateClock();
+    setInterval(updateClock, 1000);
+
+    // ====== AI endpoint (replace after you deploy backend) ======
+    const ISA_AI_ENDPOINT = "https://isa-backend-olj9.onrender.com/ask";
+
+    async function askISA() {
+      const input = document.getElementById("ai-query");
+      const statusEl = document.getElementById("ai-status");
+      const answerEl = document.getElementById("ai-answer");
+      const question = (input.value || "").trim();
+      if (!question) return;
+
+      statusEl.textContent = "Thinking...";
+      answerEl.classList.add("hidden");
+      answerEl.classList.remove("show");
+
+      try {
+        const resp = await fetch(ISA_AI_ENDPOINT, {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ question })
+        });
+        if (!resp.ok) throw new Error("Bad response: " + resp.status);
+        const data = await resp.json();
+        answerEl.textContent = data.answer || "No answer returned.";
+      } catch (err) {
+        console.error(err);
+        answerEl.textContent = "AI backend not reachable yet. Deploy backend and update ISA_AI_ENDPOINT.";
+      } finally {
+        statusEl.textContent = "";
+        answerEl.classList.remove("hidden");
+        requestAnimationFrame(() => answerEl.classList.add("show"));
+      }
+    }
+
+    document.addEventListener("DOMContentLoaded", () => {
+      const input = document.getElementById("ai-query");
+      if (input) input.addEventListener("keydown", (e) => { if (e.key === "Enter") askISA(); });
+    });
+
+    // ===== METAR + nearest airport =====
+    const AIRPORTS = [
+      { icao: "KLGB", name: "Long Beach",       lat: 33.8177, lon: -118.1516 },
+      { icao: "KLAX", name: "Los Angeles Intl", lat: 33.9416, lon: -118.4085 },
+      { icao: "KSNA", name: "John Wayne",       lat: 33.6757, lon: -117.8682 },
+      { icao: "KBUR", name: "Hollywood Burbank",lat: 34.2007, lon: -118.3587 },
+      { icao: "KONT", name: "Ontario Intl",     lat: 34.0560, lon: -117.6012 }
+    ];
+
+    function haversine(lat1, lon1, lat2, lon2) {
+      const R = 6371;
+      const toRad = (deg) => (deg * Math.PI) / 180;
+      const dLat = toRad(lat2 - lat1);
+      const dLon = toRad(lon2 - lon1);
+      const a = Math.sin(dLat/2)**2 + Math.cos(toRad(lat1))*Math.cos(toRad(lat2))*Math.sin(dLon/2)**2;
+      return 2 * R * Math.atan2(Math.sqrt(a), Math.sqrt(1-a));
+    }
+
+    async function fetchMetar(icao) {
+      const rawEl = document.getElementById("metar-raw");
+      const decEl = document.getElementById("metar-decoded");
+      rawEl.textContent = `Fetching METAR for ${icao}...`;
+      decEl.textContent = "";
+
+      try {
+        const url =
+          "https://aviationweather.gov/adds/dataserver_current/httpparam?" +
+          "dataSource=metars&requestType=retrieve&format=xml&hoursBeforeNow=1&" +
+          "stationString=" + encodeURIComponent(icao);
+
+        const res = await fetch(url);
+        if (!res.ok) throw new Error("METAR fetch failed");
+        const text = await res.text();
+
+        const start = text.indexOf("<raw_text>");
+        const end = text.indexOf("</raw_text>");
+        if (start === -1 || end === -1) {
+          rawEl.textContent = "No recent METAR found.";
+          decEl.textContent = "";
+          return;
+        }
+
+        const metar = text.slice(start + "<raw_text>".length, end).trim();
+        rawEl.textContent = metar;
+
+        let decoded = "";
+        const windMatch = metar.match(/\s(\d{5})KT/);
+        if (windMatch) {
+          const g = windMatch[1];
+          decoded += `Wind: ${g.slice(0,3)}° at ${parseInt(g.slice(3),10)} kt. `;
+        }
+        const tempMatch = metar.match(/\s(M?\d{2})\/(M?\d{2})\s/);
+        if (tempMatch) {
+          decoded += `Temp/Dew: ${tempMatch[1].replace("M","-")}°C / ${tempMatch[2].replace("M","-")}°C. `;
+        }
+        const altMatch = metar.match(/A(\d{4})/);
+        if (altMatch) decoded += `Altimeter: ${(parseInt(altMatch[1],10)/100).toFixed(2)} inHg.`;
+
+        decEl.textContent = decoded || "See raw METAR above.";
+      } catch (e) {
+        console.error(e);
+        rawEl.textContent = "Error fetching METAR data.";
+        decEl.textContent = "";
+      }
+    }
+
+    function handleAirportChange() {
+      const sel = document.getElementById("airport-select");
+      const icao = sel.value;
+      const a = AIRPORTS.find(x => x.icao === icao);
+      const distEl = document.getElementById("airport-distance");
+      distEl.textContent = a ? `${icao} – ${a.name}` : icao;
+      fetchMetar(icao);
+    }
+
+    // ===== Surface weather + winds aloft (Open-Meteo) =====
+    let ISA_LAT = 33.8177;
+    let ISA_LON = -118.1516;
+
+    function altitudeToPressureLevel(altFt) {
+      if (altFt <= 5000) return 850;
+      if (altFt <= 12000) return 700;
+      if (altFt <= 18000) return 600;
+      if (altFt <= 24000) return 500;
+      if (altFt <= 30000) return 400;
+      if (altFt <= 36000) return 300;
+      return 250;
+    }
+
+    async function fetchSurfaceWeather(lat, lon) {
+      const url =
+        "https://api.open-meteo.com/v1/forecast?" +
+        `latitude=${encodeURIComponent(lat)}&longitude=${encodeURIComponent(lon)}` +
+        "&current=temperature_2m,relative_humidity_2m,pressure_msl,wind_speed_10m,wind_direction_10m" +
+        "&hourly=temperature_2m,wind_speed_10m,wind_direction_10m" +
+        "&forecast_days=1&timezone=auto";
+
+      const res = await fetch(url);
+      if (!res.ok) throw new Error("Open-Meteo weather fetch failed");
+      const data = await res.json();
+
+      const t = data.current.temperature_2m;
+      const rh = data.current.relative_humidity_2m;
+      const p = data.current.pressure_msl;
+      const ws = data.current.wind_speed_10m;
+      const wd = data.current.wind_direction_10m;
+
+      const wsKt = (ws * 0.539957).toFixed(0);
+
+      document.getElementById("wx-conditions").textContent = `${t.toFixed(0)}°C`;
+      document.getElementById("wx-sub").textContent = `Humidity ${rh}%`;
+      document.getElementById("wx-wind").textContent = `${wd.toFixed(0)}° / ${wsKt} kt`;
+      document.getElementById("wx-pressure").textContent = `${p.toFixed(0)} hPa`;
+
+      for (let i = 1; i <= 4; i++) {
+        const time = data.hourly.time[i];
+        const hhmm = new Date(time).toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" });
+        const ht = data.hourly.temperature_2m[i];
+        const hws = data.hourly.wind_speed_10m[i];
+        const hwd = data.hourly.wind_direction_10m[i];
+        const hwsKt = (hws * 0.539957).toFixed(0);
+
+        document.getElementById(`fh-${i}t`).textContent = hhmm;
+        document.getElementById(`fh-${i}w`).textContent = `${ht.toFixed(0)}°C`;
+        document.getElementById(`fh-${i}s`).textContent = `${hwd.toFixed(0)}° ${hwsKt} kt`;
+      }
+    }
+
+    async function fetchWindsAloft(lat, lon, altFt) {
+      const level = altitudeToPressureLevel(altFt);
+      const url =
+        "https://api.open-meteo.com/v1/forecast?" +
+        `latitude=${encodeURIComponent(lat)}&longitude=${encodeURIComponent(lon)}` +
+        `&hourly=windspeed_${level}hPa,winddirection_${level}hPa` +
+        "&forecast_days=1&timezone=auto";
+
+      const res = await fetch(url);
+      if (!res.ok) throw new Error("Open-Meteo winds aloft fetch failed");
+      const data = await res.json();
+
+      const ws = data.hourly[`windspeed_${level}hPa`][0];
+      const wd = data.hourly[`winddirection_${level}hPa`][0];
+      const wsKt = (ws * 0.539957).toFixed(0);
+
+      document.getElementById("winds-aloft").textContent = `${wd.toFixed(0)}° / ${wsKt} kt`;
+      document.getElementById("winds-aloft-sub").textContent = `${level} hPa level`;
+    }
+
+    function refreshWXandWinds() {
+      const alt = parseInt(document.getElementById("alt-ft").value, 10);
+      document.getElementById("alt-ft-label").textContent = alt.toLocaleString();
+      fetchSurfaceWeather(ISA_LAT, ISA_LON).catch(console.error);
+      fetchWindsAloft(ISA_LAT, ISA_LON, alt).catch(console.error);
+    }
+
+    function useMyLocation() {
+      if (!navigator.geolocation) {
+        alert("Geolocation not supported by this browser.");
+        return;
+      }
+      navigator.geolocation.getCurrentPosition((pos) => {
+        const { latitude, longitude } = pos.coords;
+        ISA_LAT = latitude;
+        ISA_LON = longitude;
+
+        let best = AIRPORTS[0];
+        let bestDist = Infinity;
+        for (const a of AIRPORTS) {
+          const d = haversine(latitude, longitude, a.lat, a.lon);
+          if (d < bestDist) { bestDist = d; best = a; }
+        }
+
+        document.getElementById("airport-select").value = best.icao;
+        document.getElementById("airport-distance").textContent =
+          `Nearest known field: ${best.icao} – ${best.name} (${bestDist.toFixed(1)} km)`;
+
+        refreshWXandWinds();
+        fetchMetar(best.icao);
+      }, (err) => {
+        console.error(err);
+        alert("Could not get location. Check browser permissions.");
+      });
+    }
+
+    document.addEventListener("DOMContentLoaded", () => {
+      handleAirportChange();
+      refreshWXandWinds();
+
+      const slider = document.getElementById("alt-ft");
+      slider.addEventListener("input", () => {
+        document.getElementById("alt-ft-label").textContent = parseInt(slider.value,10).toLocaleString();
+      });
+      slider.addEventListener("change", refreshWXandWinds);
+
+      setInterval(() => {
+        const sel = document.getElementById("airport-select");
+        fetchMetar(sel.value);
+      }, 5 * 60 * 1000);
+
+      setInterval(refreshWXandWinds, 10 * 60 * 1000);
     });
   </script>
 </body>
