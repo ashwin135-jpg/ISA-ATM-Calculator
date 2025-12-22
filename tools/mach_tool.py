@@ -2,7 +2,7 @@ import streamlit as st
 import requests
 from utils import convert_altitude
 
-BACKEND_URL = "http://127.0.0.1:8000"
+from config import BACKEND_URL
 
 
 def render():
