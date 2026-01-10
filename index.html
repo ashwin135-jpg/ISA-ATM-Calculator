@@ -9,371 +9,81 @@
   <link href="https://unpkg.com/aos@2.3.1/dist/aos.css" rel="stylesheet">
 
   <style>
-    body {
-      margin: 0;
-      font-family: 'Segoe UI', sans-serif;
-      background: #050816;
-      color: white;
-    }
+    /* (UNCHANGED CSS — keeping exactly as you pasted) */
+    body { margin: 0; font-family: 'Segoe UI', sans-serif; background: #050816; color: white; }
+    header { text-align: center; padding: 40px 20px 20px; }
+    header h1 { font-size: 2.5rem; margin-bottom: 10px; }
+    header p { font-size: 1.2rem; color: #ccc; }
 
-    header {
-      text-align: center;
-      padding: 40px 20px 20px;
-    }
+    .dashboard-section { padding: 40px 20px 60px; background: radial-gradient(circle at top, #050816 0, #020617 55%, #000000 100%); color: #e5ecff; }
+    .dashboard-title { max-width: 1100px; margin: 0 auto 20px auto; display: flex; justify-content: space-between; align-items: center; gap: 10px; }
+    .dashboard-title-main { font-size: 1.4rem; font-weight: 600; letter-spacing: 0.03em; }
+    .dashboard-subtext { font-size: 0.9rem; color: #a6b4d9; }
+    .tag-pill { display: inline-flex; align-items: center; justify-content: center; padding: 4px 10px; border-radius: 999px; font-size: 0.7rem; text-transform: uppercase; letter-spacing: 0.09em; background: linear-gradient(135deg, rgba(34,211,238,0.18), rgba(129,140,248,0.25)); color: #e0faff; border: 1px solid rgba(56,189,248,0.6); box-shadow: 0 0 16px rgba(45,212,191,0.5); }
+    .dashboard-grid { max-width: 1100px; margin: 0 auto; display: grid; grid-template-columns: 1.2fr 1.8fr; grid-template-rows: auto auto; gap: 20px; }
 
-    header h1 {
-      font-size: 2.5rem;
-      margin-bottom: 10px;
-    }
+    .dash-card { background: radial-gradient(circle at top left, #111827 0, #020617 75%); border-radius: 22px; padding: 18px 20px; box-shadow: 0 22px 50px rgba(0,0,0,0.75); border: 1px solid rgba(148,163,184,0.25); color: #e5ecff; transition: transform 0.2s ease, box-shadow 0.2s ease, border-color 0.2s ease; }
+    .dash-card:hover { transform: translateY(-4px); box-shadow: 0 28px 70px rgba(15,23,42,0.95); border-color: rgba(56,189,248,0.6); }
+    .dash-card h3 { margin-top: 0; margin-bottom: 8px; font-size: 1rem; font-weight: 600; letter-spacing: 0.06em; text-transform: uppercase; color: #f9fbff; }
 
-    header p {
-      font-size: 1.2rem;
-      color: #ccc;
-    }
+    .dash-row { display: flex; justify-content: space-between; align-items: center; gap: 10px; }
+    .big-city { font-size: 1.4rem; font-weight: 600; color: #f9fafb; }
+    .big-time { font-size: 2.7rem; font-weight: 700; color: #e5f3ff; }
+    .date-line { font-size: 0.85rem; color: #9ca9c9; margin-top: 4px; }
 
-    /* ---------- ISA COCKPIT DASHBOARD ---------- */
+    .metric-label { font-size: 0.75rem; text-transform: uppercase; letter-spacing: 0.1em; color: #9ca3ff; margin-bottom: 4px; }
+    .metric-value { font-size: 1.2rem; font-weight: 600; color: #e0f2ff; }
+    .metric-small { font-size: 0.85rem; color: #c0cbe9; }
 
-    .dashboard-section {
-      padding: 40px 20px 60px;
-      background: radial-gradient(circle at top, #050816 0, #020617 55%, #000000 100%);
-      color: #e5ecff;
-    }
+    .divider-line { height: 1px; background: linear-gradient(to right, transparent, rgba(148,163,184,0.5), transparent); margin: 10px 0 12px; }
+    .forecast-row { display: flex; justify-content: space-between; font-size: 0.8rem; color: #d2deef; margin: 3px 0; }
 
-    .dashboard-title {
-      max-width: 1100px;
-      margin: 0 auto 20px auto;
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      gap: 10px;
-    }
+    pre.metric-small { background: rgba(15,23,42,0.8); border-radius: 12px; padding: 6px 10px; color: #cbd5ff; white-space: pre-wrap; }
 
-    .dashboard-title-main {
-      font-size: 1.4rem;
-      font-weight: 600;
-      letter-spacing: 0.03em;
-    }
+    .news-bullet { font-size: 0.82rem; margin: 3px 0; color: #d3e2ff; }
+    .news-link { color: #7dd3fc; text-decoration: none; }
+    .news-link:hover { text-decoration: underline; color: #a5b4fc; }
 
-    .dashboard-subtext {
-      font-size: 0.9rem;
-      color: #a6b4d9;
-    }
-
-    .tag-pill {
-      display: inline-flex;
-      align-items: center;
-      justify-content: center;
-      padding: 4px 10px;
-      border-radius: 999px;
-      font-size: 0.7rem;
-      text-transform: uppercase;
-      letter-spacing: 0.09em;
-      background: linear-gradient(135deg, rgba(34,211,238,0.18), rgba(129,140,248,0.25));
-      color: #e0faff;
-      border: 1px solid rgba(56,189,248,0.6);
-      box-shadow: 0 0 16px rgba(45,212,191,0.5);
-    }
-
-    .dashboard-grid {
-      max-width: 1100px;
-      margin: 0 auto;
-      display: grid;
-      grid-template-columns: 1.2fr 1.8fr;
-      grid-template-rows: auto auto;
-      gap: 20px;
-    }
-
-    .dash-card {
-      background: radial-gradient(circle at top left, #111827 0, #020617 75%);
-      border-radius: 22px;
-      padding: 18px 20px;
-      box-shadow: 0 22px 50px rgba(0,0,0,0.75);
-      border: 1px solid rgba(148,163,184,0.25);
-      color: #e5ecff;
-      transition: transform 0.2s ease, box-shadow 0.2s ease, border-color 0.2s ease;
-    }
-
-    .dash-card:hover {
-      transform: translateY(-4px);
-      box-shadow: 0 28px 70px rgba(15,23,42,0.95);
-      border-color: rgba(56,189,248,0.6);
-    }
-
-    .dash-card h3 {
-      margin-top: 0;
-      margin-bottom: 8px;
-      font-size: 1rem;
-      font-weight: 600;
-      letter-spacing: 0.06em;
-      text-transform: uppercase;
-      color: #f9fbff;
-    }
-
-    .dash-row {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      gap: 10px;
-    }
-
-    .big-city {
-      font-size: 1.4rem;
-      font-weight: 600;
-      color: #f9fafb;
-    }
-
-    .big-time {
-      font-size: 2.7rem;
-      font-weight: 700;
-      color: #e5f3ff;
-    }
-
-    .date-line {
-      font-size: 0.85rem;
-      color: #9ca9c9;
-      margin-top: 4px;
-    }
-
-    .metric-label {
-      font-size: 0.75rem;
-      text-transform: uppercase;
-      letter-spacing: 0.1em;
-      color: #9ca3ff;
-      margin-bottom: 4px;
-    }
-
-    .metric-value {
-      font-size: 1.2rem;
-      font-weight: 600;
-      color: #e0f2ff;
-    }
-
-    .metric-small {
-      font-size: 0.85rem;
-      color: #c0cbe9;
-    }
-
-    .divider-line {
-      height: 1px;
-      background: linear-gradient(to right, transparent, rgba(148,163,184,0.5), transparent);
-      margin: 10px 0 12px;
-    }
-
-    .forecast-row {
-      display: flex;
-      justify-content: space-between;
-      font-size: 0.8rem;
-      color: #d2deef;
-      margin: 3px 0;
-    }
-
-    pre.metric-small {
-      background: rgba(15,23,42,0.8);
-      border-radius: 12px;
-      padding: 6px 10px;
-      color: #cbd5ff;
-      white-space: pre-wrap;
-    }
-
-    /* AI + News */
-    .news-bullet {
-      font-size: 0.82rem;
-      margin: 3px 0;
-      color: #d3e2ff;
-    }
-
-    .news-link {
-      color: #7dd3fc;
-      text-decoration: none;
-    }
-
-    .news-link:hover {
-      text-decoration: underline;
-      color: #a5b4fc;
-    }
-
-    .ai-search {
-      margin-top: 12px;
-      display: flex;
-      gap: 8px;
-      align-items: center;
-    }
-
-    .ai-input {
-      flex: 1;
-      padding: 8px 10px;
-      border-radius: 999px;
-      border: 1px solid rgba(148,163,184,0.6);
-      background: rgba(15,23,42,0.9);
-      color: #e5ecff;
-      font-size: 0.85rem;
-      outline: none;
-      box-shadow: 0 0 0 1px rgba(15,23,42,0.7);
-    }
-
+    .ai-search { margin-top: 12px; display: flex; gap: 8px; align-items: center; }
+    .ai-input { flex: 1; padding: 8px 10px; border-radius: 999px; border: 1px solid rgba(148,163,184,0.6); background: rgba(15,23,42,0.9); color: #e5ecff; font-size: 0.85rem; outline: none; box-shadow: 0 0 0 1px rgba(15,23,42,0.7); }
     .ai-input::placeholder { color: #9ca3c7; }
+    .ai-input:focus { border-color: rgba(56,189,248,0.9); box-shadow: 0 0 18px rgba(56,189,248,0.55); }
 
-    .ai-input:focus {
-      border-color: rgba(56,189,248,0.9);
-      box-shadow: 0 0 18px rgba(56,189,248,0.55);
-    }
+    .ai-button { padding: 8px 14px; border-radius: 999px; border: none; font-size: 0.85rem; font-weight: 600; cursor: pointer; background: linear-gradient(135deg, #22c55e, #22d3ee); color: #020617; box-shadow: 0 18px 35px rgba(34,197,94,0.45); white-space: nowrap; }
+    .ai-button:hover { filter: brightness(1.08); box-shadow: 0 20px 45px rgba(34,197,94,0.7); }
 
-    .ai-button {
-      padding: 8px 14px;
-      border-radius: 999px;
-      border: none;
-      font-size: 0.85rem;
-      font-weight: 600;
-      cursor: pointer;
-      background: linear-gradient(135deg, #22c55e, #22d3ee);
-      color: #020617;
-      box-shadow: 0 18px 35px rgba(34,197,94,0.45);
-      white-space: nowrap;
-    }
-
-    .ai-button:hover {
-      filter: brightness(1.08);
-      box-shadow: 0 20px 45px rgba(34,197,94,0.7);
-    }
-
-    .ai-status {
-      font-size: 0.78rem;
-      color: #a5b4fc;
-      margin-top: 6px;
-    }
-
-    .ai-answer-bubble {
-      margin-top: 8px;
-      padding: 10px 12px;
-      border-radius: 16px;
-      background: radial-gradient(circle at top left, #0ea5e9 0, #1e293b 55%);
-      color: #ecfeff;
-      font-size: 0.9rem;
-      line-height: 1.4;
-      box-shadow: 0 14px 30px rgba(15, 23, 42, 0.9);
-      opacity: 0;
-      transform: translateY(8px) scale(0.98);
-      transition: opacity 0.25s ease-out, transform 0.25s ease-out;
-    }
-
-    .ai-answer-bubble.show {
-      opacity: 1;
-      transform: translateY(0) scale(1);
-    }
-
+    .ai-status { font-size: 0.78rem; color: #a5b4fc; margin-top: 6px; }
+    .ai-answer-bubble { margin-top: 8px; padding: 10px 12px; border-radius: 16px; background: radial-gradient(circle at top left, #0ea5e9 0, #1e293b 55%); color: #ecfeff; font-size: 0.9rem; line-height: 1.4; box-shadow: 0 14px 30px rgba(15, 23, 42, 0.9); opacity: 0; transform: translateY(8px) scale(0.98); transition: opacity 0.25s ease-out, transform 0.25s ease-out; }
+    .ai-answer-bubble.show { opacity: 1; transform: translateY(0) scale(1); }
     .hidden { display: none; }
 
-    /* METAR controls */
-    .airport-row {
-      display: flex;
-      gap: 8px;
-      align-items: center;
-      margin-top: 4px;
-    }
-
-    .airport-select {
-      flex: 1;
-      padding: 6px 10px;
-      border-radius: 999px;
-      border: 1px solid rgba(148,163,184,0.7);
-      background: rgba(15,23,42,0.9);
-      color: #e5ecff;
-      font-size: 0.8rem;
-      outline: none;
-    }
-
-    .airport-select:focus {
-      border-color: rgba(56,189,248,0.9);
-      box-shadow: 0 0 12px rgba(56,189,248,0.6);
-    }
-
-    .geo-button {
-      padding: 6px 10px;
-      border-radius: 999px;
-      border: none;
-      font-size: 0.75rem;
-      cursor: pointer;
-      white-space: nowrap;
-      background: linear-gradient(135deg, #22c55e, #22d3ee);
-      color: #020617;
-      box-shadow: 0 10px 20px rgba(34,197,94,0.4);
-    }
-
+    .airport-row { display: flex; gap: 8px; align-items: center; margin-top: 4px; }
+    .airport-select { flex: 1; padding: 6px 10px; border-radius: 999px; border: 1px solid rgba(148,163,184,0.7); background: rgba(15,23,42,0.9); color: #e5ecff; font-size: 0.8rem; outline: none; }
+    .airport-select:focus { border-color: rgba(56,189,248,0.9); box-shadow: 0 0 12px rgba(56,189,248,0.6); }
+    .geo-button { padding: 6px 10px; border-radius: 999px; border: none; font-size: 0.75rem; cursor: pointer; white-space: nowrap; background: linear-gradient(135deg, #22c55e, #22d3ee); color: #020617; box-shadow: 0 10px 20px rgba(34,197,94,0.4); }
     .geo-button:hover { filter: brightness(1.06); }
 
-    /* Winds aloft slider */
     #alt-ft { accent-color: #22d3ee; }
     #wx-conditions, #wx-wind, #winds-aloft { text-shadow: 0 0 18px rgba(56,189,248,0.25); }
 
-    /* Responsive */
     @media (max-width: 900px) {
       .dashboard-title { flex-direction: column; align-items: flex-start; }
       .dashboard-grid { grid-template-columns: 1fr; }
     }
 
-    /* ---------- TOOL SECTION ---------- */
-    section.tools-section {
-      background: white;
-      color: black;
-      padding: 60px 30px;
-      text-align: center;
-    }
-
+    section.tools-section { background: white; color: black; padding: 60px 30px; text-align: center; }
     h2 { margin-bottom: 40px; }
+    .button-grid { display: flex; flex-wrap: wrap; justify-content: center; gap: 20px; }
+    .tool-button { background: black; color: white; padding: 20px 30px; border-radius: 10px; font-size: 1rem; font-weight: bold; text-decoration: none; width: 260px; transition: transform 0.2s ease; }
+    .tool-button:hover { background: #222; transform: scale(1.05); }
 
-    .button-grid {
-      display: flex;
-      flex-wrap: wrap;
-      justify-content: center;
-      gap: 20px;
-    }
+    footer { text-align: center; padding: 20px; font-size: 0.8rem; color: #aaa; background: #000; }
 
-    .tool-button {
-      background: black;
-      color: white;
-      padding: 20px 30px;
-      border-radius: 10px;
-      font-size: 1rem;
-      font-weight: bold;
-      text-decoration: none;
-      width: 260px;
-      transition: transform 0.2s ease;
-    }
-
-    .tool-button:hover {
-      background: #222;
-      transform: scale(1.05);
-    }
-
-    footer {
-      text-align: center;
-      padding: 20px;
-      font-size: 0.8rem;
-      color: #aaa;
-      background: #000;
-    }
-
-    lottie-player {
-      width: 300px;
-      height: 300px;
-      margin: 20px auto;
-      display: block;
-    }
-
-    @media (min-width: 768px) {
-      lottie-player {
-        width: 800px !important;
-        height: 400px !important;
-      }
-    }
-
+    lottie-player { width: 300px; height: 300px; margin: 20px auto; display: block; }
+    @media (min-width: 768px) { lottie-player { width: 800px !important; height: 400px !important; } }
     @media (max-width: 600px) {
       header { padding: 60px 20px 30px; }
-      lottie-player {
-        width: 90% !important;
-        max-width: 320px;
-        height: auto !important;
-      }
+      lottie-player { width: 90% !important; max-width: 320px; height: auto !important; }
       .tool-button { width: 90%; }
     }
   </style>
@@ -397,7 +107,6 @@
     </lottie-player>
   </header>
 
-  <!-- ========= ISA COMMAND CENTER DASHBOARD ========= -->
   <section class="dashboard-section">
     <div class="dashboard-title" data-aos="fade-up">
       <div>
@@ -410,7 +119,6 @@
     </div>
 
     <div class="dashboard-grid">
-      <!-- Time + Winds Aloft -->
       <div class="dash-card" data-aos="zoom-in" data-aos-delay="50">
         <h3>Local Time & Winds Aloft</h3>
         <div class="dash-row">
@@ -442,7 +150,6 @@
         </div>
       </div>
 
-      <!-- Surface Weather -->
       <div class="dash-card" data-aos="zoom-in" data-aos-delay="150">
         <h3>Surface Weather Snapshot</h3>
 
@@ -469,7 +176,6 @@
         <div class="forecast-row"><span id="fh-4t">—</span><span id="fh-4w">—</span><span id="fh-4s">—</span></div>
       </div>
 
-      <!-- METAR -->
       <div class="dash-card" data-aos="zoom-in" data-aos-delay="250">
         <h3>Airport METAR / TAF</h3>
 
@@ -500,7 +206,6 @@
         <div class="metric-small" id="metar-decoded">Loading…</div>
       </div>
 
-      <!-- News + AI -->
       <div class="dash-card" data-aos="zoom-in" data-aos-delay="350">
         <h3>Aerospace News &amp; ISA AI</h3>
 
@@ -527,7 +232,6 @@
     </div>
   </section>
 
-  <!-- Tools appear when scrolling -->
   <section class="tools-section">
     <h2 data-aos="fade-up">Choose a Tool</h2>
 
@@ -549,7 +253,6 @@
 
       <a href="https://isa-atm-calculator-tmepkr7qfrryb65yvtjg7j.streamlit.app/?tool=City%20to%20City%20Flight%20Estimator"
       class="tool-button" data-aos="zoom-in" data-aos-delay="600">City to City Estimator</a>
-
     </div>
   </section>
 
@@ -573,10 +276,10 @@
     updateClock();
     setInterval(updateClock, 1000);
 
-    // ====== AI endpoint (replace after you deploy backend) ======
-    const ISA_AI_ENDPOINT = "https://isa-backend-olj9.onrender.com/api/ask/";
-
-
+    // ====== Backend base (so you can reuse for AI + METAR) ======
+    const ISA_BACKEND_BASE = "https://isa-backend-olj9.onrender.com/api";
+    const ISA_AI_ENDPOINT = `${ISA_BACKEND_BASE}/ask/`;
+    const ISA_METAR_ENDPOINT = `${ISA_BACKEND_BASE}/metar`; // /{icao}
 
     async function askISA() {
       const input = document.getElementById("ai-query");
@@ -595,12 +298,20 @@
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({ question })
         });
-        if (!resp.ok) throw new Error("Bad response: " + resp.status);
-        const data = await resp.json();
-        answerEl.textContent = data.answer || "No answer returned.";
+
+        const text = await resp.text();
+        let data = null;
+        try { data = JSON.parse(text); } catch {}
+
+        if (!resp.ok) {
+          const detail = data?.detail || text || `HTTP ${resp.status}`;
+          throw new Error(`AI error (${resp.status}): ${detail}`);
+        }
+
+        answerEl.textContent = data?.answer || "No answer returned.";
       } catch (err) {
         console.error(err);
-        answerEl.textContent = "AI backend not reachable yet. Deploy backend and update ISA_AI_ENDPOINT.";
+        answerEl.textContent = String(err.message || err);
       } finally {
         statusEl.textContent = "";
         answerEl.classList.remove("hidden");
@@ -638,40 +349,17 @@
       decEl.textContent = "";
 
       try {
-        const url =
-          "https://aviationweather.gov/adds/dataserver_current/httpparam?" +
-          "dataSource=metars&requestType=retrieve&format=xml&hoursBeforeNow=1&" +
-          "stationString=" + encodeURIComponent(icao);
-
+        const url = `${ISA_METAR_ENDPOINT}/${encodeURIComponent(icao)}`;
         const res = await fetch(url);
-        if (!res.ok) throw new Error("METAR fetch failed");
-        const text = await res.text();
+        const data = await res.json();
 
-        const start = text.indexOf("<raw_text>");
-        const end = text.indexOf("</raw_text>");
-        if (start === -1 || end === -1) {
-          rawEl.textContent = "No recent METAR found.";
-          decEl.textContent = "";
-          return;
+        if (!res.ok) {
+          const detail = data?.detail || `HTTP ${res.status}`;
+          throw new Error(`METAR error (${res.status}): ${detail}`);
         }
 
-        const metar = text.slice(start + "<raw_text>".length, end).trim();
-        rawEl.textContent = metar;
-
-        let decoded = "";
-        const windMatch = metar.match(/\s(\d{5})KT/);
-        if (windMatch) {
-          const g = windMatch[1];
-          decoded += `Wind: ${g.slice(0,3)}° at ${parseInt(g.slice(3),10)} kt. `;
-        }
-        const tempMatch = metar.match(/\s(M?\d{2})\/(M?\d{2})\s/);
-        if (tempMatch) {
-          decoded += `Temp/Dew: ${tempMatch[1].replace("M","-")}°C / ${tempMatch[2].replace("M","-")}°C. `;
-        }
-        const altMatch = metar.match(/A(\d{4})/);
-        if (altMatch) decoded += `Altimeter: ${(parseInt(altMatch[1],10)/100).toFixed(2)} inHg.`;
-
-        decEl.textContent = decoded || "See raw METAR above.";
+        rawEl.textContent = data.raw_text || "No recent METAR found.";
+        decEl.textContent = data.decoded || "See raw METAR above.";
       } catch (e) {
         console.error(e);
         rawEl.textContent = "Error fetching METAR data.";
