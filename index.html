@@ -549,107 +549,161 @@
       return `${hrs}h ${rem}m ago`;
     }
 
-    async function fetchMetar(icao) {
-      const rawEl = document.getElementById("metar-raw");
+  async function fetchMetar(icao) {
+  const rawEl = document.getElementById("metar-raw");
 
-      const ageEl = document.getElementById("metar-age");
-      const ratingEl = document.getElementById("metar-rating");
+  const ageEl = document.getElementById("metar-age");
+  const ratingEl = document.getElementById("metar-rating");
 
-      const mAirport = document.getElementById("m-airport");
-      const mObsLocal = document.getElementById("m-obs-local");
-      const mObsUtc = document.getElementById("m-obs-utc");
-      const mSky = document.getElementById("m-sky");
-      const mVis = document.getElementById("m-vis");
-      const mWind = document.getElementById("m-wind");
-      const mWindSub = document.getElementById("m-wind-sub");
-      const mTemp = document.getElementById("m-temp");
-      const mHumidity = document.getElementById("m-humidity");
-      const mPressure = document.getElementById("m-pressure");
+  const mAirport = document.getElementById("m-airport");
+  const mObsLocal = document.getElementById("m-obs-local");
+  const mObsUtc = document.getElementById("m-obs-utc");
+  const mSky = document.getElementById("m-sky");
+  const mVis = document.getElementById("m-vis");
+  const mWind = document.getElementById("m-wind");
+  const mWindSub = document.getElementById("m-wind-sub");
+  const mTemp = document.getElementById("m-temp");
+  const mHumidity = document.getElementById("m-humidity");
+  const mPressure = document.getElementById("m-pressure");
 
-      rawEl.textContent = `Fetching METAR for ${icao}…`;
-      ageEl.textContent = "—";
-      ratingEl.textContent = "—";
-      ratingEl.className = "metar-pill";
+  // ---- helpers ----
+  function pillClassFor(rating) {
+    const r = (rating || "").toLowerCase();
+    if (r.includes("excellent") || r.includes("good")) return "metar-pill good";
+    if (r.includes("challenging")) return "metar-pill warn";
+    if (r.includes("error")) return "metar-pill bad";
+    return "metar-pill";
+  }
 
-      mAirport.textContent = icao;
-      mObsLocal.textContent = "—";
-      mObsUtc.textContent = "—";
-      mSky.textContent = "—";
-      mVis.textContent = "—";
+  function formatLocalTime(isoUtc) {
+    if (!isoUtc) return { local: "—", utc: "—" };
+    const d = new Date(isoUtc);
+    if (isNaN(d.getTime())) return { local: "—", utc: isoUtc };
+
+    const local = d.toLocaleString([], {
+      weekday: "short",
+      month: "short",
+      day: "numeric",
+      hour: "2-digit",
+      minute: "2-digit",
+      timeZoneName: "short",
+    });
+
+    return { local, utc: `UTC ${d.toISOString().slice(11, 16)}Z` };
+  }
+
+  function ageFromIso(isoUtc) {
+    if (!isoUtc) return "—";
+    const d = new Date(isoUtc);
+    const now = new Date();
+    const mins = Math.round((now - d) / 60000);
+    if (!isFinite(mins)) return "—";
+    if (mins < 1) return "Just now";
+    if (mins === 1) return "1 min ago";
+    if (mins < 60) return `${mins} min ago`;
+    const hrs = Math.floor(mins / 60);
+    const rem = mins % 60;
+    return `${hrs}h ${rem}m ago`;
+  }
+
+  // ---- reset UI immediately ----
+  rawEl.textContent = `Fetching METAR for ${icao}…`;
+  ageEl.textContent = "—";
+  ratingEl.textContent = "Loading…";
+  ratingEl.className = "metar-pill warn";
+
+  mAirport.textContent = icao;
+  mObsLocal.textContent = "—";
+  mObsUtc.textContent = "—";
+  mSky.textContent = "—";
+  mVis.textContent = "—";
+  mWind.textContent = "—";
+  mWindSub.textContent = "—";
+  mTemp.textContent = "—";
+  mHumidity.textContent = "—";
+  mPressure.textContent = "—";
+
+  try {
+    const url = `${ISA_METAR_ENDPOINT}/${encodeURIComponent(icao)}`;
+    const res = await fetch(url);
+
+    // ✅ IMPORTANT: treat 204 as "no report", not an error
+    if (res.status === 204) {
+      rawEl.textContent = "No recent METAR found.";
+      ratingEl.textContent = "No report";
+      ratingEl.className = "metar-pill warn";
+      return;
+    }
+
+    // Read as text first (handles weird bodies safely)
+    const text = await res.text();
+    let data = null;
+    if (text) {
+      try { data = JSON.parse(text); } catch {}
+    }
+
+    if (!res.ok) {
+      const detail = data?.detail || text || `HTTP ${res.status}`;
+      throw new Error(detail);
+    }
+
+    if (!data || !data.raw_text) {
+      rawEl.textContent = data?.detail || "No recent METAR found.";
+      ratingEl.textContent = "No report";
+      ratingEl.className = "metar-pill warn";
+      return;
+    }
+
+    // ---- render ----
+    rawEl.textContent = data.raw_text;
+
+    const obsUtc = data.obs_time_utc || data.plain_english?.observed_utc || null;
+    const t = formatLocalTime(obsUtc);
+    mObsLocal.textContent = t.local;
+    mObsUtc.textContent = t.utc;
+    ageEl.textContent = ageFromIso(obsUtc);
+
+    const rating = data.flight_conditions || data.plain_english?.flight_conditions || "Unknown";
+    ratingEl.textContent = rating;
+    ratingEl.className = pillClassFor(rating);
+
+    mSky.textContent = data.sky || data.plain_english?.sky || "—";
+
+    const vis = (data.visibility_mi ?? data.plain_english?.visibility_mi);
+    mVis.textContent = (vis == null) ? "—" : `${vis} mi`;
+
+    const wdir = (data.wind_dir_deg ?? data.plain_english?.wind?.dir_deg);
+    const wspd = (data.wind_speed_kt ?? data.plain_english?.wind?.speed_kt);
+    const wgst = (data.wind_gust_kt ?? data.plain_english?.wind?.gust_kt);
+
+    if (wspd == null) {
       mWind.textContent = "—";
       mWindSub.textContent = "—";
-      mTemp.textContent = "—";
-      mHumidity.textContent = "—";
-      mPressure.textContent = "—";
-
-      try {
-        const url = `${ISA_METAR_ENDPOINT}/${encodeURIComponent(icao)}`;
-        const res = await fetch(url);
-
-        const text = await res.text();
-        let data = null;
-        try { data = JSON.parse(text); } catch {}
-
-        if (!res.ok) {
-          const detail = data?.detail || text || `HTTP ${res.status}`;
-          throw new Error(`METAR error (${res.status}): ${detail}`);
-        }
-
-        if (!data || !data.raw_text) {
-          rawEl.textContent = data?.detail || "No recent METAR found.";
-          ratingEl.textContent = "No report";
-          ratingEl.className = "metar-pill warn";
-          return;
-        }
-
-        rawEl.textContent = data.raw_text;
-
-        const obsUtc = data.obs_time_utc || data.plain_english?.observed_utc || null;
-        const t = _formatLocalTime(obsUtc);
-        mObsLocal.textContent = t.local;
-        mObsUtc.textContent = t.utc;
-        ageEl.textContent = _ageFromIso(obsUtc);
-
-        const rating = data.flight_conditions || data.plain_english?.flight_conditions || "Unknown";
-        ratingEl.textContent = rating;
-        ratingEl.className = _pillClassFor(rating);
-
-        mSky.textContent = data.sky || data.plain_english?.sky || "—";
-
-        const vis = (data.visibility_mi ?? data.plain_english?.visibility_mi);
-        mVis.textContent = (vis == null) ? "—" : `${vis} mi`;
-
-        const wdir = (data.wind_dir_deg ?? data.plain_english?.wind?.dir_deg);
-        const wspd = (data.wind_speed_kt ?? data.plain_english?.wind?.speed_kt);
-        const wgst = (data.wind_gust_kt ?? data.plain_english?.wind?.gust_kt);
-
-        if (wspd == null) {
-          mWind.textContent = "—";
-          mWindSub.textContent = "—";
-        } else {
-          const dirTxt = (wdir == null) ? "VRB" : `${wdir}°`;
-          mWind.textContent = `${dirTxt} / ${wspd} kt`;
-          mWindSub.textContent = wgst ? `Gusts ${wgst} kt` : "No gusts";
-        }
-
-        const tc = (data.temp_c ?? data.plain_english?.temperature_c);
-        const dc = (data.dewpoint_c ?? data.plain_english?.dewpoint_c);
-        const rh = (data.humidity_est_pct ?? data.plain_english?.humidity_est_pct);
-
-        mTemp.textContent = (tc == null) ? "—" : `${tc} °C`;
-        mHumidity.textContent =
-          (dc == null || rh == null) ? "—" : `Dew ${dc}°C • RH ~${rh}%`;
-
-        const p = (data.altimeter_inhg ?? data.plain_english?.pressure_inhg);
-        mPressure.textContent = (p == null) ? "—" : `${p} inHg`;
-
-      } catch (e) {
-        console.error(e);
-        rawEl.textContent = "Error fetching METAR data.";
-        ratingEl.textContent = "Error";
-        ratingEl.className = "metar-pill bad";
-      }
+    } else {
+      const dirTxt = (wdir == null) ? "VRB" : `${wdir}°`;
+      mWind.textContent = `${dirTxt} / ${wspd} kt`;
+      mWindSub.textContent = wgst ? `Gusts ${wgst} kt` : "No gusts";
     }
+
+    const tc = (data.temp_c ?? data.plain_english?.temperature_c);
+    const dc = (data.dewpoint_c ?? data.plain_english?.dewpoint_c);
+    const rh = (data.humidity_est_pct ?? data.plain_english?.humidity_est_pct);
+
+    mTemp.textContent = (tc == null) ? "—" : `${tc} °C`;
+    mHumidity.textContent =
+      (dc == null || rh == null) ? "—" : `Dew ${dc}°C • RH ~${rh}%`;
+
+    const p = (data.altimeter_inhg ?? data.plain_english?.pressure_inhg);
+    mPressure.textContent = (p == null) ? "—" : `${p} inHg`;
+
+  } catch (e) {
+    console.error(e);
+    rawEl.textContent = `Error fetching METAR: ${e.message || e}`;
+    ratingEl.textContent = "Error";
+    ratingEl.className = "metar-pill bad";
+  }
+}
+
 
     function handleAirportChange() {
       const sel = document.getElementById("airport-select");
