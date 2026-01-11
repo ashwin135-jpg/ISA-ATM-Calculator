@@ -471,29 +471,39 @@
     }
 
     async function fetchMetar(icao) {
-      const rawEl = document.getElementById("metar-raw");
-      const decEl = document.getElementById("metar-decoded");
-      rawEl.textContent = `Fetching METAR for ${icao}...`;
-      decEl.textContent = "";
+  const rawEl = document.getElementById("metar-raw");
+  const decEl = document.getElementById("metar-decoded");
 
-      try {
-        const url = `${ISA_METAR_ENDPOINT}/${encodeURIComponent(icao)}`;
-        const res = await fetch(url);
-        const data = await res.json();
+  rawEl.textContent = `Fetching METAR for ${icao}...`;
+  decEl.textContent = "Loading…";
 
-        if (!res.ok) {
-          const detail = data?.detail || `HTTP ${res.status}`;
-          throw new Error(`METAR error (${res.status}): ${detail}`);
-        }
+  try {
+    const url = `${ISA_METAR_ENDPOINT}/${encodeURIComponent(icao)}`;
+    const res = await fetch(url);
+    const data = await res.json();
 
-        rawEl.textContent = data.cclcl || "No recent METAR found.";
-        decEl.textContent = data.decoded || "See raw METAR above.";
-      } catch (e) {
-        console.error(e);
-        rawEl.textContent = "Error fetching METAR data.";
-        decEl.textContent = "";
-      }
+    if (!res.ok) {
+      const detail = data?.detail || `HTTP ${res.status}`;
+      throw new Error(`METAR error (${res.status}): ${detail}`);
     }
+
+    // ✅ If raw METAR is missing, treat as "no report"
+    if (!data.raw_text) {
+      rawEl.textContent = data.detail || "No recent METAR found.";
+      decEl.textContent = "—";
+      return;
+    }
+
+    // ✅ Normal case
+    rawEl.textContent = data.raw_text;
+    decEl.textContent = data.decoded || "—";
+
+  } catch (e) {
+    console.error(e);
+    rawEl.textContent = "Error fetching METAR data.";
+    decEl.textContent = "—";
+  }
+}
 
     function handleAirportChange() {
       const sel = document.getElementById("airport-select");
