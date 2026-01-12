@@ -565,16 +565,14 @@
 
         rawEl.textContent = data.raw_text;
 
-        const obsUtc = data.obs_time_utc || data.plain_english?.observed_utc || null;
-        const t = formatLocalTime(obsUtc);
-        mObsLocal.textContent = t.local;
-        mObsUtc.textContent = t.utc;
-        ageEl.textContent = ageFromIso(obsUtc);
+        const obsUtc =
+        data.obs_time_utc ||
+        data.plain_english?.observed_utc ||
+        new Date().toISOString(); // fallback
 
         const rating = data.flight_conditions || data.plain_english?.flight_conditions || "Unknown";
         ratingEl.textContent = rating;
-        ratingEl.className = pillClassFor(rating);
-
+        ratingEl.className = pillClassFor(rating)
         mSky.textContent = data.sky || data.plain_english?.sky || "—";
 
         const vis = (data.visibility_mi ?? data.plain_english?.visibility_mi);
