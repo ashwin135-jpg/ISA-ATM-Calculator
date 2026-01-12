@@ -5,7 +5,6 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>ISA Master Tool</title>
 
-  <!-- AOS Animation Library -->
   <link href="https://unpkg.com/aos@2.3.1/dist/aos.css" rel="stylesheet">
 
   <style>
@@ -37,12 +36,6 @@
   .divider-line { height: 1px; background: linear-gradient(to right, transparent, rgba(148,163,184,0.5), transparent); margin: 10px 0 12px; }
   .forecast-row { display: flex; justify-content: space-between; font-size: 0.8rem; color: #d2deef; margin: 3px 0; }
 
-  pre.metric-small { background: rgba(15,23,42,0.8); border-radius: 12px; padding: 6px 10px; color: #cbd5ff; white-space: pre-wrap; }
-
-  .news-bullet { font-size: 0.82rem; margin: 3px 0; color: #d3e2ff; }
-  .news-link { color: #7dd3fc; text-decoration: none; }
-  .news-link:hover { text-decoration: underline; color: #a5b4fc; }
-
   .ai-search { margin-top: 12px; display: flex; gap: 8px; align-items: center; }
   .ai-input { flex: 1; padding: 8px 10px; border-radius: 999px; border: 1px solid rgba(148,163,184,0.6); background: rgba(15,23,42,0.9); color: #e5ecff; font-size: 0.85rem; outline: none; box-shadow: 0 0 0 1px rgba(15,23,42,0.7); }
   .ai-input::placeholder { color: #9ca3c7; }
@@ -55,12 +48,6 @@
   .ai-answer-bubble { margin-top: 8px; padding: 10px 12px; border-radius: 16px; background: radial-gradient(circle at top left, #0ea5e9 0, #1e293b 55%); color: #ecfeff; font-size: 0.9rem; line-height: 1.4; box-shadow: 0 14px 30px rgba(15, 23, 42, 0.9); opacity: 0; transform: translateY(8px) scale(0.98); transition: opacity 0.25s ease-out, transform 0.25s ease-out; }
   .ai-answer-bubble.show { opacity: 1; transform: translateY(0) scale(1); }
   .hidden { display: none; }
-
-  .airport-row { display: flex; gap: 8px; align-items: center; margin-top: 4px; }
-  .airport-select { flex: 1; padding: 6px 10px; border-radius: 999px; border: 1px solid rgba(148,163,184,0.7); background: rgba(15,23,42,0.9); color: #e5ecff; font-size: 0.8rem; outline: none; }
-  .airport-select:focus { border-color: rgba(56,189,248,0.9); box-shadow: 0 0 12px rgba(56,189,248,0.6); }
-  .geo-button { padding: 6px 10px; border-radius: 999px; border: none; font-size: 0.75rem; cursor: pointer; white-space: nowrap; background: linear-gradient(135deg, #22c55e, #22d3ee); color: #020617; box-shadow: 0 10px 20px rgba(34,197,94,0.4); }
-  .geo-button:hover { filter: brightness(1.06); }
 
   #alt-ft { accent-color: #22d3ee; }
   #wx-conditions, #wx-wind, #winds-aloft { text-shadow: 0 0 18px rgba(56,189,248,0.25); }
@@ -89,7 +76,6 @@
   /* ==========================================================
      METAR table UI
      ========================================================== */
-
   .metar-shell {
     margin-top: 8px;
     border-radius: 18px;
@@ -184,9 +170,64 @@
     white-space: pre-wrap;
     word-break: break-word;
   }
+
+  /* ==========================================================
+     Airport search UI
+     ========================================================== */
+  .airport-row { display:flex; gap:10px; align-items:center; margin-top:4px; }
+  .geo-button {
+    padding: 6px 10px;
+    border-radius: 999px;
+    border: none;
+    font-size: 0.75rem;
+    cursor: pointer;
+    white-space: nowrap;
+    background: linear-gradient(135deg, #22c55e, #22d3ee);
+    color: #020617;
+    box-shadow: 0 10px 20px rgba(34,197,94,0.4);
+  }
+  .geo-button:hover { filter: brightness(1.06); }
+
+  .airport-search-wrap { position: relative; flex: 1; }
+  .airport-search {
+    width: 100%;
+    padding: 7px 12px;
+    border-radius: 999px;
+    border: 1px solid rgba(148,163,184,0.7);
+    background: rgba(15,23,42,0.9);
+    color: #e5ecff;
+    font-size: 0.85rem;
+    outline: none;
+  }
+  .airport-search::placeholder { color: #9ca3c7; }
+  .airport-search:focus { border-color: rgba(56,189,248,0.9); box-shadow: 0 0 12px rgba(56,189,248,0.6); }
+
+  .airport-dd {
+    position: absolute;
+    left: 0; right: 0;
+    top: calc(100% + 8px);
+    background: rgba(2, 6, 23, 0.96);
+    border: 1px solid rgba(148,163,184,0.25);
+    border-radius: 14px;
+    box-shadow: 0 18px 45px rgba(0,0,0,0.65);
+    overflow: hidden;
+    z-index: 50;
+    display: none;
+  }
+  .airport-dd.show { display: block; }
+  .airport-dd-item {
+    padding: 10px 12px;
+    cursor: pointer;
+    border-bottom: 1px solid rgba(148,163,184,0.14);
+    color: #e5ecff;
+    font-size: 0.86rem;
+  }
+  .airport-dd-item:last-child { border-bottom: none; }
+  .airport-dd-item:hover { background: rgba(56,189,248,0.12); }
+  .airport-dd-item .small { display:block; margin-top:3px; font-size:0.75rem; color:#a6b4d9; }
+
   </style>
 
-  <!-- Lottie Player -->
   <script src="https://unpkg.com/@lottiefiles/lottie-player@latest/dist/lottie-player.js"></script>
 </head>
 
@@ -272,26 +313,20 @@
         <div class="forecast-row"><span id="fh-4t">—</span><span id="fh-4w">—</span><span id="fh-4s">—</span></div>
       </div>
 
-      <!-- ======= METAR CARD (UPDATED: searchable input) ======= -->
       <div class="dash-card" data-aos="zoom-in" data-aos-delay="250">
         <h3>Airport METAR / TAF</h3>
 
-        <div class="metric-label">Search Airport</div>
+        <div class="metric-label">Search Airport (ICAO, IATA, city, name)</div>
         <div class="airport-row">
-          <input
-            id="airport-search"
-            class="airport-select"
-            list="airport-list"
-            placeholder="Type ICAO (KLAX) or name (Los Angeles)…"
-            autocomplete="off"
-          />
-          <datalist id="airport-list"></datalist>
-
+          <div class="airport-search-wrap">
+            <input id="airport-search" class="airport-search" type="text" placeholder="e.g. KLAX, LHR, Dubai, Heathrow…" autocomplete="off"/>
+            <div id="airport-dd" class="airport-dd"></div>
+          </div>
           <button type="button" class="geo-button" onclick="useMyLocation()">Use my location</button>
         </div>
 
-        <div class="metric-small" id="airport-distance" style="margin-top:4px;">
-          Selected: —
+        <div class="metric-small" id="airport-selected" style="margin-top:6px;">
+          Selected: <span id="airport-selected-label">KLGB — Long Beach (LGB)</span>
         </div>
 
         <div class="divider-line"></div>
@@ -327,7 +362,6 @@
           <div class="metar-raw" id="metar-raw">Fetching METAR…</div>
         </div>
       </div>
-      <!-- ======= END METAR CARD ======= -->
 
       <div class="dash-card" data-aos="zoom-in" data-aos-delay="350">
         <h3>Aerospace News &amp; ISA AI</h3>
@@ -344,7 +378,7 @@
 
         <div class="ai-search">
           <input id="ai-query" class="ai-input" type="text" placeholder="e.g. Explain lift vs drag at high Mach"/>
-          <button class="ai-button" type="button" onclick="askISA()">Ask</button>
+          <button class="ai-button" type="button" onclick="askISA_topicsafe()">Ask</button>
         </div>
 
         <div id="ai-status" class="ai-status"></div>
@@ -386,9 +420,10 @@
     // ====== Backend base ======
     const ISA_BACKEND_BASE = "https://isa-backend-olj9.onrender.com/api";
     const ISA_AI_ENDPOINT = `${ISA_BACKEND_BASE}/ask/`;
-    const ISA_METAR_ENDPOINT = `${ISA_BACKEND_BASE}/metar`; // /{icao}
+    const ISA_METAR_ENDPOINT = `${ISA_BACKEND_BASE}/metar`;
 
-    async function askISA() {
+    // ---------------- AI ----------------
+    async function askISA_topicsafe() {
       const input = document.getElementById("ai-query");
       const statusEl = document.getElementById("ai-status");
       const answerEl = document.getElementById("ai-answer");
@@ -428,62 +463,14 @@
 
     document.addEventListener("DOMContentLoaded", () => {
       const input = document.getElementById("ai-query");
-      if (input) input.addEventListener("keydown", (e) => { if (e.key === "Enter") askISA(); });
+      if (input) input.addEventListener("keydown", (e) => { if (e.key === "Enter") askISA_topicsafe(); });
     });
 
-    // ===== METAR + nearest airport =====
-    // (Added IATA so name/IATA search works; expand later as you want)
-    const AIRPORTS = [
-      { icao: "KLGB", iata: "LGB", name: "Long Beach",        lat: 33.8177, lon: -118.1516 },
-      { icao: "KLAX", iata: "LAX", name: "Los Angeles Intl",  lat: 33.9416, lon: -118.4085 },
-      { icao: "KSNA", iata: "SNA", name: "John Wayne",        lat: 33.6757, lon: -117.8682 },
-      { icao: "KBUR", iata: "BUR", name: "Hollywood Burbank", lat: 34.2007, lon: -118.3587 },
-      { icao: "KONT", iata: "ONT", name: "Ontario Intl",      lat: 34.0560, lon: -117.6012 }
-    ];
-
-    function buildAirportDatalist() {
-      const dl = document.getElementById("airport-list");
-      dl.innerHTML = "";
-      for (const a of AIRPORTS) {
-        const opt = document.createElement("option");
-        opt.value = `${a.icao} — ${a.name}${a.iata ? ` (${a.iata})` : ""}`;
-        dl.appendChild(opt);
-      }
-    }
-
-    function resolveAirportToICAO(inputRaw) {
-      const s = String(inputRaw || "").trim();
-      if (!s) return null;
-
-      // Take first token; allows "KLAX — Los Angeles..."
-      const token = s.toUpperCase().split(/\s+/)[0].replace(/[^\w]/g, "");
-
-      if (/^[A-Z]{4}$/.test(token)) return token;
-      if (/^[A-Z]{3}$/.test(token)) {
-        const byIata = AIRPORTS.find(a => (a.iata || "").toUpperCase() === token);
-        if (byIata) return byIata.icao;
-      }
-
-      const lower = s.toLowerCase();
-      const byName = AIRPORTS.find(a => a.name.toLowerCase().includes(lower));
-      if (byName) return byName.icao;
-
-      return null;
-    }
-
-    function haversine(lat1, lon1, lat2, lon2) {
-      const R = 6371;
-      const toRad = (deg) => (deg * Math.PI) / 180;
-      const dLat = toRad(lat2 - lat1);
-      const dLon = toRad(lon2 - lon1);
-      const a = Math.sin(dLat/2)**2 + Math.cos(toRad(lat1))*Math.cos(toRad(lat2))*Math.sin(dLon/2)**2;
-      return 2 * R * Math.atan2(Math.sqrt(a), Math.sqrt(1-a));
-    }
-
+    // ---------------- METAR rendering helpers ----------------
     function pillClassFor(rating) {
       const r = (rating || "").toLowerCase();
       if (r.includes("excellent") || r.includes("good")) return "metar-pill good";
-      if (r.includes("challenging") || r.includes("no report")) return "metar-pill warn";
+      if (r.includes("challenging") || r.includes("no report") || r.includes("unknown")) return "metar-pill warn";
       if (r.includes("poor") || r.includes("bad") || r.includes("error") || r.includes("timeout")) return "metar-pill bad";
       return "metar-pill";
     }
@@ -518,30 +505,16 @@
       return `${hrs}h ${rem}m ago`;
     }
 
-    function setSelectedAirportUI(icao) {
-      const a = AIRPORTS.find(x => x.icao === icao);
-      const distEl = document.getElementById("airport-distance");
-      distEl.textContent = a
-        ? `Selected: ${icao} — ${a.name}${a.iata ? ` (${a.iata})` : ""}`
-        : `Selected: ${icao}`;
-    }
-
-    // ✅ Fix for "stuck on Long Beach":
-    // - Create a NEW AbortController per request
-    // - Abort previous request immediately
-    // - Use request sequence guard
+    // ✅ Abort + sequence so it NEVER shows old airport data
     let METAR_REQ_SEQ = 0;
     let metarAbort = null;
 
     async function fetchMetar(icaoRaw) {
       const icao = String(icaoRaw || "").trim().toUpperCase();
-      if (!icao) return;
-
       const seq = ++METAR_REQ_SEQ;
 
       if (metarAbort) metarAbort.abort();
       metarAbort = new AbortController();
-      const controller = metarAbort; // capture this request's controller
 
       const rawEl = document.getElementById("metar-raw");
       const ageEl = document.getElementById("metar-age");
@@ -575,14 +548,12 @@
       mHumidity.textContent = "—";
       mPressure.textContent = "—";
 
-      const timeout = setTimeout(() => controller.abort(), 12000);
+      const timeout = setTimeout(() => metarAbort?.abort(), 12000);
 
       try {
-        // cache-bust + no-store
         const url = `${ISA_METAR_ENDPOINT}/${encodeURIComponent(icao)}?t=${Date.now()}`;
-        const res = await fetch(url, { cache: "no-store", signal: controller.signal });
+        const res = await fetch(url, { cache: "no-store", signal: metarAbort.signal });
 
-        // if a newer request started, ignore this response
         if (seq !== METAR_REQ_SEQ) return;
 
         if (res.status === 204) {
@@ -607,14 +578,6 @@
           rawEl.textContent = data?.detail || "No recent METAR found.";
           ratingEl.textContent = "No report";
           ratingEl.className = pillClassFor("no report");
-          return;
-        }
-
-        // ✅ Hard-check: if backend returned wrong station, show warning (prevents “stuck” confusion)
-        if (data.icao && String(data.icao).toUpperCase() !== icao) {
-          rawEl.textContent = `Backend returned ${data.icao} when you asked for ${icao}. (Fix backend station selection.)`;
-          ratingEl.textContent = "Mismatch";
-          ratingEl.className = "metar-pill bad";
           return;
         }
 
@@ -681,7 +644,147 @@
       }
     }
 
-    // ===== Surface weather + winds aloft (Open-Meteo) =====
+    // ---------------- Airport search (worldwide) ----------------
+    const searchEl = document.getElementById("airport-search");
+    const ddEl = document.getElementById("airport-dd");
+    const selectedLabelEl = document.getElementById("airport-selected-label");
+
+    let SELECTED_AIRPORT = { icao: "KLGB", label: "KLGB — Long Beach (LGB)" };
+
+    function showDropdown(show) {
+      ddEl.classList.toggle("show", !!show);
+    }
+
+    function renderDropdown(results) {
+      ddEl.innerHTML = "";
+      if (!results || !results.length) {
+        const div = document.createElement("div");
+        div.className = "airport-dd-item";
+        div.textContent = "No matches. Try ICAO (KJFK) or city name.";
+        ddEl.appendChild(div);
+        showDropdown(true);
+        return;
+      }
+
+      for (const r of results) {
+        const item = document.createElement("div");
+        item.className = "airport-dd-item";
+        item.innerHTML = `<strong>${r.icao}</strong> — ${escapeHtml(r.name || r.icao)}
+          <span class="small">${escapeHtml(r.label || "")}</span>`;
+        item.addEventListener("click", () => {
+          setSelectedAirport(r);
+          showDropdown(false);
+        });
+        ddEl.appendChild(item);
+      }
+      showDropdown(true);
+    }
+
+    function escapeHtml(s) {
+      return String(s || "")
+        .replaceAll("&", "&amp;")
+        .replaceAll("<", "&lt;")
+        .replaceAll(">", "&gt;")
+        .replaceAll('"', "&quot;")
+        .replaceAll("'", "&#039;");
+    }
+
+    function setSelectedAirport(obj) {
+      const icao = String(obj?.icao || "").trim().toUpperCase();
+      if (!icao) return;
+
+      SELECTED_AIRPORT = {
+        icao,
+        label: obj?.label || `${icao}`
+      };
+
+      selectedLabelEl.textContent = SELECTED_AIRPORT.label;
+      // keep input showing the chosen label
+      searchEl.value = SELECTED_AIRPORT.label;
+
+      fetchMetar(SELECTED_AIRPORT.icao);
+    }
+
+    let SEARCH_SEQ = 0;
+    let searchAbort = null;
+    let searchTimer = null;
+
+    async function doAirportSearch(q) {
+      const query = String(q || "").trim();
+      if (!query) { showDropdown(false); return; }
+
+      const seq = ++SEARCH_SEQ;
+      if (searchAbort) searchAbort.abort();
+      searchAbort = new AbortController();
+
+      try {
+        const url = `${ISA_METAR_ENDPOINT}/airports/search?query=${encodeURIComponent(query)}&limit=10&t=${Date.now()}`;
+        const res = await fetch(url, { cache: "no-store", signal: searchAbort.signal });
+        if (seq !== SEARCH_SEQ) return;
+        const data = await res.json();
+        if (seq !== SEARCH_SEQ) return;
+        renderDropdown(data?.results || []);
+      } catch (e) {
+        if (e?.name === "AbortError") return;
+        console.error(e);
+        renderDropdown([]);
+      }
+    }
+
+    function debounceSearch(q) {
+      clearTimeout(searchTimer);
+      searchTimer = setTimeout(() => doAirportSearch(q), 180);
+    }
+
+    function looksLikeCode(s) {
+      const t = String(s || "").trim().toUpperCase();
+      return /^[A-Z0-9]{3,4}$/.test(t);
+    }
+
+    document.addEventListener("click", (e) => {
+      const wrap = document.querySelector(".airport-search-wrap");
+      if (!wrap.contains(e.target)) showDropdown(false);
+    });
+
+    searchEl.addEventListener("input", () => {
+      debounceSearch(searchEl.value);
+    });
+
+    searchEl.addEventListener("focus", () => {
+      if (searchEl.value.trim()) debounceSearch(searchEl.value);
+    });
+
+    searchEl.addEventListener("keydown", (e) => {
+      if (e.key === "Escape") {
+        showDropdown(false);
+        return;
+      }
+      if (e.key === "Enter") {
+        e.preventDefault();
+        const v = searchEl.value.trim();
+
+        // If user typed a station code, accept immediately.
+        if (looksLikeCode(v)) {
+          setSelectedAirport({ icao: v.toUpperCase(), label: v.toUpperCase() });
+          showDropdown(false);
+          return;
+        }
+
+        // Otherwise pick first suggestion if dropdown has items
+        const first = ddEl.querySelector(".airport-dd-item");
+        if (first && ddEl.classList.contains("show")) {
+          first.click();
+        } else {
+          // fallback: try searching then auto-pick first
+          doAirportSearch(v).then(() => {
+            const first2 = ddEl.querySelector(".airport-dd-item");
+            if (first2) first2.click();
+          });
+        }
+      }
+    });
+
+    // ---------------- WX + Winds Aloft (Open-Meteo) ----------------
     let ISA_LAT = 33.8177;
     let ISA_LON = -118.1516;
 
@@ -761,63 +864,41 @@
       fetchWindsAloft(ISA_LAT, ISA_LON, alt).catch(console.error);
     }
 
-    function useMyLocation() {
+    async function useMyLocation() {
       if (!navigator.geolocation) { alert("Geolocation not supported by this browser."); return; }
-      navigator.geolocation.getCurrentPosition((pos) => {
+
+      navigator.geolocation.getCurrentPosition(async (pos) => {
         const { latitude, longitude } = pos.coords;
         ISA_LAT = latitude;
         ISA_LON = longitude;
 
-        let best = AIRPORTS[0];
-        let bestDist = Infinity;
-        for (const a of AIRPORTS) {
-          const d = haversine(latitude, longitude, a.lat, a.lon);
-          if (d < bestDist) { bestDist = d; best = a; }
+        refreshWXandWinds();
+
+        try {
+          const url = `${ISA_METAR_ENDPOINT}/airports/nearest?lat=${encodeURIComponent(latitude)}&lon=${encodeURIComponent(longitude)}&limit=1&t=${Date.now()}`;
+          const res = await fetch(url, { cache: "no-store" });
+          const data = await res.json();
+          const best = data?.results?.[0];
+          if (best?.icao) {
+            setSelectedAirport(best);
+          } else {
+            alert("Could not find nearest airport. Try searching by name or ICAO.");
+          }
+        } catch (e) {
+          console.error(e);
+          alert("Nearest airport lookup failed. Try searching by name or ICAO.");
         }
 
-        const input = document.getElementById("airport-search");
-        input.value = `${best.icao} — ${best.name}${best.iata ? ` (${best.iata})` : ""}`;
-
-        document.getElementById("airport-distance").textContent =
-          `Nearest known field: ${best.icao} — ${best.name} (${bestDist.toFixed(1)} km)`;
-
-        refreshWXandWinds();
-        setSelectedAirportUI(best.icao);
-        fetchMetar(best.icao);
       }, (err) => {
         console.error(err);
         alert("Could not get location. Check browser permissions.");
       });
     }
 
-    // ===== Page init =====
+    // ---------------- Init ----------------
     document.addEventListener("DOMContentLoaded", () => {
-      buildAirportDatalist();
-
-      const airportInput = document.getElementById("airport-search");
-
-      // default
-      airportInput.value = "KLGB — Long Beach (LGB)";
-      setSelectedAirportUI("KLGB");
-      fetchMetar("KLGB");
-
-      // change (select from list or blur)
-      airportInput.addEventListener("change", () => {
-        const icao = resolveAirportToICAO(airportInput.value);
-        if (!icao) return;
-        setSelectedAirportUI(icao);
-        fetchMetar(icao);
-      });
-
-      // enter key
-      airportInput.addEventListener("keydown", (e) => {
-        if (e.key !== "Enter") return;
-        e.preventDefault();
-        const icao = resolveAirportToICAO(airportInput.value);
-        if (!icao) return;
-        setSelectedAirportUI(icao);
-        fetchMetar(icao);
-      });
+      // Default selected airport:
+      setSelectedAirport({ icao: "KLGB", label: "KLGB — Long Beach (LGB)" });
 
       refreshWXandWinds();
 
@@ -827,11 +908,7 @@
       });
       slider.addEventListener("change", refreshWXandWinds);
 
-      setInterval(() => {
-        const icao = resolveAirportToICAO(document.getElementById("airport-search").value) || "KLGB";
-        fetchMetar(icao);
-      }, 5 * 60 * 1000);
-
+      setInterval(() => fetchMetar(SELECTED_AIRPORT.icao), 5 * 60 * 1000);
       setInterval(refreshWXandWinds, 10 * 60 * 1000);
     });
   </script>
