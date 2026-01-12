@@ -1,864 +1,485 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>ISA Master Tool</title>
+<script>
+  AOS.init({ duration: 900, easing: 'ease-out-cubic', offset: 120, once: true });
 
-  <link href="https://unpkg.com/aos@2.3.1/dist/aos.css" rel="stylesheet">
-
-  <style>
-  body { margin: 0; font-family: 'Segoe UI', sans-serif; background: #050816; color: white; }
-  header { text-align: center; padding: 40px 20px 20px; }
-  header h1 { font-size: 2.5rem; margin-bottom: 10px; }
-  header p { font-size: 1.2rem; color: #ccc; }
-
-  .dashboard-section { padding: 40px 20px 60px; background: radial-gradient(circle at top, #050816 0, #020617 55%, #000000 100%); color: #e5ecff; }
-  .dashboard-title { max-width: 1100px; margin: 0 auto 20px auto; display: flex; justify-content: space-between; align-items: center; gap: 10px; }
-  .dashboard-title-main { font-size: 1.4rem; font-weight: 600; letter-spacing: 0.03em; }
-  .dashboard-subtext { font-size: 0.9rem; color: #a6b4d9; }
-  .tag-pill { display: inline-flex; align-items: center; justify-content: center; padding: 4px 10px; border-radius: 999px; font-size: 0.7rem; text-transform: uppercase; letter-spacing: 0.09em; background: linear-gradient(135deg, rgba(34,211,238,0.18), rgba(129,140,248,0.25)); color: #e0faff; border: 1px solid rgba(56,189,248,0.6); box-shadow: 0 0 16px rgba(45,212,191,0.5); }
-  .dashboard-grid { max-width: 1100px; margin: 0 auto; display: grid; grid-template-columns: 1.2fr 1.8fr; grid-template-rows: auto auto; gap: 20px; }
-
-  .dash-card { background: radial-gradient(circle at top left, #111827 0, #020617 75%); border-radius: 22px; padding: 18px 20px; box-shadow: 0 22px 50px rgba(0,0,0,0.75); border: 1px solid rgba(148,163,184,0.25); color: #e5ecff; transition: transform 0.2s ease, box-shadow 0.2s ease, border-color 0.2s ease; }
-  .dash-card:hover { transform: translateY(-4px); box-shadow: 0 28px 70px rgba(15,23,42,0.95); border-color: rgba(56,189,248,0.6); }
-  .dash-card h3 { margin-top: 0; margin-bottom: 8px; font-size: 1rem; font-weight: 600; letter-spacing: 0.06em; text-transform: uppercase; color: #f9fbff; }
-
-  .dash-row { display: flex; justify-content: space-between; align-items: center; gap: 10px; }
-  .big-city { font-size: 1.4rem; font-weight: 600; color: #f9fafb; }
-  .big-time { font-size: 2.7rem; font-weight: 700; color: #e5f3ff; }
-  .date-line { font-size: 0.85rem; color: #9ca9c9; margin-top: 4px; }
-
-  .metric-label { font-size: 0.75rem; text-transform: uppercase; letter-spacing: 0.1em; color: #9ca3ff; margin-bottom: 4px; }
-  .metric-value { font-size: 1.2rem; font-weight: 600; color: #e0f2ff; }
-  .metric-small { font-size: 0.85rem; color: #c0cbe9; }
-
-  .divider-line { height: 1px; background: linear-gradient(to right, transparent, rgba(148,163,184,0.5), transparent); margin: 10px 0 12px; }
-  .forecast-row { display: flex; justify-content: space-between; font-size: 0.8rem; color: #d2deef; margin: 3px 0; }
-
-  .news-bullet { font-size: 0.82rem; margin: 3px 0; color: #d3e2ff; }
-  .news-link { color: #7dd3fc; text-decoration: none; }
-  .news-link:hover { text-decoration: underline; color: #a5b4fc; }
-
-  .ai-search { margin-top: 12px; display: flex; gap: 8px; align-items: center; }
-  .ai-input { flex: 1; padding: 8px 10px; border-radius: 999px; border: 1px solid rgba(148,163,184,0.6); background: rgba(15,23,42,0.9); color: #e5ecff; font-size: 0.85rem; outline: none; box-shadow: 0 0 0 1px rgba(15,23,42,0.7); }
-  .ai-input::placeholder { color: #9ca3c7; }
-  .ai-input:focus { border-color: rgba(56,189,248,0.9); box-shadow: 0 0 18px rgba(56,189,248,0.55); }
-  .ai-button { padding: 8px 14px; border-radius: 999px; border: none; font-size: 0.85rem; font-weight: 600; cursor: pointer; background: linear-gradient(135deg, #22c55e, #22d3ee); color: #020617; box-shadow: 0 18px 35px rgba(34,197,94,0.45); white-space: nowrap; }
-  .ai-button:hover { filter: brightness(1.08); box-shadow: 0 20px 45px rgba(34,197,94,0.7); }
-  .ai-status { font-size: 0.78rem; color: #a5b4fc; margin-top: 6px; }
-  .ai-answer-bubble { margin-top: 8px; padding: 10px 12px; border-radius: 16px; background: radial-gradient(circle at top left, #0ea5e9 0, #1e293b 55%); color: #ecfeff; font-size: 0.9rem; line-height: 1.4; box-shadow: 0 14px 30px rgba(15, 23, 42, 0.9); opacity: 0; transform: translateY(8px) scale(0.98); transition: opacity 0.25s ease-out, transform 0.25s ease-out; }
-  .ai-answer-bubble.show { opacity: 1; transform: translateY(0) scale(1); }
-  .hidden { display: none; }
-
-  .airport-row { display: flex; gap: 8px; align-items: center; margin-top: 4px; position: relative; }
-  .airport-input { flex: 1; padding: 8px 12px; border-radius: 999px; border: 1px solid rgba(148,163,184,0.7); background: rgba(15,23,42,0.9); color: #e5ecff; font-size: 0.85rem; outline: none; }
-  .airport-input:focus { border-color: rgba(56,189,248,0.9); box-shadow: 0 0 12px rgba(56,189,248,0.6); }
-  .geo-button { padding: 8px 12px; border-radius: 999px; border: none; font-size: 0.8rem; cursor: pointer; white-space: nowrap; background: linear-gradient(135deg, #22c55e, #22d3ee); color: #020617; box-shadow: 0 10px 20px rgba(34,197,94,0.4); }
-  .geo-button:hover { filter: brightness(1.06); }
-
-  .airport-dd {
-    position: absolute;
-    left: 0;
-    right: 0;
-    top: calc(100% + 6px);
-    background: rgba(2, 6, 23, 0.95);
-    border: 1px solid rgba(148,163,184,0.25);
-    border-radius: 14px;
-    overflow: hidden;
-    box-shadow: 0 20px 60px rgba(0,0,0,0.65);
-    z-index: 999;
-    display: none;
+  function updateClock() {
+    const now = new Date();
+    const hours = String(now.getHours()).padStart(2, "0");
+    const mins = String(now.getMinutes()).padStart(2, "0");
+    document.getElementById("clock").textContent = `${hours}:${mins}`;
+    const options = { weekday: "long", day: "numeric", month: "short", year: "numeric" };
+    document.getElementById("date-line").textContent = now.toLocaleDateString(undefined, options);
   }
-  .airport-dd.show { display: block; }
-  .airport-dd-item {
-    padding: 10px 12px;
-    cursor: pointer;
-    font-size: 0.86rem;
-    color: #e5ecff;
-    border-bottom: 1px solid rgba(148,163,184,0.12);
-  }
-  .airport-dd-item:hover { background: rgba(56,189,248,0.12); }
-  .airport-dd-item small { display:block; color:#a6b4d9; margin-top:2px; font-size:0.78rem; }
-  .airport-dd-empty { padding: 10px 12px; color: #a6b4d9; font-size: 0.85rem; }
+  updateClock();
+  setInterval(updateClock, 1000);
 
-  #alt-ft { accent-color: #22d3ee; }
-  #wx-conditions, #wx-wind, #winds-aloft { text-shadow: 0 0 18px rgba(56,189,248,0.25); }
+  const ISA_BACKEND_BASE = "https://isa-backend-olj9.onrender.com/api";
+  const ISA_AI_ENDPOINT = `${ISA_BACKEND_BASE}/ask/`;
+  const ISA_METAR_ENDPOINT = `${ISA_BACKEND_BASE}/metar`;
 
-  @media (max-width: 900px) {
-    .dashboard-title { flex-direction: column; align-items: flex-start; }
-    .dashboard-grid { grid-template-columns: 1fr; }
-  }
+  async function askISA() {
+    const input = document.getElementById("ai-query");
+    const statusEl = document.getElementById("ai-status");
+    const answerEl = document.getElementById("ai-answer");
+    const question = (input.value || "").trim();
+    if (!question) return;
 
-  section.tools-section { background: white; color: black; padding: 60px 30px; text-align: center; }
-  h2 { margin-bottom: 40px; }
-  .button-grid { display: flex; flex-wrap: wrap; justify-content: center; gap: 20px; }
-  .tool-button { background: black; color: white; padding: 20px 30px; border-radius: 10px; font-size: 1rem; font-weight: bold; text-decoration: none; width: 260px; transition: transform 0.2s ease; }
-  .tool-button:hover { background: #222; transform: scale(1.05); }
+    statusEl.textContent = "Thinking...";
+    answerEl.classList.add("hidden");
+    answerEl.classList.remove("show");
 
-  footer { text-align: center; padding: 20px; font-size: 0.8rem; color: #aaa; background: #000; }
+    try {
+      const resp = await fetch(ISA_AI_ENDPOINT, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ question })
+      });
 
-  lottie-player { width: 300px; height: 300px; margin: 20px auto; display: block; }
-  @media (min-width: 768px) { lottie-player { width: 800px !important; height: 400px !important; } }
-  @media (max-width: 600px) {
-    header { padding: 60px 20px 30px; }
-    lottie-player { width: 90% !important; max-width: 320px; height: auto !important; }
-    .tool-button { width: 90%; }
-  }
+      const text = await resp.text();
+      let data = null;
+      try { data = JSON.parse(text); } catch {}
 
-  /* METAR table UI */
-  .metar-shell {
-    margin-top: 8px;
-    border-radius: 18px;
-    border: 1px solid rgba(56,189,248,0.35);
-    background:
-      radial-gradient(circle at 20% 0%, rgba(34,211,238,0.18), transparent 55%),
-      radial-gradient(circle at 80% 20%, rgba(129,140,248,0.18), transparent 55%),
-      rgba(2, 6, 23, 0.55);
-    box-shadow:
-      0 18px 45px rgba(0,0,0,0.65),
-      0 0 0 1px rgba(15,23,42,0.35) inset;
-    overflow: hidden;
-  }
-
-  .metar-header {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    gap: 10px;
-    padding: 10px 12px;
-    border-bottom: 1px solid rgba(148,163,184,0.22);
-    background: rgba(15,23,42,0.55);
-  }
-
-  .metar-title {
-    display: flex;
-    align-items: center;
-    gap: 10px;
-    font-weight: 700;
-    letter-spacing: 0.08em;
-    text-transform: uppercase;
-    font-size: 0.78rem;
-    color: #e5f3ff;
-  }
-
-  .metar-dot {
-    width: 10px;
-    height: 10px;
-    border-radius: 999px;
-    background: rgba(34,211,238,0.9);
-    box-shadow: 0 0 18px rgba(34,211,238,0.8);
-    flex: 0 0 auto;
-  }
-
-  .metar-badges {
-    display: flex;
-    align-items: center;
-    gap: 8px;
-    flex-wrap: wrap;
-    justify-content: flex-end;
-  }
-
-  .metar-pill {
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
-    padding: 4px 10px;
-    border-radius: 999px;
-    font-size: 0.72rem;
-    letter-spacing: 0.08em;
-    text-transform: uppercase;
-    border: 1px solid rgba(148,163,184,0.25);
-    background: rgba(2, 6, 23, 0.55);
-    color: #cfe6ff;
-  }
-
-  .metar-pill.good { border-color: rgba(34,197,94,0.35); box-shadow: 0 0 18px rgba(34,197,94,0.18); }
-  .metar-pill.warn { border-color: rgba(251,191,36,0.35); box-shadow: 0 0 18px rgba(251,191,36,0.14); }
-  .metar-pill.bad  { border-color: rgba(239,68,68,0.35); box-shadow: 0 0 18px rgba(239,68,68,0.14); }
-
-  .metar-table { width: 100%; border-collapse: collapse; font-size: 0.86rem; }
-  .metar-table td { padding: 10px 12px; border-bottom: 1px solid rgba(148,163,184,0.14); vertical-align: middle; }
-
-  .metar-k {
-    width: 42%;
-    color: #a5b4fc;
-    letter-spacing: 0.08em;
-    text-transform: uppercase;
-    font-size: 0.72rem;
-  }
-
-  .metar-v { color: #e0f2ff; font-weight: 600; }
-  .metar-subv { display: block; margin-top: 2px; font-size: 0.75rem; color: #c0cbe9; font-weight: 500; letter-spacing: 0.02em; }
-
-  .metar-raw {
-    padding: 10px 12px;
-    background: rgba(15,23,42,0.55);
-    border-top: 1px solid rgba(148,163,184,0.18);
-    font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
-    font-size: 0.82rem;
-    color: #cbd5ff;
-    white-space: pre-wrap;
-    word-break: break-word;
-  }
-  </style>
-
-  <script src="https://unpkg.com/@lottiefiles/lottie-player@latest/dist/lottie-player.js"></script>
-</head>
-
-<body>
-  <header data-aos="fade-down">
-    <h1>✈ ISA Master Tool</h1>
-    <p>Aerospace engineering tools for atmosphere, performance, and mission planning</p>
-    <h3>Created by Ashwin Ganesh</h3>
-
-    <lottie-player
-      src="https://lottie.host/68ecc80f-3865-4071-89bf-1db845e65c6e/O67It7eqk8.json"
-      background="transparent"
-      speed="1"
-      loop
-      autoplay>
-    </lottie-player>
-  </header>
-
-  <section class="dashboard-section">
-    <div class="dashboard-title" data-aos="fade-up">
-      <div>
-        <div class="dashboard-title-main">ISA Command Center</div>
-        <div class="dashboard-subtext">Live cockpit: weather, winds aloft, METAR, and ISA AI.</div>
-      </div>
-      <div class="tag-pill">Student Flight Deck</div>
-    </div>
-
-    <div class="dashboard-grid">
-      <div class="dash-card" data-aos="zoom-in" data-aos-delay="50">
-        <h3>Local Time & Winds Aloft</h3>
-        <div class="dash-row">
-          <div>
-            <div class="metric-label">City</div>
-            <div class="big-city" id="city-label">Long Beach, CA</div>
-            <div class="date-line" id="date-line"></div>
-          </div>
-          <div style="text-align:right;">
-            <div class="metric-label">Current Time</div>
-            <div class="big-time" id="clock">--:--</div>
-          </div>
-        </div>
-
-        <div class="divider-line"></div>
-
-        <div class="dash-row">
-          <div style="flex:1;">
-            <div class="metric-label">Cruise Altitude (ft)</div>
-            <input id="alt-ft" type="range" min="0" max="42000" step="1000" value="8000" style="width:100%;">
-            <div class="metric-small"><span id="alt-ft-label">8,000</span> ft</div>
-          </div>
-
-          <div style="text-align:right; min-width: 160px;">
-            <div class="metric-label">Winds Aloft</div>
-            <div class="metric-value" id="winds-aloft">Loading…</div>
-            <div class="metric-small" id="winds-aloft-sub">—</div>
-          </div>
-        </div>
-      </div>
-
-      <div class="dash-card" data-aos="zoom-in" data-aos-delay="150">
-        <h3>Surface Weather Snapshot</h3>
-
-        <div class="dash-row">
-          <div>
-            <div class="metric-label">Conditions</div>
-            <div class="metric-value" id="wx-conditions">Loading…</div>
-            <div class="metric-small" id="wx-sub">—</div>
-          </div>
-
-          <div style="text-align:right;">
-            <div class="metric-label">Wind • Pressure</div>
-            <div class="metric-value" id="wx-wind">—</div>
-            <div class="metric-small" id="wx-pressure">—</div>
-          </div>
-        </div>
-
-        <div class="divider-line"></div>
-
-        <div class="metric-label" style="margin-bottom:6px;">Next Hours</div>
-        <div class="forecast-row"><span id="fh-1t">—</span><span id="fh-1w">—</span><span id="fh-1s">—</span></div>
-        <div class="forecast-row"><span id="fh-2t">—</span><span id="fh-2w">—</span><span id="fh-2s">—</span></div>
-        <div class="forecast-row"><span id="fh-3t">—</span><span id="fh-3w">—</span><span id="fh-3s">—</span></div>
-        <div class="forecast-row"><span id="fh-4t">—</span><span id="fh-4w">—</span><span id="fh-4s">—</span></div>
-      </div>
-
-      <div class="dash-card" data-aos="zoom-in" data-aos-delay="250">
-        <h3>Airport METAR / TAF</h3>
-
-        <div class="metric-label">Search Airport (ICAO, IATA, City, Name)</div>
-        <div class="airport-row">
-          <input id="airport-search" class="airport-input" type="text"
-                 placeholder="e.g. KLAX, LAX, Colombo, Heathrow, VCCC..." autocomplete="off" />
-          <button type="button" class="geo-button" id="geo-btn">Use my location</button>
-
-          <div id="airport-dd" class="airport-dd"></div>
-        </div>
-
-        <div class="metric-small" id="airport-distance" style="margin-top:6px;">
-          Selected: —
-        </div>
-
-        <div class="divider-line"></div>
-
-        <div class="metar-shell" id="metar-shell">
-          <div class="metar-header">
-            <div class="metar-title"><span class="metar-dot"></span>METAR Snapshot</div>
-            <div class="metar-badges">
-              <span class="metar-pill" id="metar-age">—</span>
-              <span class="metar-pill" id="metar-rating">—</span>
-            </div>
-          </div>
-
-          <table class="metar-table">
-            <tr><td class="metar-k">Airport</td><td class="metar-v" id="m-airport">—</td></tr>
-            <tr>
-              <td class="metar-k">Observed (Local)</td>
-              <td class="metar-v" id="m-obs-local">— <span class="metar-subv" id="m-obs-utc">—</span></td>
-            </tr>
-            <tr><td class="metar-k">Sky</td><td class="metar-v" id="m-sky">—</td></tr>
-            <tr><td class="metar-k">Visibility</td><td class="metar-v" id="m-vis">—</td></tr>
-            <tr>
-              <td class="metar-k">Wind</td>
-              <td class="metar-v" id="m-wind">— <span class="metar-subv" id="m-wind-sub">—</span></td>
-            </tr>
-            <tr>
-              <td class="metar-k">Temperature</td>
-              <td class="metar-v" id="m-temp">— <span class="metar-subv" id="m-humidity">—</span></td>
-            </tr>
-            <tr><td class="metar-k">Pressure</td><td class="metar-v" id="m-pressure">—</td></tr>
-          </table>
-
-          <div class="metar-raw" id="metar-raw">Search an airport above…</div>
-        </div>
-      </div>
-
-      <div class="dash-card" data-aos="zoom-in" data-aos-delay="350">
-        <h3>Aerospace News &amp; ISA AI</h3>
-
-        <div class="metric-label">Links (news feed comes next)</div>
-        <div class="news-bullet">• <a class="news-link" href="https://www.nasa.gov/news-release/" target="_blank" rel="noopener">NASA updates</a></div>
-        <div class="news-bullet">• <a class="news-link" href="https://www.flightglobal.com/news" target="_blank" rel="noopener">FlightGlobal</a></div>
-        <div class="news-bullet">• <a class="news-link" href="https://spacenews.com/" target="_blank" rel="noopener">SpaceNews</a></div>
-
-        <div class="divider-line"></div>
-
-        <div class="metric-label">Ask ISA AI</div>
-        <div class="metric-small" style="margin-bottom:6px;">Ask any aerospace question. Answer appears below.</div>
-
-        <div class="ai-search">
-          <input id="ai-query" class="ai-input" type="text" placeholder="e.g. Explain lift vs drag at high Mach"/>
-          <button class="ai-button" type="button" onclick="askISA()">Ask</button>
-        </div>
-
-        <div id="ai-status" class="ai-status"></div>
-        <div id="ai-answer" class="ai-answer-bubble hidden"></div>
-      </div>
-    </div>
-  </section>
-
-  <section class="tools-section">
-    <h2 data-aos="fade-up">Choose a Tool</h2>
-    <div class="button-grid">
-      <a href="https://isa-atm-calculator-tmepkr7qfrryb65yvtjg7j.streamlit.app/?tool=ISA%20Air%20Properties" class="tool-button" data-aos="zoom-in" data-aos-delay="100">ISA Air Properties</a>
-      <a href="https://isa-atm-calculator-tmepkr7qfrryb65yvtjg7j.streamlit.app/?tool=Mach%20Number%20Calculator" class="tool-button" data-aos="zoom-in" data-aos-delay="200">Mach Number Calculator</a>
-      <a href="https://isa-atm-calculator-tmepkr7qfrryb65yvtjg7j.streamlit.app/?tool=Lift%20and%20Drag%20Calculator" class="tool-button" data-aos="zoom-in" data-aos-delay="300">Lift &amp; Drag Calculator</a>
-      <a href="https://isa-atm-calculator-tmepkr7qfrryb65yvtjg7j.streamlit.app/?tool=Fuel%20Consumption%20%26%20Range%20Estimator" class="tool-button" data-aos="zoom-in" data-aos-delay="400">Fuel &amp; Range Estimator</a>
-      <a href="https://isa-atm-calculator-tmepkr7qfrryb65yvtjg7j.streamlit.app/?tool=Mission%20Planner" class="tool-button" data-aos="zoom-in" data-aos-delay="500">Mission Planner</a>
-      <a href="https://isa-atm-calculator-tmepkr7qfrryb65yvtjg7j.streamlit.app/?tool=City%20to%20City%20Flight%20Estimator" class="tool-button" data-aos="zoom-in" data-aos-delay="600">City to City Estimator</a>
-    </div>
-  </section>
-
-  <footer>&copy; 2025 Ashwin Ganesh — All rights reserved</footer>
-
-  <script src="https://unpkg.com/aos@2.3.1/dist/aos.js"></script>
-  <script>
-    AOS.init({ duration: 900, easing: 'ease-out-cubic', offset: 120, once: true });
-
-    function updateClock() {
-      const now = new Date();
-      const hours = String(now.getHours()).padStart(2, "0");
-      const mins = String(now.getMinutes()).padStart(2, "0");
-      document.getElementById("clock").textContent = `${hours}:${mins}`;
-      const options = { weekday: "long", day: "numeric", month: "short", year: "numeric" };
-      document.getElementById("date-line").textContent = now.toLocaleDateString(undefined, options);
-    }
-    updateClock();
-    setInterval(updateClock, 1000);
-
-    const ISA_BACKEND_BASE = "https://isa-backend-olj9.onrender.com/api";
-    const ISA_AI_ENDPOINT = `${ISA_BACKEND_BASE}/ask/`;
-    const ISA_METAR_ENDPOINT = `${ISA_BACKEND_BASE}/metar`; // /{icao}
-
-    async function askISA() {
-      const input = document.getElementById("ai-query");
-      const statusEl = document.getElementById("ai-status");
-      const answerEl = document.getElementById("ai-answer");
-      const question = (input.value || "").trim();
-      if (!question) return;
-
-      statusEl.textContent = "Thinking...";
-      answerEl.classList.add("hidden");
-      answerEl.classList.remove("show");
-
-      try {
-        const resp = await fetch(ISA_AI_ENDPOINT, {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ question })
-        });
-
-        const text = await resp.text();
-        let data = null;
-        try { data = JSON.parse(text); } catch {}
-
-        if (!resp.ok) {
-          const detail = data?.detail || text || `HTTP ${resp.status}`;
-          throw new Error(`AI error (${resp.status}): ${detail}`);
-        }
-
-        answerEl.textContent = data?.answer || "No answer returned.";
-      } catch (err) {
-        console.error(err);
-        answerEl.textContent = String(err.message || err);
-      } finally {
-        statusEl.textContent = "";
-        answerEl.classList.remove("hidden");
-        requestAnimationFrame(() => answerEl.classList.add("show"));
+      if (!resp.ok) {
+        const detail = data?.detail || text || `HTTP ${resp.status}`;
+        throw new Error(`AI error (${resp.status}): ${detail}`);
       }
+
+      answerEl.textContent = data?.answer || "No answer returned.";
+    } catch (err) {
+      console.error(err);
+      answerEl.textContent = String(err.message || err);
+    } finally {
+      statusEl.textContent = "";
+      answerEl.classList.remove("hidden");
+      requestAnimationFrame(() => answerEl.classList.add("show"));
     }
+  }
 
-    // ===== METAR UI helpers =====
-    function pillClassFor(rating) {
-      const r = (rating || "").toLowerCase();
-      if (r.includes("excellent") || r.includes("good")) return "metar-pill good";
-      if (r.includes("challenging") || r.includes("no report")) return "metar-pill warn";
-      if (r.includes("poor") || r.includes("bad") || r.includes("error") || r.includes("timeout")) return "metar-pill bad";
-      return "metar-pill";
-    }
+  // ===== METAR UI helpers =====
+  function pillClassFor(rating) {
+    const r = (rating || "").toLowerCase();
+    if (r.includes("excellent") || r.includes("good")) return "metar-pill good";
+    if (r.includes("challenging") || r.includes("no report")) return "metar-pill warn";
+    if (r.includes("poor") || r.includes("bad") || r.includes("error") || r.includes("timeout")) return "metar-pill bad";
+    return "metar-pill";
+  }
 
-    function formatLocalTime(isoUtc) {
-      if (!isoUtc) return { local: "—", utc: "—" };
-      const d = new Date(isoUtc);
-      if (isNaN(d.getTime())) return { local: "—", utc: isoUtc };
-      return {
-        local: d.toLocaleString([], {
-          weekday: "short",
-          month: "short",
-          day: "numeric",
-          hour: "2-digit",
-          minute: "2-digit",
-          timeZoneName: "short",
-        }),
-        utc: `UTC ${d.toISOString().slice(11, 16)}Z`,
-      };
-    }
+  function formatLocalTime(isoUtc) {
+    if (!isoUtc) return { local: "—", utc: "—" };
+    const d = new Date(isoUtc);
+    if (isNaN(d.getTime())) return { local: "—", utc: isoUtc };
+    return {
+      local: d.toLocaleString([], {
+        weekday: "short",
+        month: "short",
+        day: "numeric",
+        hour: "2-digit",
+        minute: "2-digit",
+        timeZoneName: "short",
+      }),
+      utc: `UTC ${d.toISOString().slice(11, 16)}Z`,
+    };
+  }
 
-    function ageFromIso(isoUtc) {
-      if (!isoUtc) return "—";
-      const d = new Date(isoUtc);
-      const now = new Date();
-      const mins = Math.round((now - d) / 60000);
-      if (!isFinite(mins)) return "—";
-      if (mins < 1) return "Just now";
-      if (mins < 60) return `${mins} min ago`;
-      const hrs = Math.floor(mins / 60);
-      const rem = mins % 60;
-      return `${hrs}h ${rem}m ago`;
-    }
+  function ageFromIso(isoUtc) {
+    if (!isoUtc) return "—";
+    const d = new Date(isoUtc);
+    const now = new Date();
+    const mins = Math.round((now - d) / 60000);
+    if (!isFinite(mins)) return "—";
+    if (mins < 1) return "Just now";
+    if (mins < 60) return `${mins} min ago`;
+    const hrs = Math.floor(mins / 60);
+    const rem = mins % 60;
+    return `${hrs}h ${rem}m ago`;
+  }
 
-    function extractICAO(text) {
-      if (!text) return null;
-      const m = text.toUpperCase().match(/\b[A-Z0-9]{3,4}\b/);
-      return m ? m[0] : null;
-    }
+  function extractICAO(text) {
+    if (!text) return null;
+    // Prefer 4-letter ICAO, but allow 3-4 if user types short codes
+    const t = text.toUpperCase();
+    const m4 = t.match(/\b[A-Z0-9]{4}\b/);
+    if (m4) return m4[0];
+    const m3 = t.match(/\b[A-Z0-9]{3}\b/);
+    return m3 ? m3[0] : null;
+  }
 
-    // Abort + timeout
-    let METAR_REQ_SEQ = 0;
-    let metarAbort = null;
+  // ===== METAR fetch with better timeout handling =====
+  let METAR_REQ_SEQ = 0;
+  let metarAbort = null;
+  let firstMetarFetch = true;
 
-    async function fetchMetar(icaoRaw) {
-      const icao = String(icaoRaw || "").trim().toUpperCase();
-      if (!icao) return;
+  async function fetchMetar(icaoRaw) {
+    const icao = String(icaoRaw || "").trim().toUpperCase();
+    if (!icao) return;
 
-      const seq = ++METAR_REQ_SEQ;
-      if (metarAbort) metarAbort.abort();
-      metarAbort = new AbortController();
+    const seq = ++METAR_REQ_SEQ;
+    if (metarAbort) metarAbort.abort();
+    metarAbort = new AbortController();
 
-      const rawEl = document.getElementById("metar-raw");
-      const ageEl = document.getElementById("metar-age");
-      const ratingEl = document.getElementById("metar-rating");
+    const rawEl = document.getElementById("metar-raw");
+    const ageEl = document.getElementById("metar-age");
+    const ratingEl = document.getElementById("metar-rating");
 
-      const mAirport = document.getElementById("m-airport");
-      const mObsLocal = document.getElementById("m-obs-local");
-      const mObsUtc = document.getElementById("m-obs-utc");
-      const mSky = document.getElementById("m-sky");
-      const mVis = document.getElementById("m-vis");
-      const mWind = document.getElementById("m-wind");
-      const mWindSub = document.getElementById("m-wind-sub");
-      const mTemp = document.getElementById("m-temp");
-      const mHumidity = document.getElementById("m-humidity");
-      const mPressure = document.getElementById("m-pressure");
+    const mAirport = document.getElementById("m-airport");
+    const mObsLocal = document.getElementById("m-obs-local");
+    const mObsUtc = document.getElementById("m-obs-utc");
+    const mSky = document.getElementById("m-sky");
+    const mVis = document.getElementById("m-vis");
+    const mWind = document.getElementById("m-wind");
+    const mWindSub = document.getElementById("m-wind-sub");
+    const mTemp = document.getElementById("m-temp");
+    const mHumidity = document.getElementById("m-humidity");
+    const mPressure = document.getElementById("m-pressure");
 
-      rawEl.textContent = `Fetching METAR for ${icao}…`;
-      ageEl.textContent = "—";
-      ratingEl.textContent = "Loading…";
-      ratingEl.className = "metar-pill warn";
+    rawEl.textContent = firstMetarFetch
+      ? `Fetching METAR for ${icao}… (server may be waking up)`
+      : `Fetching METAR for ${icao}…`;
 
-      mAirport.textContent = icao;
-      mObsLocal.textContent = "—";
-      mObsUtc.textContent = "—";
-      mSky.textContent = "—";
-      mVis.textContent = "—";
-      mWind.textContent = "—";
-      mWindSub.textContent = "—";
-      mTemp.textContent = "—";
-      mHumidity.textContent = "—";
-      mPressure.textContent = "—";
+    ageEl.textContent = "—";
+    ratingEl.textContent = "Loading…";
+    ratingEl.className = "metar-pill warn";
 
-      const timeout = setTimeout(() => metarAbort?.abort(), 12000);
+    mAirport.textContent = icao;
+    mObsLocal.textContent = "—";
+    mObsUtc.textContent = "—";
+    mSky.textContent = "—";
+    mVis.textContent = "—";
+    mWind.textContent = "—";
+    mWindSub.textContent = "—";
+    mTemp.textContent = "—";
+    mHumidity.textContent = "—";
+    mPressure.textContent = "—";
 
-      try {
-        const url = `${ISA_METAR_ENDPOINT}/${encodeURIComponent(icao)}?t=${Date.now()}`;
-        const res = await fetch(url, { cache: "no-store", signal: metarAbort.signal });
-        if (seq !== METAR_REQ_SEQ) return;
+    const timeoutMs = firstMetarFetch ? 30000 : 18000; // cold start-safe
+    const timeout = setTimeout(() => metarAbort?.abort(), timeoutMs);
 
-        if (res.status === 204) {
-          rawEl.textContent = "No recent METAR found.";
-          ratingEl.textContent = "No report";
-          ratingEl.className = pillClassFor("no report");
-          return;
-        }
+    try {
+      const url = `${ISA_METAR_ENDPOINT}/${encodeURIComponent(icao)}?t=${Date.now()}`;
+      const res = await fetch(url, { cache: "no-store", signal: metarAbort.signal });
+      if (seq !== METAR_REQ_SEQ) return;
 
-        const text = await res.text();
-        if (seq !== METAR_REQ_SEQ) return;
-
-        let data = null;
-        if (text) { try { data = JSON.parse(text); } catch {} }
-
-        if (!res.ok) {
-          const detail = data?.detail || text || `HTTP ${res.status}`;
-          throw new Error(detail);
-        }
-
-        if (!data || !data.raw_text) {
-          rawEl.textContent = data?.detail || "No recent METAR found.";
-          ratingEl.textContent = "No report";
-          ratingEl.className = pillClassFor("no report");
-          return;
-        }
-
-        rawEl.textContent = data.raw_text;
-
-        const obsUtc = data.obs_time_utc || data.plain_english?.observed_utc || null;
-        const tLocal = formatLocalTime(obsUtc);
-        mObsLocal.textContent = tLocal.local;
-        mObsUtc.textContent = tLocal.utc;
-        ageEl.textContent = ageFromIso(obsUtc);
-
-        const rating = data.flight_conditions || data.plain_english?.flight_conditions || "Unknown";
-        ratingEl.textContent = rating;
-        ratingEl.className = pillClassFor(rating);
-
-        mSky.textContent = data.sky || data.plain_english?.sky || "—";
-
-        const vis = (data.visibility_mi ?? data.plain_english?.visibility_mi);
-        mVis.textContent = (vis == null) ? "—" : `${vis} mi`;
-
-        const wdir = (data.wind_dir_deg ?? data.plain_english?.wind?.dir_deg);
-        const wspd = (data.wind_speed_kt ?? data.plain_english?.wind?.speed_kt);
-        const wgst = (data.wind_gust_kt ?? data.plain_english?.wind?.gust_kt);
-
-        if (wspd == null) {
-          mWind.textContent = "—";
-          mWindSub.textContent = "—";
-        } else {
-          const dirTxt = (wdir == null) ? "VRB" : `${wdir}°`;
-          mWind.textContent = `${dirTxt} / ${wspd} kt`;
-          mWindSub.textContent = wgst ? `Gusts ${wgst} kt` : "No gusts";
-        }
-
-        const tc = (data.temp_c ?? data.plain_english?.temperature_c);
-        const dc = (data.dewpoint_c ?? data.plain_english?.dewpoint_c);
-        const rh = (data.humidity_est_pct ?? data.plain_english?.humidity_est_pct);
-
-        mTemp.textContent = (tc == null) ? "—" : `${tc} °C`;
-        mHumidity.textContent = (dc == null || rh == null) ? "—" : `Dew ${dc}°C • RH ~${rh}%`;
-
-        const p = (data.altimeter_inhg ?? data.plain_english?.pressure_inhg);
-        mPressure.textContent = (p == null) ? "—" : `${p} inHg`;
-
-      } catch (e) {
-        if (seq !== METAR_REQ_SEQ) return;
-        if (e?.name === "AbortError") {
-          rawEl.textContent = `Timed out fetching METAR for ${icao}. Try again.`;
-          ratingEl.textContent = "Timeout";
-          ratingEl.className = "metar-pill bad";
-          return;
-        }
-        console.error(e);
-        rawEl.textContent = `Error fetching METAR: ${e.message || e}`;
-        ratingEl.textContent = "Error";
-        ratingEl.className = "metar-pill bad";
-      } finally {
-        clearTimeout(timeout);
-      }
-    }
-
-    // ===== Airport search UI =====
-    let selectedAirport = null;
-
-    const searchEl = document.getElementById("airport-search");
-    const ddEl = document.getElementById("airport-dd");
-    const distEl = document.getElementById("airport-distance");
-    const geoBtn = document.getElementById("geo-btn");
-
-    function showDropdown(on) {
-      ddEl.classList.toggle("show", !!on);
-    }
-
-    function setSelectedAirport(a) {
-      selectedAirport = a;
-      const label = a?.label || a?.icao || "—";
-      searchEl.value = label;
-      distEl.textContent = `Selected: ${label}`;
-      showDropdown(false);
-
-      const icao = a?.icao || extractICAO(label);
-      if (icao) fetchMetar(icao);
-    }
-
-    function renderDropdown(results, q) {
-      ddEl.innerHTML = "";
-      if (!results || results.length === 0) {
-        const div = document.createElement("div");
-        div.className = "airport-dd-empty";
-        div.textContent = `No matches. Try ICAO (KJFK) or city/name.`;
-        ddEl.appendChild(div);
-        showDropdown(true);
+      if (res.status === 204) {
+        rawEl.textContent = "No recent METAR found.";
+        ratingEl.textContent = "No report";
+        ratingEl.className = pillClassFor("no report");
+        firstMetarFetch = false;
         return;
       }
 
-      results.forEach((r) => {
-        const item = document.createElement("div");
-        item.className = "airport-dd-item";
-        item.innerHTML = `${r.label}<small>${(r.icao || "")}${r.iata ? " • " + r.iata : ""}</small>`;
-        item.addEventListener("mousedown", (e) => {
-          // mousedown so click doesn't lose focus first
-          e.preventDefault();
-          setSelectedAirport(r);
-        });
-        ddEl.appendChild(item);
-      });
+      const text = await res.text();
+      if (seq !== METAR_REQ_SEQ) return;
 
+      let data = null;
+      if (text) { try { data = JSON.parse(text); } catch {} }
+
+      if (!res.ok) {
+        const detail = data?.detail || text || `HTTP ${res.status}`;
+        throw new Error(detail);
+      }
+
+      if (!data || !data.raw_text) {
+        rawEl.textContent = data?.detail || "No recent METAR found.";
+        ratingEl.textContent = "No report";
+        ratingEl.className = pillClassFor("no report");
+        firstMetarFetch = false;
+        return;
+      }
+
+      rawEl.textContent = data.raw_text;
+
+      const obsUtc = data.obs_time_utc || data.plain_english?.observed_utc || null;
+      const tLocal = formatLocalTime(obsUtc);
+      mObsLocal.textContent = tLocal.local;
+      mObsUtc.textContent = tLocal.utc;
+      ageEl.textContent = ageFromIso(obsUtc);
+
+      const rating = data.flight_conditions || data.plain_english?.flight_conditions || "Unknown";
+      ratingEl.textContent = rating;
+      ratingEl.className = pillClassFor(rating);
+
+      mSky.textContent = data.sky || data.plain_english?.sky || "—";
+
+      const vis = (data.visibility_mi ?? data.plain_english?.visibility_mi);
+      mVis.textContent = (vis == null) ? "—" : `${vis} mi`;
+
+      const wdir = (data.wind_dir_deg ?? data.plain_english?.wind?.dir_deg);
+      const wspd = (data.wind_speed_kt ?? data.plain_english?.wind?.speed_kt);
+      const wgst = (data.wind_gust_kt ?? data.plain_english?.wind?.gust_kt);
+
+      if (wspd == null) {
+        mWind.textContent = "—";
+        mWindSub.textContent = "—";
+      } else {
+        const dirTxt = (wdir == null) ? "VRB" : `${wdir}°`;
+        mWind.textContent = `${dirTxt} / ${wspd} kt`;
+        mWindSub.textContent = wgst ? `Gusts ${wgst} kt` : "No gusts";
+      }
+
+      const tc = (data.temp_c ?? data.plain_english?.temperature_c);
+      const dc = (data.dewpoint_c ?? data.plain_english?.dewpoint_c);
+      const rh = (data.humidity_est_pct ?? data.plain_english?.humidity_est_pct);
+
+      mTemp.textContent = (tc == null) ? "—" : `${tc} °C`;
+      mHumidity.textContent = (dc == null || rh == null) ? "—" : `Dew ${dc}°C • RH ~${rh}%`;
+
+      const p = (data.altimeter_inhg ?? data.plain_english?.pressure_inhg);
+      mPressure.textContent = (p == null) ? "—" : `${p} inHg`;
+
+      firstMetarFetch = false;
+
+    } catch (e) {
+      if (seq !== METAR_REQ_SEQ) return;
+      if (e?.name === "AbortError") {
+        rawEl.textContent = `Timed out fetching METAR for ${icao}. (If this is the first load, Render may still be waking up.)`;
+        ratingEl.textContent = "Timeout";
+        ratingEl.className = "metar-pill bad";
+        return;
+      }
+      console.error(e);
+      rawEl.textContent = `Error fetching METAR: ${e.message || e}`;
+      ratingEl.textContent = "Error";
+      ratingEl.className = "metar-pill bad";
+    } finally {
+      clearTimeout(timeout);
+    }
+  }
+
+  // ===== Airport search UI (now aborts previous searches) =====
+  let selectedAirport = null;
+
+  const searchEl = document.getElementById("airport-search");
+  const ddEl = document.getElementById("airport-dd");
+  const distEl = document.getElementById("airport-distance");
+  const geoBtn = document.getElementById("geo-btn");
+
+  function showDropdown(on) {
+    ddEl.classList.toggle("show", !!on);
+  }
+
+  function setSelectedAirport(a) {
+    selectedAirport = a;
+    const label = a?.label || a?.icao || "—";
+    searchEl.value = label;
+    distEl.textContent = `Selected: ${label}`;
+    showDropdown(false);
+
+    const icao = a?.icao || extractICAO(label);
+    if (icao) fetchMetar(icao);
+  }
+
+  function renderDropdown(results) {
+    ddEl.innerHTML = "";
+    if (!results || results.length === 0) {
+      const div = document.createElement("div");
+      div.className = "airport-dd-empty";
+      div.textContent = `No matches. Try ICAO (KJFK) or city/name.`;
+      ddEl.appendChild(div);
+      showDropdown(true);
+      return;
+    }
+
+    results.forEach((r) => {
+      const item = document.createElement("div");
+      item.className = "airport-dd-item";
+      item.innerHTML = `${r.label}<small>${(r.icao || "")}${r.iata ? " • " + r.iata : ""}</small>`;
+      item.addEventListener("mousedown", (e) => {
+        e.preventDefault();
+        setSelectedAirport(r);
+      });
+      ddEl.appendChild(item);
+    });
+
+    showDropdown(true);
+  }
+
+  let searchTimer = null;
+  let searchAbort = null;
+
+  async function doAirportSearch(q) {
+    q = (q || "").trim();
+    if (!q || q.length < 2) { showDropdown(false); return; }
+
+    if (searchAbort) searchAbort.abort();
+    searchAbort = new AbortController();
+
+    try {
+      const url = `${ISA_METAR_ENDPOINT}/search?q=${encodeURIComponent(q)}&limit=10&t=${Date.now()}`;
+      const res = await fetch(url, { cache: "no-store", signal: searchAbort.signal });
+      const data = await res.json();
+      renderDropdown(data?.results || []);
+    } catch (e) {
+      if (e?.name === "AbortError") return;
+      console.error(e);
+      ddEl.innerHTML = `<div class="airport-dd-empty">Search error. Try again.</div>`;
       showDropdown(true);
     }
+  }
 
-    let searchTimer = null;
-    async function doAirportSearch(q) {
-      q = (q || "").trim();
-      if (!q || q.length < 2) { showDropdown(false); return; }
+  function debounceSearch(q) {
+    if (searchTimer) clearTimeout(searchTimer);
+    searchTimer = setTimeout(() => doAirportSearch(q), 180);
+  }
+
+  searchEl.addEventListener("focus", () => searchEl.select());
+
+  searchEl.addEventListener("input", () => {
+    const v = searchEl.value;
+    // If the user is typing, assume they want search suggestions
+    selectedAirport = null;
+    debounceSearch(v);
+  });
+
+  searchEl.addEventListener("keydown", (e) => {
+    if (e.key === "Escape") {
+      showDropdown(false);
+      return;
+    }
+
+    if (e.key === "Enter") {
+      e.preventDefault();
+      const raw = searchEl.value.trim();
+      const icao = extractICAO(raw);
+      if (icao) {
+        setSelectedAirport({ icao, label: raw });
+        showDropdown(false);
+        return;
+      }
+
+      const first = ddEl.querySelector(".airport-dd-item");
+      if (first) first.dispatchEvent(new MouseEvent("mousedown"));
+    }
+  });
+
+  document.addEventListener("click", (e) => {
+    if (!ddEl.contains(e.target) && e.target !== searchEl) showDropdown(false);
+  });
+
+  // ===== Use my location -> backend nearest airport worldwide =====
+  geoBtn.addEventListener("click", () => {
+    if (!navigator.geolocation) {
+      alert("Geolocation not supported by this browser.");
+      return;
+    }
+
+    navigator.geolocation.getCurrentPosition(async (pos) => {
+      const { latitude, longitude } = pos.coords;
 
       try {
-        const url = `${ISA_METAR_ENDPOINT}/search?q=${encodeURIComponent(q)}&limit=10&t=${Date.now()}`;
+        const url = `${ISA_METAR_ENDPOINT}/nearest?lat=${encodeURIComponent(latitude)}&lon=${encodeURIComponent(longitude)}&limit=1&t=${Date.now()}`;
         const res = await fetch(url, { cache: "no-store" });
         const data = await res.json();
-        renderDropdown(data?.results || [], q);
+        const best = data?.results?.[0];
+        if (!best) throw new Error("No nearest airport returned.");
+
+        const label = best.label + (best.distance_km != null ? ` (${best.distance_km.toFixed(1)} km)` : "");
+        distEl.textContent = `Nearest: ${label}`;
+        setSelectedAirport(best);
       } catch (e) {
         console.error(e);
-        ddEl.innerHTML = `<div class="airport-dd-empty">Search error. Try again.</div>`;
-        showDropdown(true);
+        alert("Could not find nearest airport. Try searching manually.");
       }
-    }
-
-    function debounceSearch(q) {
-      if (searchTimer) clearTimeout(searchTimer);
-      searchTimer = setTimeout(() => doAirportSearch(q), 160);
-    }
-
-    searchEl.addEventListener("focus", () => {
-      // If user focuses the input, they probably want to search again:
-      // select-all makes editing easy
-      searchEl.select();
+    }, (err) => {
+      console.error(err);
+      alert("Could not get location. Check browser permissions.");
     });
+  });
 
-    searchEl.addEventListener("input", () => {
-      const v = searchEl.value;
+  // ===== Surface weather + winds aloft (your existing code stays the same) =====
+  let ISA_LAT = 33.8177;
+  let ISA_LON = -118.1516;
 
-      // IMPORTANT FIX:
-      // If the input looks like a selected label, do NOT search that string.
-      if (v.includes("—") || v.includes("(")) {
-        showDropdown(false);
-        return;
-      }
+  function altitudeToPressureLevel(altFt) {
+    if (altFt <= 5000) return 850;
+    if (altFt <= 12000) return 700;
+    if (altFt <= 18000) return 600;
+    if (altFt <= 24000) return 500;
+    if (altFt <= 30000) return 400;
+    if (altFt <= 36000) return 300;
+    return 250;
+  }
 
-      selectedAirport = null;
-      debounceSearch(v);
-    });
+  async function fetchSurfaceWeather(lat, lon) {
+    const url =
+      "https://api.open-meteo.com/v1/forecast?" +
+      `latitude=${encodeURIComponent(lat)}&longitude=${encodeURIComponent(lon)}` +
+      "&current=temperature_2m,relative_humidity_2m,pressure_msl,wind_speed_10m,wind_direction_10m" +
+      "&hourly=temperature_2m,wind_speed_10m,wind_direction_10m" +
+      "&forecast_days=1&timezone=auto";
 
-    searchEl.addEventListener("keydown", (e) => {
-      if (e.key === "Escape") {
-        showDropdown(false);
-        return;
-      }
+    const res = await fetch(url);
+    if (!res.ok) throw new Error("Open-Meteo weather fetch failed");
+    const data = await res.json();
 
-      if (e.key === "Enter") {
-        e.preventDefault();
-        const raw = searchEl.value.trim();
-        const icao = extractICAO(raw);
+    const t = data.current.temperature_2m;
+    const rh = data.current.relative_humidity_2m;
+    const p = data.current.pressure_msl;
+    const ws = data.current.wind_speed_10m;
+    const wd = data.current.wind_direction_10m;
 
-        // If user typed a code, trust it directly
-        if (icao) {
-          setSelectedAirport({ icao, label: raw });
-          showDropdown(false);
-          return;
-        }
+    const wsKt = (ws * 0.539957).toFixed(0);
 
-        // otherwise choose first dropdown item
-        const first = ddEl.querySelector(".airport-dd-item");
-        if (first) first.dispatchEvent(new MouseEvent("mousedown"));
-      }
-    });
+    document.getElementById("wx-conditions").textContent = `${t.toFixed(0)}°C`;
+    document.getElementById("wx-sub").textContent = `Humidity ${rh}%`;
+    document.getElementById("wx-wind").textContent = `${wd.toFixed(0)}° / ${wsKt} kt`;
+    document.getElementById("wx-pressure").textContent = `${p.toFixed(0)} hPa`;
 
-    document.addEventListener("click", (e) => {
-      if (!ddEl.contains(e.target) && e.target !== searchEl) {
-        showDropdown(false);
-      }
-    });
+    for (let i = 1; i <= 4; i++) {
+      const time = data.hourly.time[i];
+      const hhmm = new Date(time).toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" });
+      const ht = data.hourly.temperature_2m[i];
+      const hws = data.hourly.wind_speed_10m[i];
+      const hwd = data.hourly.wind_direction_10m[i];
+      const hwsKt = (hws * 0.539957).toFixed(0);
 
-    // ===== Use my location -> backend nearest airport worldwide =====
-    geoBtn.addEventListener("click", () => {
-      if (!navigator.geolocation) {
-        alert("Geolocation not supported by this browser.");
-        return;
-      }
-
-      navigator.geolocation.getCurrentPosition(async (pos) => {
-        const { latitude, longitude } = pos.coords;
-
-        try {
-          const url = `${ISA_METAR_ENDPOINT}/nearest?lat=${encodeURIComponent(latitude)}&lon=${encodeURIComponent(longitude)}&limit=1&t=${Date.now()}`;
-          const res = await fetch(url, { cache: "no-store" });
-          const data = await res.json();
-          const best = data?.results?.[0];
-          if (!best) throw new Error("No nearest airport returned.");
-
-          const label = best.label + (best.distance_km != null ? ` (${best.distance_km.toFixed(1)} km)` : "");
-          distEl.textContent = `Nearest: ${label}`;
-          setSelectedAirport(best);
-        } catch (e) {
-          console.error(e);
-          alert("Could not find nearest airport. Try searching manually.");
-        }
-      }, (err) => {
-        console.error(err);
-        alert("Could not get location. Check browser permissions.");
-      });
-    });
-
-    // ===== Surface weather + winds aloft (same as your code) =====
-    let ISA_LAT = 33.8177;
-    let ISA_LON = -118.1516;
-
-    function altitudeToPressureLevel(altFt) {
-      if (altFt <= 5000) return 850;
-      if (altFt <= 12000) return 700;
-      if (altFt <= 18000) return 600;
-      if (altFt <= 24000) return 500;
-      if (altFt <= 30000) return 400;
-      if (altFt <= 36000) return 300;
-      return 250;
+      document.getElementById(`fh-${i}t`).textContent = hhmm;
+      document.getElementById(`fh-${i}w`).textContent = `${ht.toFixed(0)}°C`;
+      document.getElementById(`fh-${i}s`).textContent = `${hwd.toFixed(0)}° ${hwsKt} kt`;
     }
+  }
 
-    async function fetchSurfaceWeather(lat, lon) {
-      const url =
-        "https://api.open-meteo.com/v1/forecast?" +
-        `latitude=${encodeURIComponent(lat)}&longitude=${encodeURIComponent(lon)}` +
-        "&current=temperature_2m,relative_humidity_2m,pressure_msl,wind_speed_10m,wind_direction_10m" +
-        "&hourly=temperature_2m,wind_speed_10m,wind_direction_10m" +
-        "&forecast_days=1&timezone=auto";
+  async function fetchWindsAloft(lat, lon, altFt) {
+    const level = altitudeToPressureLevel(altFt);
+    const url =
+      "https://api.open-meteo.com/v1/forecast?" +
+      `latitude=${encodeURIComponent(lat)}&longitude=${encodeURIComponent(lon)}` +
+      `&hourly=windspeed_${level}hPa,winddirection_${level}hPa` +
+      "&forecast_days=1&timezone=auto";
 
-      const res = await fetch(url);
-      if (!res.ok) throw new Error("Open-Meteo weather fetch failed");
-      const data = await res.json();
+    const res = await fetch(url);
+    if (!res.ok) throw new Error("Open-Meteo winds aloft fetch failed");
+    const data = await res.json();
 
-      const t = data.current.temperature_2m;
-      const rh = data.current.relative_humidity_2m;
-      const p = data.current.pressure_msl;
-      const ws = data.current.wind_speed_10m;
-      const wd = data.current.wind_direction_10m;
+    const ws = data.hourly[`windspeed_${level}hPa`][0];
+    const wd = data.hourly[`winddirection_${level}hPa`][0];
+    const wsKt = (ws * 0.539957).toFixed(0);
 
-      const wsKt = (ws * 0.539957).toFixed(0);
+    document.getElementById("winds-aloft").textContent = `${wd.toFixed(0)}° / ${wsKt} kt`;
+    document.getElementById("winds-aloft-sub").textContent = `${level} hPa level`;
+  }
 
-      document.getElementById("wx-conditions").textContent = `${t.toFixed(0)}°C`;
-      document.getElementById("wx-sub").textContent = `Humidity ${rh}%`;
-      document.getElementById("wx-wind").textContent = `${wd.toFixed(0)}° / ${wsKt} kt`;
-      document.getElementById("wx-pressure").textContent = `${p.toFixed(0)} hPa`;
+  function refreshWXandWinds() {
+    const alt = parseInt(document.getElementById("alt-ft").value, 10);
+    document.getElementById("alt-ft-label").textContent = alt.toLocaleString();
+    fetchSurfaceWeather(ISA_LAT, ISA_LON).catch(console.error);
+    fetchWindsAloft(ISA_LAT, ISA_LON, alt).catch(console.error);
+  }
 
-      for (let i = 1; i <= 4; i++) {
-        const time = data.hourly.time[i];
-        const hhmm = new Date(time).toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" });
-        const ht = data.hourly.temperature_2m[i];
-        const hws = data.hourly.wind_speed_10m[i];
-        const hwd = data.hourly.wind_direction_10m[i];
-        const hwsKt = (hws * 0.539957).toFixed(0);
+  document.addEventListener("DOMContentLoaded", () => {
+    refreshWXandWinds();
 
-        document.getElementById(`fh-${i}t`).textContent = hhmm;
-        document.getElementById(`fh-${i}w`).textContent = `${ht.toFixed(0)}°C`;
-        document.getElementById(`fh-${i}s`).textContent = `${hwd.toFixed(0)}° ${hwsKt} kt`;
-      }
-    }
-
-    async function fetchWindsAloft(lat, lon, altFt) {
-      const level = altitudeToPressureLevel(altFt);
-      const url =
-        "https://api.open-meteo.com/v1/forecast?" +
-        `latitude=${encodeURIComponent(lat)}&longitude=${encodeURIComponent(lon)}` +
-        `&hourly=windspeed_${level}hPa,winddirection_${level}hPa` +
-        "&forecast_days=1&timezone=auto";
-
-      const res = await fetch(url);
-      if (!res.ok) throw new Error("Open-Meteo winds aloft fetch failed");
-      const data = await res.json();
-
-      const ws = data.hourly[`windspeed_${level}hPa`][0];
-      const wd = data.hourly[`winddirection_${level}hPa`][0];
-      const wsKt = (ws * 0.539957).toFixed(0);
-
-      document.getElementById("winds-aloft").textContent = `${wd.toFixed(0)}° / ${wsKt} kt`;
-      document.getElementById("winds-aloft-sub").textContent = `${level} hPa level`;
-    }
-
-    function refreshWXandWinds() {
-      const alt = parseInt(document.getElementById("alt-ft").value, 10);
-      document.getElementById("alt-ft-label").textContent = alt.toLocaleString();
-      fetchSurfaceWeather(ISA_LAT, ISA_LON).catch(console.error);
-      fetchWindsAloft(ISA_LAT, ISA_LON, alt).catch(console.error);
-    }
-
-    document.addEventListener("DOMContentLoaded", () => {
-      refreshWXandWinds();
-
-      const slider = document.getElementById("alt-ft");
-      slider.addEventListener("input", () => {
-        document.getElementById("alt-ft-label").textContent = parseInt(slider.value,10).toLocaleString();
-      });
-      slider.addEventListener("change", refreshWXandWinds);
-
-      setInterval(() => {
-        if (selectedAirport?.icao) fetchMetar(selectedAirport.icao);
-      }, 5 * 60 * 1000);
-
-      setInterval(refreshWXandWinds, 10 * 60 * 1000);
-
-      // optional default
-      setSelectedAirport({ icao: "KLGB", label: "KLGB (LGB) — Long Beach Airport · US" });
+    const slider = document.getElementById("alt-ft");
+    slider.addEventListener("input", () => {
+      document.getElementById("alt-ft-label").textContent = parseInt(slider.value,10).toLocaleString();
     });
-  </script>
-</body>
-</html>
+    slider.addEventListener("change", refreshWXandWinds);
+
+    setInterval(() => {
+      if (selectedAirport?.icao) fetchMetar(selectedAirport.icao);
+    }, 5 * 60 * 1000);
+
+    setInterval(refreshWXandWinds, 10 * 60 * 1000);
+
+    // default load
+    setSelectedAirport({ icao: "KLGB", label: "KLGB (LGB) — Long Beach Airport · US" });
+  });
+</script>
