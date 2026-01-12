@@ -272,24 +272,26 @@
         <div class="forecast-row"><span id="fh-4t">—</span><span id="fh-4w">—</span><span id="fh-4s">—</span></div>
       </div>
 
+      <!-- ======= METAR CARD (UPDATED: searchable input) ======= -->
       <div class="dash-card" data-aos="zoom-in" data-aos-delay="250">
         <h3>Airport METAR / TAF</h3>
 
-        <div class="metric-label">Select Airport</div>
+        <div class="metric-label">Search Airport</div>
         <div class="airport-row">
-          <!-- ✅ removed inline onchange; we bind it in JS -->
-          <select id="airport-select" class="airport-select">
-            <option value="KLGB">KLGB – Long Beach</option>
-            <option value="KLAX">KLAX – Los Angeles Intl</option>
-            <option value="KSNA">KSNA – John Wayne</option>
-            <option value="KBUR">KBUR – Hollywood Burbank</option>
-            <option value="KONT">KONT – Ontario Intl</option>
-          </select>
+          <input
+            id="airport-search"
+            class="airport-select"
+            list="airport-list"
+            placeholder="Type ICAO (KLAX) or name (Los Angeles)…"
+            autocomplete="off"
+          />
+          <datalist id="airport-list"></datalist>
+
           <button type="button" class="geo-button" onclick="useMyLocation()">Use my location</button>
         </div>
 
         <div class="metric-small" id="airport-distance" style="margin-top:4px;">
-          Nearest known field: KLGB – Long Beach (demo)
+          Selected: —
         </div>
 
         <div class="divider-line"></div>
@@ -325,6 +327,7 @@
           <div class="metar-raw" id="metar-raw">Fetching METAR…</div>
         </div>
       </div>
+      <!-- ======= END METAR CARD ======= -->
 
       <div class="dash-card" data-aos="zoom-in" data-aos-delay="350">
         <h3>Aerospace News &amp; ISA AI</h3>
@@ -429,13 +432,44 @@
     });
 
     // ===== METAR + nearest airport =====
+    // (Added IATA so name/IATA search works; expand later as you want)
     const AIRPORTS = [
-      { icao: "KLGB", name: "Long Beach",        lat: 33.8177, lon: -118.1516 },
-      { icao: "KLAX", name: "Los Angeles Intl",  lat: 33.9416, lon: -118.4085 },
-      { icao: "KSNA", name: "John Wayne",        lat: 33.6757, lon: -117.8682 },
-      { icao: "KBUR", name: "Hollywood Burbank", lat: 34.2007, lon: -118.3587 },
-      { icao: "KONT", name: "Ontario Intl",      lat: 34.0560, lon: -117.6012 }
+      { icao: "KLGB", iata: "LGB", name: "Long Beach",        lat: 33.8177, lon: -118.1516 },
+      { icao: "KLAX", iata: "LAX", name: "Los Angeles Intl",  lat: 33.9416, lon: -118.4085 },
+      { icao: "KSNA", iata: "SNA", name: "John Wayne",        lat: 33.6757, lon: -117.8682 },
+      { icao: "KBUR", iata: "BUR", name: "Hollywood Burbank", lat: 34.2007, lon: -118.3587 },
+      { icao: "KONT", iata: "ONT", name: "Ontario Intl",      lat: 34.0560, lon: -117.6012 }
     ];
+
+    function buildAirportDatalist() {
+      const dl = document.getElementById("airport-list");
+      dl.innerHTML = "";
+      for (const a of AIRPORTS) {
+        const opt = document.createElement("option");
+        opt.value = `${a.icao} — ${a.name}${a.iata ? ` (${a.iata})` : ""}`;
+        dl.appendChild(opt);
+      }
+    }
+
+    function resolveAirportToICAO(inputRaw) {
+      const s = String(inputRaw || "").trim();
+      if (!s) return null;
+
+      // Take first token; allows "KLAX — Los Angeles..."
+      const token = s.toUpperCase().split(/\s+/)[0].replace(/[^\w]/g, "");
+
+      if (/^[A-Z]{4}$/.test(token)) return token;
+      if (/^[A-Z]{3}$/.test(token)) {
+        const byIata = AIRPORTS.find(a => (a.iata || "").toUpperCase() === token);
+        if (byIata) return byIata.icao;
+      }
+
+      const lower = s.toLowerCase();
+      const byName = AIRPORTS.find(a => a.name.toLowerCase().includes(lower));
+      if (byName) return byName.icao;
+
+      return null;
+    }
 
     function haversine(lat1, lon1, lat2, lon2) {
       const R = 6371;
@@ -450,7 +484,7 @@
       const r = (rating || "").toLowerCase();
       if (r.includes("excellent") || r.includes("good")) return "metar-pill good";
       if (r.includes("challenging") || r.includes("no report")) return "metar-pill warn";
-      if (r.includes("poor") || r.includes("bad") || r.includes("error")) return "metar-pill bad";
+      if (r.includes("poor") || r.includes("bad") || r.includes("error") || r.includes("timeout")) return "metar-pill bad";
       return "metar-pill";
     }
 
@@ -484,16 +518,30 @@
       return `${hrs}h ${rem}m ago`;
     }
 
-    // ✅ Abort + timeout so it NEVER gets stuck
+    function setSelectedAirportUI(icao) {
+      const a = AIRPORTS.find(x => x.icao === icao);
+      const distEl = document.getElementById("airport-distance");
+      distEl.textContent = a
+        ? `Selected: ${icao} — ${a.name}${a.iata ? ` (${a.iata})` : ""}`
+        : `Selected: ${icao}`;
+    }
+
+    // ✅ Fix for "stuck on Long Beach":
+    // - Create a NEW AbortController per request
+    // - Abort previous request immediately
+    // - Use request sequence guard
     let METAR_REQ_SEQ = 0;
     let metarAbort = null;
 
     async function fetchMetar(icaoRaw) {
       const icao = String(icaoRaw || "").trim().toUpperCase();
+      if (!icao) return;
+
       const seq = ++METAR_REQ_SEQ;
 
       if (metarAbort) metarAbort.abort();
       metarAbort = new AbortController();
+      const controller = metarAbort; // capture this request's controller
 
       const rawEl = document.getElementById("metar-raw");
       const ageEl = document.getElementById("metar-age");
@@ -527,13 +575,12 @@
       mHumidity.textContent = "—";
       mPressure.textContent = "—";
 
-      // timeout (12s)
-      const timeout = setTimeout(() => metarAbort?.abort(), 12000);
+      const timeout = setTimeout(() => controller.abort(), 12000);
 
       try {
         // cache-bust + no-store
         const url = `${ISA_METAR_ENDPOINT}/${encodeURIComponent(icao)}?t=${Date.now()}`;
-        const res = await fetch(url, { cache: "no-store", signal: metarAbort.signal });
+        const res = await fetch(url, { cache: "no-store", signal: controller.signal });
 
         // if a newer request started, ignore this response
         if (seq !== METAR_REQ_SEQ) return;
@@ -563,13 +610,21 @@
           return;
         }
 
+        // ✅ Hard-check: if backend returned wrong station, show warning (prevents “stuck” confusion)
+        if (data.icao && String(data.icao).toUpperCase() !== icao) {
+          rawEl.textContent = `Backend returned ${data.icao} when you asked for ${icao}. (Fix backend station selection.)`;
+          ratingEl.textContent = "Mismatch";
+          ratingEl.className = "metar-pill bad";
+          return;
+        }
+
         rawEl.textContent = data.raw_text;
 
         const obsUtc =
-        data.obs_time_utc ||
-        data.plain_english?.observed_utc ||
-        new Date().toISOString(); // fallback
-        
+          data.obs_time_utc ||
+          data.plain_english?.observed_utc ||
+          null;
+
         const tLocal = formatLocalTime(obsUtc);
         mObsLocal.textContent = tLocal.local;
         mObsUtc.textContent = tLocal.utc;
@@ -577,7 +632,8 @@
 
         const rating = data.flight_conditions || data.plain_english?.flight_conditions || "Unknown";
         ratingEl.textContent = rating;
-        ratingEl.className = pillClassFor(rating)
+        ratingEl.className = pillClassFor(rating);
+
         mSky.textContent = data.sky || data.plain_english?.sky || "—";
 
         const vis = (data.visibility_mi ?? data.plain_english?.visibility_mi);
@@ -609,7 +665,6 @@
       } catch (e) {
         if (seq !== METAR_REQ_SEQ) return;
 
-        // aborted (timeout or changed airport)
         if (e?.name === "AbortError") {
           rawEl.textContent = `Timed out fetching METAR for ${icao}. Try again.`;
           ratingEl.textContent = "Timeout";
@@ -624,15 +679,6 @@
       } finally {
         clearTimeout(timeout);
       }
-    }
-
-    function handleAirportChange() {
-      const sel = document.getElementById("airport-select");
-      const icao = sel.value;
-      const a = AIRPORTS.find(x => x.icao === icao);
-      const distEl = document.getElementById("airport-distance");
-      distEl.textContent = a ? `${icao} – ${a.name}` : icao;
-      fetchMetar(icao);
     }
 
     // ===== Surface weather + winds aloft (Open-Meteo) =====
@@ -729,24 +775,50 @@
           if (d < bestDist) { bestDist = d; best = a; }
         }
 
-        document.getElementById("airport-select").value = best.icao;
+        const input = document.getElementById("airport-search");
+        input.value = `${best.icao} — ${best.name}${best.iata ? ` (${best.iata})` : ""}`;
+
         document.getElementById("airport-distance").textContent =
-          `Nearest known field: ${best.icao} – ${best.name} (${bestDist.toFixed(1)} km)`;
+          `Nearest known field: ${best.icao} — ${best.name} (${bestDist.toFixed(1)} km)`;
 
         refreshWXandWinds();
-        handleAirportChange();
+        setSelectedAirportUI(best.icao);
+        fetchMetar(best.icao);
       }, (err) => {
         console.error(err);
         alert("Could not get location. Check browser permissions.");
       });
     }
 
+    // ===== Page init =====
     document.addEventListener("DOMContentLoaded", () => {
-      // ✅ reliable binding
-      const sel = document.getElementById("airport-select");
-      sel.addEventListener("change", handleAirportChange);
+      buildAirportDatalist();
 
-      handleAirportChange();
+      const airportInput = document.getElementById("airport-search");
+
+      // default
+      airportInput.value = "KLGB — Long Beach (LGB)";
+      setSelectedAirportUI("KLGB");
+      fetchMetar("KLGB");
+
+      // change (select from list or blur)
+      airportInput.addEventListener("change", () => {
+        const icao = resolveAirportToICAO(airportInput.value);
+        if (!icao) return;
+        setSelectedAirportUI(icao);
+        fetchMetar(icao);
+      });
+
+      // enter key
+      airportInput.addEventListener("keydown", (e) => {
+        if (e.key !== "Enter") return;
+        e.preventDefault();
+        const icao = resolveAirportToICAO(airportInput.value);
+        if (!icao) return;
+        setSelectedAirportUI(icao);
+        fetchMetar(icao);
+      });
+
       refreshWXandWinds();
 
       const slider = document.getElementById("alt-ft");
@@ -755,7 +827,11 @@
       });
       slider.addEventListener("change", refreshWXandWinds);
 
-      setInterval(() => fetchMetar(document.getElementById("airport-select").value), 5 * 60 * 1000);
+      setInterval(() => {
+        const icao = resolveAirportToICAO(document.getElementById("airport-search").value) || "KLGB";
+        fetchMetar(icao);
+      }, 5 * 60 * 1000);
+
       setInterval(refreshWXandWinds, 10 * 60 * 1000);
     });
   </script>
