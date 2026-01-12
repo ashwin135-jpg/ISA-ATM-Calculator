@@ -569,6 +569,11 @@
         data.obs_time_utc ||
         data.plain_english?.observed_utc ||
         new Date().toISOString(); // fallback
+        
+        const tLocal = formatLocalTime(obsUtc);
+        mObsLocal.textContent = tLocal.local;
+        mObsUtc.textContent = tLocal.utc;
+        ageEl.textContent = ageFromIso(obsUtc);
 
         const rating = data.flight_conditions || data.plain_english?.flight_conditions || "Unknown";
         ratingEl.textContent = rating;
