@@ -293,50 +293,84 @@
         <div class="forecast-row"><span id="fh-4t">—</span><span id="fh-4w">—</span><span id="fh-4s">—</span></div>
       </div>
 
-      <!-- METAR CARD (Choice 1) -->
+     <!-- METAR CARD -->
       <div class="dash-card" data-aos="zoom-in" data-aos-delay="250">
         <h3>METAR</h3>
 
         <div class="metric-label">Search Airport (ICAO, IATA, City)</div>
         <div class="airport-row">
-          <input id="airport-search" class="airport-input" type="text" placeholder="e.g. KLAX, LAX, Colombo, Heathrow" autocomplete="off" />
+          <input id="airport-search" class="airport-input" type="text"
+                placeholder="e.g. KLAX, LAX, Colombo, Heathrow" autocomplete="off" />
           <button type="button" class="geo-button" id="metar-btn">Get METAR</button>
           <div id="airport-dd" class="airport-dd"></div>
         </div>
 
         <div class="divider-line"></div>
 
-        <div class="metar-shell">
-          <div class="metar-header">
-            <div class="metar-title">Raw METAR</div>
-            <span class="metar-pill warn" id="metar-status">—</span>
+        <!-- Header line like Google -->
+        <div style="display:flex; justify-content:space-between; align-items:flex-start; gap:10px;">
+          <div>
+            <div class="metric-label">Station</div>
+            <div class="metric-value" id="metar-station">—</div>
+            <div class="metric-small" id="metar-observed">—</div>
           </div>
-          <div class="metar-raw" id="metar-raw">Type an airport or ICAO code.</div>
+
+          <div style="text-align:right;">
+            <div class="metric-label">Flight Rules</div>
+            <span class="metar-pill warn" id="metar-flightcat">—</span>
+            <div class="metric-small" id="metar-flightreason">—</div>
+          </div>
         </div>
-      </div>
-
-      <div class="dash-card" data-aos="zoom-in" data-aos-delay="350">
-        <h3>Aerospace News &amp; ISA AI</h3>
-
-        <div class="metric-label">Links (news feed comes next)</div>
-        <div class="news-bullet">• <a class="news-link" href="https://www.nasa.gov/news-release/" target="_blank" rel="noopener">NASA updates</a></div>
-        <div class="news-bullet">• <a class="news-link" href="https://www.flightglobal.com/news" target="_blank" rel="noopener">FlightGlobal</a></div>
-        <div class="news-bullet">• <a class="news-link" href="https://spacenews.com/" target="_blank" rel="noopener">SpaceNews</a></div>
 
         <div class="divider-line"></div>
 
-        <div class="metric-label">Ask ISA AI</div>
-        <div class="metric-small" style="margin-bottom:6px;">Ask any aerospace question. Answer appears below.</div>
+        <!-- Plain English summary -->
+        <div class="metric-label">Weather Summary</div>
+        <div class="metric-value" id="metar-summary">Type an airport above…</div>
+        <div class="metric-small" id="metar-summary-sub">—</div>
 
-        <div class="ai-search">
-          <input id="ai-query" class="ai-input" type="text" placeholder="e.g. Explain lift vs drag at high Mach"/>
-          <button class="ai-button" type="button" onclick="askISA()">Ask</button>
+        <div class="divider-line"></div>
+
+        <!-- Key conditions grid -->
+        <div class="metar-grid">
+          <div class="metar-kv">
+            <div class="metar-k2">Temperature</div>
+            <div class="metar-v2" id="metar-temp">—</div>
+          </div>
+          <div class="metar-kv">
+            <div class="metar-k2">Dew Point</div>
+            <div class="metar-v2" id="metar-dew">—</div>
+          </div>
+          <div class="metar-kv">
+            <div class="metar-k2">Humidity</div>
+            <div class="metar-v2" id="metar-rh">—</div>
+          </div>
+          <div class="metar-kv">
+            <div class="metar-k2">Pressure</div>
+            <div class="metar-v2" id="metar-pres">—</div>
+          </div>
+          <div class="metar-kv">
+            <div class="metar-k2">Wind</div>
+            <div class="metar-v2" id="metar-wind">—</div>
+          </div>
+          <div class="metar-kv">
+            <div class="metar-k2">Visibility</div>
+            <div class="metar-v2" id="metar-vis">—</div>
+          </div>
+          <div class="metar-kv metar-kv-span">
+            <div class="metar-k2">Sky / Ceiling</div>
+            <div class="metar-v2" id="metar-sky">—</div>
+          </div>
         </div>
 
-        <div id="ai-status" class="ai-status"></div>
-        <div id="ai-answer" class="ai-answer-bubble hidden"></div>
+        <div class="divider-line"></div>
+
+        <!-- Raw METAR (collapsible) -->
+        <button class="metar-collapse" type="button" id="metar-toggle">
+          Show raw METAR
+        </button>
+        <div class="metar-raw hidden" id="metar-raw">—</div>
       </div>
-    </div>
   </section>
 
   <section class="tools-section">
