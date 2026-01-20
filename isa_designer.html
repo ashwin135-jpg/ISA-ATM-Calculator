@@ -1,0 +1,631 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>ISA Designer — Aircraft Designer</title>
+
+  <link href="https://unpkg.com/aos@2.3.1/dist/aos.css" rel="stylesheet">
+
+  <style>
+    body { margin: 0; font-family: 'Segoe UI', sans-serif; background: #050816; color: white; }
+    header { text-align: center; padding: 34px 20px 18px; }
+    header h1 { font-size: 2.4rem; margin: 0 0 8px; }
+    header p { font-size: 1.05rem; color: #ccc; margin: 0; }
+    header .sub { margin-top: 10px; font-size: 0.9rem; color: #a6b4d9; }
+
+    a { color: inherit; }
+
+    .dashboard-section {
+      padding: 34px 20px 60px;
+      background: radial-gradient(circle at top, #050816 0, #020617 55%, #000000 100%);
+      color: #e5ecff;
+    }
+    .dashboard-title {
+      max-width: 1200px; margin: 0 auto 18px auto;
+      display: flex; justify-content: space-between; align-items: center; gap: 10px;
+    }
+    .dashboard-title-main { font-size: 1.35rem; font-weight: 650; letter-spacing: 0.03em; }
+    .dashboard-subtext { font-size: 0.9rem; color: #a6b4d9; }
+    .tag-pill {
+      display: inline-flex; align-items: center; justify-content: center;
+      padding: 5px 12px; border-radius: 999px;
+      font-size: 0.72rem; text-transform: uppercase; letter-spacing: 0.09em;
+      background: linear-gradient(135deg, rgba(34,211,238,0.18), rgba(129,140,248,0.25));
+      color: #e0faff; border: 1px solid rgba(56,189,248,0.6);
+      box-shadow: 0 0 16px rgba(45,212,191,0.45);
+      white-space: nowrap;
+    }
+
+    .dash-card {
+      background: radial-gradient(circle at top left, #111827 0, #020617 75%);
+      border-radius: 22px; padding: 18px 20px;
+      box-shadow: 0 22px 50px rgba(0,0,0,0.75);
+      border: 1px solid rgba(148,163,184,0.25);
+      color: #e5ecff;
+      transition: transform 0.2s ease, box-shadow 0.2s ease, border-color 0.2s ease;
+      position: relative;
+      overflow: hidden;
+    }
+    .dash-card:hover { transform: translateY(-4px); box-shadow: 0 28px 70px rgba(15,23,42,0.95); border-color: rgba(56,189,248,0.6); }
+    .dash-card h3 { margin-top: 0; margin-bottom: 10px; font-size: 1rem; font-weight: 700; letter-spacing: 0.06em; text-transform: uppercase; color: #f9fbff; }
+    .divider-line { height: 1px; background: linear-gradient(to right, transparent, rgba(148,163,184,0.5), transparent); margin: 12px 0 12px; }
+
+    .grid-wrap {
+      max-width: 1200px; margin: 0 auto;
+      display: grid;
+      grid-template-columns: 1.1fr 1.8fr 1.1fr;
+      gap: 18px;
+      align-items: start;
+    }
+
+    .metric-label { font-size: 0.74rem; text-transform: uppercase; letter-spacing: 0.1em; color: #9ca3ff; margin-bottom: 4px; }
+    .metric-value { font-size: 1.1rem; font-weight: 650; color: #e0f2ff; }
+    .metric-small { font-size: 0.85rem; color: #c0cbe9; }
+
+    .status-row { display:flex; justify-content:space-between; align-items:center; gap:10px; flex-wrap: wrap; }
+
+    .btn {
+      display:inline-flex; align-items:center; justify-content:center;
+      padding: 9px 14px; border-radius: 999px; border: none;
+      font-size: 0.85rem; font-weight: 700; cursor: pointer;
+      background: linear-gradient(135deg, #22c55e, #22d3ee);
+      color: #020617; box-shadow: 0 14px 28px rgba(34,197,94,0.35);
+      transition: transform .15s ease, filter .15s ease, box-shadow .15s ease;
+      white-space: nowrap;
+    }
+    .btn:hover { filter: brightness(1.06); transform: translateY(-1px); box-shadow: 0 20px 40px rgba(34,197,94,0.55); }
+    .btn.secondary{
+      background: rgba(2, 6, 23, 0.55);
+      border: 1px solid rgba(148,163,184,0.25);
+      color: #cfe6ff;
+      box-shadow: none;
+    }
+    .btn.secondary:hover{
+      border-color: rgba(56,189,248,0.55);
+      box-shadow: 0 0 14px rgba(56,189,248,0.18);
+      transform: translateY(-1px);
+    }
+
+    .pill {
+      display:inline-flex; align-items:center; justify-content:center;
+      padding: 4px 10px; border-radius: 999px;
+      font-size: 0.72rem; letter-spacing: 0.08em; text-transform: uppercase;
+      border: 1px solid rgba(148,163,184,0.25);
+      background: rgba(2, 6, 23, 0.55);
+      color: #cfe6ff;
+    }
+    .pill.good { border-color: rgba(34,197,94,0.35); box-shadow: 0 0 18px rgba(34,197,94,0.14); }
+    .pill.warn { border-color: rgba(251,191,36,0.35); box-shadow: 0 0 18px rgba(251,191,36,0.12); }
+    .pill.bad  { border-color: rgba(239,68,68,0.35); box-shadow: 0 0 18px rgba(239,68,68,0.12); }
+
+    .form-grid{
+      display:grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 10px 12px;
+      align-items: end;
+    }
+    .field { display:flex; flex-direction:column; gap:6px; }
+    .field label{ font-size: 0.8rem; color: #a6b4d9; }
+    .field input{
+      padding: 9px 12px; border-radius: 999px;
+      border: 1px solid rgba(148,163,184,0.7);
+      background: rgba(15,23,42,0.9);
+      color: #e5ecff; font-size: 0.9rem; outline: none;
+      transition: border-color .15s ease, box-shadow .15s ease;
+    }
+    .field input:focus{ border-color: rgba(56,189,248,0.9); box-shadow: 0 0 12px rgba(56,189,248,0.5); }
+
+    .mono { font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace; }
+
+    .kv {
+      display:flex; justify-content:space-between; align-items:center; gap:12px;
+      border: 1px solid rgba(148,163,184,0.18);
+      background: rgba(2,6,23,0.35);
+      border-radius: 16px;
+      padding: 10px 12px;
+      margin: 8px 0;
+    }
+    .kv .k { font-size: 0.78rem; color:#a6b4d9; text-transform: uppercase; letter-spacing: 0.09em; }
+    .kv .v { font-size: 1.0rem; font-weight: 750; color: #e0f2ff; font-variant-numeric: tabular-nums; }
+
+    .warnBox{
+      margin-top: 10px;
+      border: 1px solid rgba(148,163,184,0.18);
+      background: rgba(2,6,23,0.35);
+      border-radius: 16px;
+      padding: 10px 12px;
+    }
+    .warnBox h4{
+      margin: 0 0 6px;
+      font-size: 0.78rem;
+      text-transform: uppercase;
+      letter-spacing: 0.1em;
+      color: #9ca3ff;
+    }
+    .warnItem{ display:flex; gap:10px; padding: 7px 0; border-top: 1px solid rgba(148,163,184,0.12); }
+    .warnItem:first-of-type{ border-top:none; }
+    .dot{ width:10px; height:10px; border-radius:999px; margin-top: 4px; background: #fbbf24; box-shadow: 0 0 14px rgba(251,191,36,0.18); flex: 0 0 auto; }
+    .dot.good{ background: #22c55e; box-shadow: 0 0 14px rgba(34,197,94,0.18); }
+    .warnText{ font-size: 0.88rem; color: #d3e2ff; line-height: 1.35; }
+
+    /* "3D preview" aesthetic ring */
+    .preview{
+      min-height: 520px;
+      display:flex; align-items:center; justify-content:center;
+      background: radial-gradient(circle at 50% 30%, rgba(56,189,248,0.15), transparent 55%),
+                  radial-gradient(circle at 50% 75%, rgba(129,140,248,0.12), transparent 55%);
+      border-radius: 18px;
+      border: 1px solid rgba(148,163,184,0.18);
+      position: relative;
+      overflow:hidden;
+    }
+    .ring{
+      position:absolute;
+      width: 720px; height: 720px; border-radius: 999px;
+      border: 1px solid rgba(56,189,248,0.16);
+      opacity:0.65;
+      animation: spin 18s linear infinite;
+      filter: drop-shadow(0 0 16px rgba(56,189,248,0.10));
+    }
+    .ring2{
+      width: 520px; height: 520px;
+      border-color: rgba(129,140,248,0.15);
+      animation-duration: 26s;
+      opacity:0.5;
+    }
+    @keyframes spin{ from{transform:rotate(0deg)} to{transform:rotate(360deg)} }
+
+    .previewCard{
+      max-width: 640px;
+      text-align:center;
+      padding: 16px 18px;
+      border-radius: 18px;
+      background: rgba(2,6,23,0.55);
+      border: 1px solid rgba(148,163,184,0.18);
+      box-shadow: 0 20px 50px rgba(0,0,0,0.55);
+    }
+    .previewCard h4{ margin: 0 0 8px; font-size: 1.2rem; }
+    .previewCard p{ margin: 0; color:#a6b4d9; line-height: 1.45; font-size: 0.95rem; }
+
+    footer { text-align: center; padding: 20px; font-size: 0.8rem; color: #aaa; background: #000; }
+
+    .topNav{
+      max-width: 1200px; margin: 0 auto 12px;
+      display:flex; justify-content:space-between; align-items:center; gap: 10px;
+      padding: 0 20px;
+    }
+    .backLink{
+      text-decoration:none;
+      display:inline-flex; gap:8px; align-items:center;
+      font-size: 0.9rem;
+      color: #cfe6ff;
+      padding: 8px 12px;
+      border-radius: 999px;
+      border: 1px solid rgba(148,163,184,0.20);
+      background: rgba(2, 6, 23, 0.45);
+    }
+    .backLink:hover{
+      border-color: rgba(56,189,248,0.55);
+      box-shadow: 0 0 14px rgba(56,189,248,0.18);
+    }
+
+    @media (max-width: 1100px){
+      .grid-wrap{ grid-template-columns: 1fr; }
+      .preview{ min-height: 360px; }
+      .form-grid{ grid-template-columns: 1fr; }
+      .dashboard-title{ flex-direction: column; align-items:flex-start; }
+      .topNav{ padding: 0 20px; }
+    }
+  </style>
+</head>
+
+<body>
+  <header data-aos="fade-down">
+    <h1>🛠️ ISA Designer</h1>
+    <p>Mission-driven aircraft sizing for the ISA Master Tool ecosystem</p>
+    <div class="sub">Flagship aircraft: <span class="mono">High-Endurance UAV</span> • Base units: <span class="mono">Imperial</span></div>
+  </header>
+
+  <div class="topNav" data-aos="fade-up">
+    <a class="backLink" href="index.html">← Back to ISA Home</a>
+    <div class="tag-pill">Aircraft Designer</div>
+  </div>
+
+  <section class="dashboard-section" id="dashboard">
+    <div class="dashboard-title" data-aos="fade-up">
+      <div>
+        <div class="dashboard-title-main">ISA Aircraft Designer</div>
+        <div class="dashboard-subtext">Edit key parameters and watch the coupled results update in real time.</div>
+      </div>
+      <div class="status-row">
+        <span class="pill" id="statusPill">Connecting…</span>
+        <button class="btn secondary" id="btnReset" type="button">Reset UAV</button>
+        <button class="btn" id="btnExport" type="button">Export Spreadsheet</button>
+      </div>
+    </div>
+
+    <div class="grid-wrap">
+
+      <!-- LEFT: Inputs -->
+      <div class="dash-card" data-aos="zoom-in" data-aos-delay="50">
+        <h3>Aircraft Definition (Inputs)</h3>
+
+        <div class="metric-label">Model</div>
+        <div class="metric-value mono" id="modelName">—</div>
+
+        <div class="divider-line"></div>
+
+        <div class="metric-label">Mass</div>
+        <div class="form-grid">
+          <div class="field">
+            <label for="mtow_lb">MTOW (lb)</label>
+            <input id="mtow_lb" type="number" step="0.1" />
+          </div>
+          <div class="field">
+            <label for="battery_lb">Battery (lb)</label>
+            <input id="battery_lb" type="number" step="0.1" />
+          </div>
+        </div>
+
+        <div class="divider-line"></div>
+
+        <div class="metric-label">Wing Geometry</div>
+        <div class="form-grid">
+          <div class="field">
+            <label for="wing_area_ft2">Wing Area S (ft²)</label>
+            <input id="wing_area_ft2" type="number" step="0.1" />
+          </div>
+          <div class="field">
+            <label for="wing_span_ft">Wing Span b (ft)</label>
+            <input id="wing_span_ft" type="number" step="0.1" />
+          </div>
+          <div class="field">
+            <label for="taper_ratio">Taper Ratio</label>
+            <input id="taper_ratio" type="number" step="0.01" />
+          </div>
+          <div class="field">
+            <label for="cl_max">CLmax</label>
+            <input id="cl_max" type="number" step="0.01" />
+          </div>
+        </div>
+
+        <div class="divider-line"></div>
+
+        <div class="metric-label">Aerodynamics</div>
+        <div class="form-grid">
+          <div class="field">
+            <label for="cd0">CD0</label>
+            <input id="cd0" type="number" step="0.001" />
+          </div>
+          <div class="field">
+            <label for="oswald_e">Oswald e</label>
+            <input id="oswald_e" type="number" step="0.01" />
+          </div>
+        </div>
+
+        <div class="divider-line"></div>
+
+        <div class="metric-label">Mission + Environment</div>
+        <div class="form-grid">
+          <div class="field">
+            <label for="cruise_speed_kt">Cruise Speed (kt)</label>
+            <input id="cruise_speed_kt" type="number" step="0.1" />
+          </div>
+          <div class="field">
+            <label for="altitude_ft">Altitude (ft)</label>
+            <input id="altitude_ft" type="number" step="50" />
+          </div>
+        </div>
+
+        <div class="divider-line"></div>
+
+        <div class="metric-small">
+          <span class="mono">Live compute:</span> changes update Lift/Drag, Stall, and Electric Endurance.
+          Next upgrade: METAR-driven density + winds integrated directly into mission.
+        </div>
+      </div>
+
+      <!-- CENTER: Preview -->
+      <div class="dash-card" data-aos="zoom-in" data-aos-delay="150">
+        <h3>Parametric UAV Preview</h3>
+
+        <div class="status-row" style="margin-bottom:10px;">
+          <span class="pill" id="arPill">AR: —</span>
+          <span class="pill" id="rhoPill">ρ: —</span>
+          <span class="pill" id="macPill">MAC: —</span>
+        </div>
+
+        <div class="preview">
+          <div class="ring"></div>
+          <div class="ring ring2"></div>
+
+          <div class="previewCard">
+            <h4>3D Rendering (Coming Next)</h4>
+            <p>
+              We’ll generate a clean conceptual UAV in <b>Three.js</b> using your inputs
+              (<span class="mono">S, b, taper, fuselage length/diameter, tail volumes</span>).
+              The render will update in real time as you design.
+            </p>
+          </div>
+        </div>
+
+        <div class="divider-line"></div>
+
+        <div class="metric-small">
+          Planned: camera orbit, wing/fuselage/tail parametric mesh, and exportable geometry data.
+        </div>
+      </div>
+
+      <!-- RIGHT: Results -->
+      <div class="dash-card" data-aos="zoom-in" data-aos-delay="250">
+        <h3>Live Results (Computed)</h3>
+
+        <div class="kv">
+          <div class="k">CL @ Cruise</div>
+          <div class="v mono" id="outCL">—</div>
+        </div>
+        <div class="kv">
+          <div class="k">Drag @ Cruise (lbf)</div>
+          <div class="v mono" id="outD">—</div>
+        </div>
+        <div class="kv">
+          <div class="k">L/D</div>
+          <div class="v mono" id="outLD">—</div>
+        </div>
+        <div class="kv">
+          <div class="k">Stall Speed (kt)</div>
+          <div class="v mono" id="outVstall">—</div>
+        </div>
+
+        <div class="divider-line"></div>
+
+        <div class="kv">
+          <div class="k">Power Required (hp)</div>
+          <div class="v mono" id="outPHP">—</div>
+        </div>
+        <div class="kv">
+          <div class="k">Endurance (hr)</div>
+          <div class="v mono" id="outEnd">—</div>
+        </div>
+        <div class="kv">
+          <div class="k">Range @ Cruise (nmi)</div>
+          <div class="v mono" id="outRange">—</div>
+        </div>
+
+        <div class="warnBox">
+          <h4>Diagnostics</h4>
+          <div id="warnList"></div>
+        </div>
+
+        <div class="divider-line"></div>
+
+        <div class="metric-small">
+          Backend endpoints:
+          <span class="mono">/api/designer/default</span>,
+          <span class="mono">/api/designer/compute</span>,
+          <span class="mono">/api/designer/export</span>
+        </div>
+      </div>
+
+    </div>
+  </section>
+
+  <footer>&copy; 2025 Ashwin Ganesh — All rights reserved</footer>
+
+  <script src="https://unpkg.com/aos@2.3.1/dist/aos.js"></script>
+
+  <script>
+    AOS.init({ duration: 900, easing: 'ease-out-cubic', offset: 120, once: true });
+
+    // ===== Backend base (same pattern as your homepage) =====
+    // If you want to use your same constant name, keep it consistent:
+    const ISA_BACKEND_BASE = "https://isa-backend-olj9.onrender.com/api";
+    const DESIGNER_DEFAULT = `${ISA_BACKEND_BASE}/designer/default`;
+    const DESIGNER_COMPUTE  = `${ISA_BACKEND_BASE}/designer/compute`;
+    const DESIGNER_EXPORT   = `${ISA_BACKEND_BASE}/designer/export`;
+
+    // ===== State =====
+    let state = null;
+    let computeTimer = null;
+
+    const $ = (id) => document.getElementById(id);
+
+    function setPill(el, text, mode){
+      el.textContent = text;
+      el.classList.remove("good","warn","bad");
+      if(mode) el.classList.add(mode);
+    }
+
+    function num(x, digits=3){
+      if (x === null || x === undefined || Number.isNaN(x)) return "—";
+      return Number(x).toFixed(digits);
+    }
+
+    // Map UI inputs -> state paths
+    const fields = [
+      ["mtow_lb",        ["inputs","mass","mtow_lb","value"]],
+      ["battery_lb",     ["inputs","mass","battery_lb","value"]],
+      ["wing_area_ft2",  ["inputs","geometry","wing_area_ft2","value"]],
+      ["wing_span_ft",   ["inputs","geometry","wing_span_ft","value"]],
+      ["taper_ratio",    ["inputs","geometry","taper_ratio","value"]],
+      ["cl_max",         ["inputs","aero","cl_max","value"]],
+      ["cd0",            ["inputs","aero","cd0","value"]],
+      ["oswald_e",       ["inputs","aero","oswald_e","value"]],
+      ["cruise_speed_kt",["inputs","mission","cruise_speed_kt","value"]],
+      ["altitude_ft",    ["inputs","environment","altitude_ft","value"]],
+    ];
+
+    function deepGet(obj, path){
+      return path.reduce((acc,k)=> (acc ? acc[k] : undefined), obj);
+    }
+    function deepSet(obj, path, value){
+      let cur = obj;
+      for(let i=0;i<path.length-1;i++){
+        cur = cur[path[i]];
+      }
+      cur[path[path.length-1]] = value;
+    }
+
+    function hookInputListeners(){
+      fields.forEach(([id, path])=>{
+        const el = $(id);
+        el.addEventListener("input", ()=>{
+          if(!state) return;
+          const v = parseFloat(el.value);
+          if(Number.isFinite(v)){
+            deepSet(state, path, v);
+          }
+          scheduleCompute();
+        });
+      });
+    }
+
+    function fillInputsFromState(){
+      fields.forEach(([id, path])=>{
+        const v = deepGet(state, path);
+        $(id).value = (v ?? "");
+      });
+      $("modelName").textContent = state?.meta?.name || "—";
+    }
+
+    function scheduleCompute(){
+      clearTimeout(computeTimer);
+      computeTimer = setTimeout(runCompute, 260);
+    }
+
+    async function apiDefault(){
+      const r = await fetch(DESIGNER_DEFAULT, { cache: "no-store" });
+      if(!r.ok) throw new Error(await r.text());
+      return await r.json();
+    }
+
+    async function apiCompute(stateObj){
+      const r = await fetch(DESIGNER_COMPUTE, {
+        method:"POST",
+        headers: {"Content-Type":"application/json"},
+        body: JSON.stringify({ state: stateObj })
+      });
+      if(!r.ok) throw new Error(await r.text());
+      return await r.json();
+    }
+
+    async function apiExport(stateObj){
+      const r = await fetch(DESIGNER_EXPORT, {
+        method:"POST",
+        headers: {"Content-Type":"application/json"},
+        body: JSON.stringify({ state: stateObj })
+      });
+      if(!r.ok) throw new Error(await r.text());
+      return await r.blob();
+    }
+
+    function renderResults(){
+      // computed
+      const ar  = state?.computed?.geometry?.aspect_ratio?.value;
+      const mac = state?.computed?.geometry?.mac_ft?.value;
+      const rho = state?.computed?.environment?.rho_slugft3?.value;
+
+      $("arPill").textContent  = `AR: ${num(ar,2)}`;
+      $("macPill").textContent = `MAC: ${num(mac,2)} ft`;
+      $("rhoPill").textContent = `ρ: ${num(rho,6)} slug/ft³`;
+
+      // results
+      const ld = state?.results?.aero?.lift_drag;
+      const stall = state?.results?.performance?.stall;
+      const end = state?.results?.performance?.endurance;
+
+      $("outCL").textContent = ld ? num(ld.cl.value, 3) : "—";
+      $("outD").textContent  = ld ? num(ld.drag_lbf.value, 2) : "—";
+      $("outLD").textContent = ld ? num(ld.ld.value, 2) : "—";
+
+      $("outVstall").textContent = stall ? num(stall.v_stall_kt.value, 1) : "—";
+      $("outPHP").textContent    = end ? num(end.power_required_hp.value, 2) : "—";
+      $("outEnd").textContent    = end ? num(end.endurance_hr.value, 2) : "—";
+      $("outRange").textContent  = end ? num(end.range_nmi_at_cruise.value, 1) : "—";
+
+      // Diagnostics / warnings
+      const warnList = $("warnList");
+      warnList.innerHTML = "";
+      const warnings = (ld && ld.warnings) ? ld.warnings : [];
+      if (!warnings.length){
+        warnList.innerHTML = `
+          <div class="warnItem">
+            <span class="dot good"></span>
+            <div class="warnText">All good — no warnings at current conditions.</div>
+          </div>`;
+      } else {
+        warnings.forEach(w=>{
+          const d = document.createElement("div");
+          d.className = "warnItem";
+          d.innerHTML = `<span class="dot"></span><div class="warnText">${w}</div>`;
+          warnList.appendChild(d);
+        });
+      }
+    }
+
+    async function runCompute(){
+      try{
+        setPill($("statusPill"), "Computing…", "warn");
+        const newState = await apiCompute(state);
+        state = newState;
+        renderResults();
+        setPill($("statusPill"), "Live", "good");
+      }catch(e){
+        console.error(e);
+        setPill($("statusPill"), "Error", "bad");
+      }
+    }
+
+    // Buttons
+    $("btnReset").addEventListener("click", async ()=>{
+      try{
+        setPill($("statusPill"), "Resetting…", "warn");
+        state = await apiDefault();
+        fillInputsFromState();
+        renderResults();
+        setPill($("statusPill"), "Live", "good");
+      }catch(e){
+        console.error(e);
+        setPill($("statusPill"), "Offline", "bad");
+      }
+    });
+
+    $("btnExport").addEventListener("click", async ()=>{
+      if(!state) return;
+      try{
+        setPill($("statusPill"), "Exporting…", "warn");
+        const blob = await apiExport(state);
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement("a");
+        a.href = url;
+        a.download = "ISA_Designer_Export.xlsx";
+        document.body.appendChild(a);
+        a.click();
+        a.remove();
+        URL.revokeObjectURL(url);
+        setPill($("statusPill"), "Live", "good");
+      }catch(e){
+        console.error(e);
+        setPill($("statusPill"), "Export Error", "bad");
+      }
+    });
+
+    // Init
+    hookInputListeners();
+
+    (async function init(){
+      try{
+        setPill($("statusPill"), "Loading…", "warn");
+        state = await apiDefault();
+        fillInputsFromState();
+        renderResults();
+        setPill($("statusPill"), "Live", "good");
+      }catch(e){
+        console.error(e);
+        setPill($("statusPill"), "Offline", "bad");
+      }
+    })();
+  </script>
+</body>
+</html>
