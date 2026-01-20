@@ -483,33 +483,21 @@
       }
     }
 
-    // ===== METAR + Airport Search =====
+    // ===== METAR + Airport Search (Choice 1) =====
     let AIRPORTS = [];
     let fuse = null;
     let metarAbort = null;
 
     const searchEl = document.getElementById("airport-search");
     const ddEl = document.getElementById("airport-dd");
-    const metarBtn = document.getElementById("metar-btn");
-
-    const stationEl = document.getElementById("metar-station");
-    const observedEl = document.getElementById("metar-observed");
-    const flightCatEl = document.getElementById("metar-flightcat");
-    const flightReasonEl = document.getElementById("metar-flightreason");
-
-    const summaryEl = document.getElementById("metar-summary");
-    const summarySubEl = document.getElementById("metar-summary-sub");
-
-    const tempEl = document.getElementById("metar-temp");
-    const dewEl = document.getElementById("metar-dew");
-    const rhEl = document.getElementById("metar-rh");
-    const presEl = document.getElementById("metar-pres");
-    const windEl = document.getElementById("metar-wind");
-    const visEl = document.getElementById("metar-vis");
-    const skyEl = document.getElementById("metar-sky");
-
     const rawEl = document.getElementById("metar-raw");
-    const toggleBtn = document.getElementById("metar-toggle");
+    const metarBtn = document.getElementById("metar-btn");
+    const metarStatus = document.getElementById("metar-status");
+
+    function setStatus(text, kind) {
+      metarStatus.textContent = text;
+      metarStatus.className = "metar-pill " + (kind || "warn");
+    }
 
     function showDropdown(on) {
       ddEl.classList.toggle("show", !!on);
@@ -522,89 +510,6 @@
       return right ? `${code} — ${right}${country}` : `${code}${country}`;
     }
 
-    function setFlightBadge(cat){
-      const c = String(cat || "—").toUpperCase();
-      flightCatEl.textContent = c;
-      flightCatEl.classList.remove("good","warn","bad");
-      if (c === "VFR") flightCatEl.classList.add("good");
-      else if (c === "MVFR") flightCatEl.classList.add("warn");
-      else if (c === "IFR" || c === "LIFR") flightCatEl.classList.add("bad");
-      else flightCatEl.classList.add("warn");
-    }
-
-    function parseCeilingFtFromSkyString(sky) {
-      // handles: "Overcast @ 700 ft" or "Broken @ 1,200 ft"
-      const m = String(sky || "").match(/@\s*([\d,]+)\s*ft/i);
-      if (!m) return null;
-      return parseInt(m[1].replace(/,/g,""), 10);
-    }
-
-    function flightCategory(visibilityMi, ceilingFt){
-      // simple FAA-ish thresholds
-      if (visibilityMi == null && ceilingFt == null) return {cat:"UNK", reason:"Missing vis/ceiling"};
-      const vis = visibilityMi;
-      const ceil = ceilingFt;
-
-      // LIFR
-      if ((vis != null && vis < 1) || (ceil != null && ceil < 500)) return {cat:"LIFR", reason:"Very low vis/ceiling"};
-      // IFR
-      if ((vis != null && vis < 3) || (ceil != null && ceil < 1000)) return {cat:"IFR", reason:"Low vis/ceiling"};
-      // MVFR
-      if ((vis != null && vis < 5) || (ceil != null && ceil < 3000)) return {cat:"MVFR", reason:"Marginal vis/ceiling"};
-      // VFR
-      return {cat:"VFR", reason:"Good vis and ceiling"};
-    }
-
-    function makeSummary(data){
-      const sky = data.sky || "—";
-      const vis = data.visibility_mi;
-      const wdir = data.wind_dir_deg;
-      const wspd = data.wind_speed_kt;
-      const gust = data.wind_gust_kt;
-
-      const parts = [];
-
-      // Sky
-      if (sky && sky !== "—") parts.push(sky.replace("@", "at"));
-
-      // Visibility
-      if (vis != null) {
-        if (vis < 1) parts.push("very low visibility");
-        else if (vis < 3) parts.push("low visibility");
-        else if (vis < 5) parts.push("reduced visibility");
-      }
-
-      // Wind
-      if (wspd != null) {
-        if (wspd === 0) parts.push("calm wind");
-        else {
-          const dirTxt = (wdir == null) ? "variable" : `${wdir}°`;
-          parts.push(`wind ${dirTxt} at ${wspd} kt${gust ? ` gust ${gust}` : ""}`);
-        }
-      }
-
-      // Humidity hint (dewpoint spread)
-      const t = data.temp_c;
-      const d = data.dewpoint_c;
-      if (t != null && d != null) {
-        const spread = Math.abs(t - d);
-        if (spread <= 2) parts.push("very humid (fog/mist possible)");
-      }
-
-      const headline = parts.length ? parts.join(", ") : "Weather details available below.";
-      let sub = "Derived from METAR. Raw METAR is available below.";
-
-      return { headline: headline.charAt(0).toUpperCase() + headline.slice(1), sub };
-    }
-
-    // Raw METAR toggle
-    toggleBtn.addEventListener("click", () => {
-      const isHidden = rawEl.classList.contains("hidden");
-      rawEl.classList.toggle("hidden", !isHidden);
-      toggleBtn.textContent = isHidden ? "Hide raw METAR" : "Show raw METAR";
-    });
-
-    // Load local airports JSON (place airports.min.json next to index.html)
     fetch("./airports.min.json", { cache: "no-store" })
       .then(r => r.json())
       .then(data => {
@@ -616,7 +521,7 @@
       })
       .catch(err => {
         console.error("Could not load airports.min.json", err);
-        fuse = null; // allow manual ICAO
+        fuse = null; // still allow manual ICAO entry
       });
 
     function renderDropdown(list) {
@@ -676,33 +581,11 @@
       return m3 ? m3[0] : null;
     }
 
-    function setLoading(code){
-      stationEl.textContent = code || "—";
-      observedEl.textContent = "Loading…";
-      setFlightBadge("—");
-      flightReasonEl.textContent = "—";
-      summaryEl.textContent = "Fetching METAR…";
-      summarySubEl.textContent = "—";
-      tempEl.textContent = "—";
-      dewEl.textContent = "—";
-      rhEl.textContent = "—";
-      presEl.textContent = "—";
-      windEl.textContent = "—";
-      visEl.textContent = "—";
-      skyEl.textContent = "—";
-      rawEl.textContent = "—";
-      rawEl.classList.add("hidden");
-      toggleBtn.textContent = "Show raw METAR";
-    }
-
     async function fetchMetar(input) {
       const code = extractICAO(input);
       if (!code) {
-        stationEl.textContent = "—";
-        summaryEl.textContent = "Type an ICAO code like KLAX (or choose from the list).";
-        summarySubEl.textContent = "—";
-        setFlightBadge("Invalid");
-        flightReasonEl.textContent = "Invalid station code";
+        setStatus("Invalid", "bad");
+        rawEl.textContent = "Type an ICAO code like KLAX (or choose from the list).";
         return;
       }
 
@@ -710,7 +593,8 @@
       metarAbort = new AbortController();
       const timeout = setTimeout(() => metarAbort.abort(), 12000);
 
-      setLoading(code);
+      setStatus("Loading…", "warn");
+      rawEl.textContent = `Fetching METAR for ${code}…`;
 
       try {
         const res = await fetch(`${ISA_METAR_ENDPOINT}/${encodeURIComponent(code)}?t=${Date.now()}`, {
@@ -719,93 +603,41 @@
         });
 
         if (res.status === 204) {
-          summaryEl.textContent = "No METAR available for that station (or not recent).";
-          summarySubEl.textContent = "Try another station code.";
-          setFlightBadge("No report");
-          flightReasonEl.textContent = "No recent METAR returned";
+          setStatus("No report", "warn");
+          rawEl.textContent = "No METAR available for that station (or not recent).";
           return;
         }
 
         const data = await res.json();
         if (!data?.raw_text) {
-          summaryEl.textContent = "No METAR available.";
-          summarySubEl.textContent = "Try another station code.";
-          setFlightBadge("No report");
-          flightReasonEl.textContent = "No raw METAR returned";
+          setStatus("No report", "warn");
+          rawEl.textContent = "No METAR available.";
           return;
         }
 
-        // Station + time
-        stationEl.textContent = data.icao || code;
-        const obsIso = data.obs_time_utc || null;
-        if (obsIso) {
-          const d = new Date(obsIso);
-          observedEl.textContent = isNaN(d.getTime()) ? obsIso : d.toLocaleString([], { weekday:"short", month:"short", day:"numeric", hour:"2-digit", minute:"2-digit", timeZoneName:"short" });
-        } else {
-          observedEl.textContent = "—";
-        }
-
-        // Key conditions
-        const tc = data.temp_c;
-        const dc = data.dewpoint_c;
-        const rh = data.humidity_est_pct;
-        const p  = data.altimeter_inhg;
-        const vis = data.visibility_mi;
-        const sky = data.sky;
-        const wdir = data.wind_dir_deg;
-        const wspd = data.wind_speed_kt;
-        const gust = data.wind_gust_kt;
-
-        tempEl.textContent = (tc == null) ? "—" : `${tc} °C`;
-        dewEl.textContent = (dc == null) ? "—" : `${dc} °C`;
-        rhEl.textContent  = (rh == null) ? "—" : `${rh}%`;
-        presEl.textContent = (p == null) ? "—" : `${p} inHg`;
-        visEl.textContent = (vis == null) ? "—" : `${vis} mi`;
-
-        if (wspd == null) windEl.textContent = "—";
-        else if (wspd === 0) windEl.textContent = "Calm";
-        else {
-          const dirTxt = (wdir == null) ? "VRB" : `${wdir}°`;
-          windEl.textContent = `${dirTxt} / ${wspd} kt${gust ? ` (G${gust})` : ""}`;
-        }
-
-        skyEl.textContent = sky || "—";
-
-        // Summary
-        const s = makeSummary(data);
-        summaryEl.textContent = s.headline;
-        summarySubEl.textContent = s.sub;
-
-        // Flight category
-        const ceilingFt = parseCeilingFtFromSkyString(sky);
-        const fc = flightCategory(vis, ceilingFt);
-        setFlightBadge(fc.cat);
-        flightReasonEl.textContent = fc.reason;
-
-        // Raw
+        setStatus("OK", "good");
         rawEl.textContent = data.raw_text;
-
       } catch (e) {
         console.error(e);
         if (e?.name === "AbortError") {
-          summaryEl.textContent = "Timed out fetching METAR. Try again.";
-          summarySubEl.textContent = "Backend request exceeded 12 seconds.";
-          setFlightBadge("Timeout");
-          flightReasonEl.textContent = "Request timed out";
+          setStatus("Timeout", "bad");
+          rawEl.textContent = "Timed out fetching METAR. Try again.";
         } else {
-          summaryEl.textContent = "METAR fetch failed.";
-          summarySubEl.textContent = "Check backend status / station code.";
-          setFlightBadge("Error");
-          flightReasonEl.textContent = "Request error";
+          setStatus("Error", "bad");
+          rawEl.textContent = "METAR fetch failed.";
         }
       } finally {
         clearTimeout(timeout);
       }
     }
 
-    // ===== Surface weather + winds aloft (unchanged) =====
+    // ===== Surface weather + winds aloft (NOW AUTO-LOCATION) =====
+
+    // Default fallback: Long Beach
     let ISA_LAT = 33.8177;
     let ISA_LON = -118.1516;
+
+    const cityLabelEl = document.getElementById("city-label");
 
     function altitudeToPressureLevel(altFt) {
       if (altFt <= 5000) return 850;
@@ -815,6 +647,39 @@
       if (altFt <= 30000) return 400;
       if (altFt <= 36000) return 300;
       return 250;
+    }
+
+    async function reverseGeocode(lat, lon) {
+      // Open-Meteo reverse geocoding (CORS-friendly)
+      const url =
+        "https://geocoding-api.open-meteo.com/v1/reverse?" +
+        `latitude=${encodeURIComponent(lat)}&longitude=${encodeURIComponent(lon)}` +
+        "&language=en&format=json";
+
+      const ctrl = new AbortController();
+      const t = setTimeout(() => ctrl.abort(), 8000);
+
+      try {
+        const res = await fetch(url, { signal: ctrl.signal });
+        if (!res.ok) throw new Error("Reverse geocode failed");
+        const data = await res.json();
+        const best = data?.results?.[0];
+        if (!best) return null;
+
+        const name = best.name || best.city || best.admin1 || null;
+        const admin = best.admin1 || null;
+        const country = best.country_code || best.country || null;
+
+        // e.g. "Irvine, CA" (or "Colombo, LK")
+        if (name && admin) return `${name}, ${admin}`;
+        if (name && country) return `${name}, ${country}`;
+        if (name) return name;
+        return null;
+      } catch (e) {
+        return null;
+      } finally {
+        clearTimeout(t);
+      }
     }
 
     async function fetchSurfaceWeather(lat, lon) {
@@ -883,8 +748,41 @@
       fetchWindsAloft(ISA_LAT, ISA_LON, alt).catch(console.error);
     }
 
+    async function initSmartLocation() {
+      // Show a friendly status while we try location
+      cityLabelEl.textContent = "Detecting location…";
+
+      if (!navigator.geolocation) {
+        cityLabelEl.textContent = "Long Beach, CA";
+        refreshWXandWinds();
+        return;
+      }
+
+      navigator.geolocation.getCurrentPosition(
+        async (pos) => {
+          ISA_LAT = pos.coords.latitude;
+          ISA_LON = pos.coords.longitude;
+
+          // Update city label (best effort)
+          const label = await reverseGeocode(ISA_LAT, ISA_LON);
+          cityLabelEl.textContent = label || `Lat ${ISA_LAT.toFixed(2)}, Lon ${ISA_LON.toFixed(2)}`;
+
+          // Now load weather for user location
+          refreshWXandWinds();
+        },
+        (err) => {
+          console.warn("Geolocation denied/failed:", err);
+          // Fallback: Long Beach
+          cityLabelEl.textContent = "Long Beach, CA";
+          refreshWXandWinds();
+        },
+        { enableHighAccuracy: false, timeout: 8000, maximumAge: 15 * 60 * 1000 }
+      );
+    }
+
     document.addEventListener("DOMContentLoaded", () => {
-      refreshWXandWinds();
+      // Smart default location for the weather cards
+      initSmartLocation();
 
       const slider = document.getElementById("alt-ft");
       slider.addEventListener("input", () => {
@@ -894,9 +792,10 @@
 
       setInterval(refreshWXandWinds, 10 * 60 * 1000);
 
-      // Default METAR
+      // Default METAR (still fine)
       fetchMetar("KLGB");
     });
   </script>
+
 </body>
 </html>
