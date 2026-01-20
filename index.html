@@ -313,7 +313,7 @@
         <div class="forecast-row"><span id="fh-4t">—</span><span id="fh-4w">—</span><span id="fh-4s">—</span></div>
       </div>
 
-      <!-- METAR CARD (Google-style) -->
+      <!-- METAR CARD -->
       <div class="dash-card" data-aos="zoom-in" data-aos-delay="250">
         <h3>METAR</h3>
 
@@ -483,6 +483,17 @@
       }
     }
 
+    // ===== Shared helpers =====
+    function altitudeToPressureLevel(altFt) {
+      if (altFt <= 5000) return 850;
+      if (altFt <= 12000) return 700;
+      if (altFt <= 18000) return 600;
+      if (altFt <= 24000) return 500;
+      if (altFt <= 30000) return 400;
+      if (altFt <= 36000) return 300;
+      return 250;
+    }
+
     // ===== METAR + Airport Search =====
     let AIRPORTS = [];
     let fuse = null;
@@ -533,25 +544,19 @@
     }
 
     function parseCeilingFtFromSkyString(sky) {
-      // handles: "Overcast @ 700 ft" or "Broken @ 1,200 ft"
       const m = String(sky || "").match(/@\s*([\d,]+)\s*ft/i);
       if (!m) return null;
       return parseInt(m[1].replace(/,/g,""), 10);
     }
 
     function flightCategory(visibilityMi, ceilingFt){
-      // simple FAA-ish thresholds
       if (visibilityMi == null && ceilingFt == null) return {cat:"UNK", reason:"Missing vis/ceiling"};
       const vis = visibilityMi;
       const ceil = ceilingFt;
 
-      // LIFR
       if ((vis != null && vis < 1) || (ceil != null && ceil < 500)) return {cat:"LIFR", reason:"Very low vis/ceiling"};
-      // IFR
       if ((vis != null && vis < 3) || (ceil != null && ceil < 1000)) return {cat:"IFR", reason:"Low vis/ceiling"};
-      // MVFR
       if ((vis != null && vis < 5) || (ceil != null && ceil < 3000)) return {cat:"MVFR", reason:"Marginal vis/ceiling"};
-      // VFR
       return {cat:"VFR", reason:"Good vis and ceiling"};
     }
 
@@ -564,17 +569,14 @@
 
       const parts = [];
 
-      // Sky
       if (sky && sky !== "—") parts.push(sky.replace("@", "at"));
 
-      // Visibility
       if (vis != null) {
         if (vis < 1) parts.push("very low visibility");
         else if (vis < 3) parts.push("low visibility");
         else if (vis < 5) parts.push("reduced visibility");
       }
 
-      // Wind
       if (wspd != null) {
         if (wspd === 0) parts.push("calm wind");
         else {
@@ -583,7 +585,6 @@
         }
       }
 
-      // Humidity hint (dewpoint spread)
       const t = data.temp_c;
       const d = data.dewpoint_c;
       if (t != null && d != null) {
@@ -592,19 +593,16 @@
       }
 
       const headline = parts.length ? parts.join(", ") : "Weather details available below.";
-      let sub = "Derived from METAR. Raw METAR is available below.";
-
+      const sub = "Derived from METAR. Raw METAR is available below.";
       return { headline: headline.charAt(0).toUpperCase() + headline.slice(1), sub };
     }
 
-    // Raw METAR toggle
     toggleBtn.addEventListener("click", () => {
       const isHidden = rawEl.classList.contains("hidden");
       rawEl.classList.toggle("hidden", !isHidden);
       toggleBtn.textContent = isHidden ? "Hide raw METAR" : "Show raw METAR";
     });
 
-    // Load local airports JSON (place airports.min.json next to index.html)
     fetch("./airports.min.json", { cache: "no-store" })
       .then(r => r.json())
       .then(data => {
@@ -616,7 +614,7 @@
       })
       .catch(err => {
         console.error("Could not load airports.min.json", err);
-        fuse = null; // allow manual ICAO
+        fuse = null;
       });
 
     function renderDropdown(list) {
@@ -735,17 +733,14 @@
           return;
         }
 
-        // Station + time
         stationEl.textContent = data.icao || code;
+
         const obsIso = data.obs_time_utc || null;
         if (obsIso) {
           const d = new Date(obsIso);
           observedEl.textContent = isNaN(d.getTime()) ? obsIso : d.toLocaleString([], { weekday:"short", month:"short", day:"numeric", hour:"2-digit", minute:"2-digit", timeZoneName:"short" });
-        } else {
-          observedEl.textContent = "—";
-        }
+        } else observedEl.textContent = "—";
 
-        // Key conditions
         const tc = data.temp_c;
         const dc = data.dewpoint_c;
         const rh = data.humidity_est_pct;
@@ -757,10 +752,10 @@
         const gust = data.wind_gust_kt;
 
         tempEl.textContent = (tc == null) ? "—" : `${tc} °C`;
-        dewEl.textContent = (dc == null) ? "—" : `${dc} °C`;
-        rhEl.textContent  = (rh == null) ? "—" : `${rh}%`;
+        dewEl.textContent  = (dc == null) ? "—" : `${dc} °C`;
+        rhEl.textContent   = (rh == null) ? "—" : `${rh}%`;
         presEl.textContent = (p == null) ? "—" : `${p} inHg`;
-        visEl.textContent = (vis == null) ? "—" : `${vis} mi`;
+        visEl.textContent  = (vis == null) ? "—" : `${vis} mi`;
 
         if (wspd == null) windEl.textContent = "—";
         else if (wspd === 0) windEl.textContent = "Calm";
@@ -771,18 +766,15 @@
 
         skyEl.textContent = sky || "—";
 
-        // Summary
         const s = makeSummary(data);
         summaryEl.textContent = s.headline;
         summarySubEl.textContent = s.sub;
 
-        // Flight category
         const ceilingFt = parseCeilingFtFromSkyString(sky);
         const fc = flightCategory(vis, ceilingFt);
         setFlightBadge(fc.cat);
         flightReasonEl.textContent = fc.reason;
 
-        // Raw
         rawEl.textContent = data.raw_text;
 
       } catch (e) {
@@ -803,18 +795,40 @@
       }
     }
 
-    // ===== Surface weather + winds aloft (unchanged) =====
+    // ===== Surface weather + winds aloft (SMART LOCATION) =====
     let ISA_LAT = 33.8177;
     let ISA_LON = -118.1516;
+    const cityLabelEl = document.getElementById("city-label");
 
-    function altitudeToPressureLevel(altFt) {
-      if (altFt <= 5000) return 850;
-      if (altFt <= 12000) return 700;
-      if (altFt <= 18000) return 600;
-      if (altFt <= 24000) return 500;
-      if (altFt <= 30000) return 400;
-      if (altFt <= 36000) return 300;
-      return 250;
+    async function reverseGeocode(lat, lon) {
+      const url =
+        "https://geocoding-api.open-meteo.com/v1/reverse?" +
+        `latitude=${encodeURIComponent(lat)}&longitude=${encodeURIComponent(lon)}` +
+        "&language=en&format=json";
+
+      const ctrl = new AbortController();
+      const t = setTimeout(() => ctrl.abort(), 8000);
+
+      try {
+        const res = await fetch(url, { signal: ctrl.signal });
+        if (!res.ok) throw new Error("Reverse geocode failed");
+        const data = await res.json();
+        const best = data?.results?.[0];
+        if (!best) return null;
+
+        const name = best.name || best.city || best.admin1 || null;
+        const admin = best.admin1 || null;
+        const country = best.country_code || best.country || null;
+
+        if (name && admin) return `${name}, ${admin}`;
+        if (name && country) return `${name}, ${country}`;
+        if (name) return name;
+        return null;
+      } catch {
+        return null;
+      } finally {
+        clearTimeout(t);
+      }
     }
 
     async function fetchSurfaceWeather(lat, lon) {
@@ -883,8 +897,37 @@
       fetchWindsAloft(ISA_LAT, ISA_LON, alt).catch(console.error);
     }
 
+    function initSmartLocation() {
+      cityLabelEl.textContent = "Detecting location…";
+
+      if (!navigator.geolocation) {
+        cityLabelEl.textContent = "Long Beach, CA";
+        refreshWXandWinds();
+        return;
+      }
+
+      navigator.geolocation.getCurrentPosition(
+        async (pos) => {
+          ISA_LAT = pos.coords.latitude;
+          ISA_LON = pos.coords.longitude;
+
+          const label = await reverseGeocode(ISA_LAT, ISA_LON);
+          cityLabelEl.textContent = label || `Lat ${ISA_LAT.toFixed(2)}, Lon ${ISA_LON.toFixed(2)}`;
+
+          refreshWXandWinds();
+        },
+        (err) => {
+          console.warn("Geolocation denied/failed:", err);
+          cityLabelEl.textContent = "Long Beach, CA";
+          refreshWXandWinds();
+        },
+        { enableHighAccuracy: false, timeout: 8000, maximumAge: 15 * 60 * 1000 }
+      );
+    }
+
+    // ===== Init =====
     document.addEventListener("DOMContentLoaded", () => {
-      refreshWXandWinds();
+      initSmartLocation();
 
       const slider = document.getElementById("alt-ft");
       slider.addEventListener("input", () => {
@@ -894,7 +937,7 @@
 
       setInterval(refreshWXandWinds, 10 * 60 * 1000);
 
-      // Default METAR
+      // Default METAR (still KLGB unless user searches)
       fetchMetar("KLGB");
     });
   </script>
