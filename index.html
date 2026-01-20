@@ -6,204 +6,209 @@
   <title>ISA Master Tool</title>
 
   <link href="https://unpkg.com/aos@2.3.1/dist/aos.css" rel="stylesheet">
+  <script src="https://unpkg.com/@lottiefiles/lottie-player@latest/dist/lottie-player.js"></script>
+
+  <!-- Airport fuzzy search -->
+  <script src="https://cdn.jsdelivr.net/npm/fuse.js@6.6.2"></script>
 
   <style>
-  body { margin: 0; font-family: 'Segoe UI', sans-serif; background: #050816; color: white; }
-  header { text-align: center; padding: 40px 20px 20px; }
-  header h1 { font-size: 2.5rem; margin-bottom: 10px; }
-  header p { font-size: 1.2rem; color: #ccc; }
+    body { margin: 0; font-family: 'Segoe UI', sans-serif; background: #050816; color: white; }
+    header { text-align: center; padding: 40px 20px 20px; }
+    header h1 { font-size: 2.5rem; margin-bottom: 10px; }
+    header p { font-size: 1.2rem; color: #ccc; }
 
-  .dashboard-section { padding: 40px 20px 60px; background: radial-gradient(circle at top, #050816 0, #020617 55%, #000000 100%); color: #e5ecff; }
-  .dashboard-title { max-width: 1100px; margin: 0 auto 20px auto; display: flex; justify-content: space-between; align-items: center; gap: 10px; }
-  .dashboard-title-main { font-size: 1.4rem; font-weight: 600; letter-spacing: 0.03em; }
-  .dashboard-subtext { font-size: 0.9rem; color: #a6b4d9; }
-  .tag-pill { display: inline-flex; align-items: center; justify-content: center; padding: 4px 10px; border-radius: 999px; font-size: 0.7rem; text-transform: uppercase; letter-spacing: 0.09em; background: linear-gradient(135deg, rgba(34,211,238,0.18), rgba(129,140,248,0.25)); color: #e0faff; border: 1px solid rgba(56,189,248,0.6); box-shadow: 0 0 16px rgba(45,212,191,0.5); }
-  .dashboard-grid { max-width: 1100px; margin: 0 auto; display: grid; grid-template-columns: 1.2fr 1.8fr; grid-template-rows: auto auto; gap: 20px; }
+    .dashboard-section {
+      padding: 40px 20px 60px;
+      background: radial-gradient(circle at top, #050816 0, #020617 55%, #000000 100%);
+      color: #e5ecff;
+    }
+    .dashboard-title {
+      max-width: 1100px; margin: 0 auto 20px auto;
+      display: flex; justify-content: space-between; align-items: center; gap: 10px;
+    }
+    .dashboard-title-main { font-size: 1.4rem; font-weight: 600; letter-spacing: 0.03em; }
+    .dashboard-subtext { font-size: 0.9rem; color: #a6b4d9; }
+    .tag-pill {
+      display: inline-flex; align-items: center; justify-content: center;
+      padding: 4px 10px; border-radius: 999px;
+      font-size: 0.7rem; text-transform: uppercase; letter-spacing: 0.09em;
+      background: linear-gradient(135deg, rgba(34,211,238,0.18), rgba(129,140,248,0.25));
+      color: #e0faff; border: 1px solid rgba(56,189,248,0.6);
+      box-shadow: 0 0 16px rgba(45,212,191,0.5);
+    }
+    .dashboard-grid {
+      max-width: 1100px; margin: 0 auto;
+      display: grid; grid-template-columns: 1.2fr 1.8fr;
+      grid-template-rows: auto auto; gap: 20px;
+    }
 
-  .dash-card { background: radial-gradient(circle at top left, #111827 0, #020617 75%); border-radius: 22px; padding: 18px 20px; box-shadow: 0 22px 50px rgba(0,0,0,0.75); border: 1px solid rgba(148,163,184,0.25); color: #e5ecff; transition: transform 0.2s ease, box-shadow 0.2s ease, border-color 0.2s ease; }
-  .dash-card:hover { transform: translateY(-4px); box-shadow: 0 28px 70px rgba(15,23,42,0.95); border-color: rgba(56,189,248,0.6); }
-  .dash-card h3 { margin-top: 0; margin-bottom: 8px; font-size: 1rem; font-weight: 600; letter-spacing: 0.06em; text-transform: uppercase; color: #f9fbff; }
+    .dash-card {
+      background: radial-gradient(circle at top left, #111827 0, #020617 75%);
+      border-radius: 22px; padding: 18px 20px;
+      box-shadow: 0 22px 50px rgba(0,0,0,0.75);
+      border: 1px solid rgba(148,163,184,0.25);
+      color: #e5ecff;
+      transition: transform 0.2s ease, box-shadow 0.2s ease, border-color 0.2s ease;
+    }
+    .dash-card:hover { transform: translateY(-4px); box-shadow: 0 28px 70px rgba(15,23,42,0.95); border-color: rgba(56,189,248,0.6); }
+    .dash-card h3 { margin-top: 0; margin-bottom: 8px; font-size: 1rem; font-weight: 600; letter-spacing: 0.06em; text-transform: uppercase; color: #f9fbff; }
 
-  .dash-row { display: flex; justify-content: space-between; align-items: center; gap: 10px; }
-  .big-city { font-size: 1.4rem; font-weight: 600; color: #f9fafb; }
-  .big-time { font-size: 2.7rem; font-weight: 700; color: #e5f3ff; }
-  .date-line { font-size: 0.85rem; color: #9ca9c9; margin-top: 4px; }
+    .dash-row { display: flex; justify-content: space-between; align-items: center; gap: 10px; }
+    .big-city { font-size: 1.4rem; font-weight: 600; color: #f9fafb; }
+    .big-time { font-size: 2.7rem; font-weight: 700; color: #e5f3ff; }
+    .date-line { font-size: 0.85rem; color: #9ca9c9; margin-top: 4px; }
 
-  .metric-label { font-size: 0.75rem; text-transform: uppercase; letter-spacing: 0.1em; color: #9ca3ff; margin-bottom: 4px; }
-  .metric-value { font-size: 1.2rem; font-weight: 600; color: #e0f2ff; }
-  .metric-small { font-size: 0.85rem; color: #c0cbe9; }
+    .metric-label { font-size: 0.75rem; text-transform: uppercase; letter-spacing: 0.1em; color: #9ca3ff; margin-bottom: 4px; }
+    .metric-value { font-size: 1.2rem; font-weight: 600; color: #e0f2ff; }
+    .metric-small { font-size: 0.85rem; color: #c0cbe9; }
 
-  .divider-line { height: 1px; background: linear-gradient(to right, transparent, rgba(148,163,184,0.5), transparent); margin: 10px 0 12px; }
-  .forecast-row { display: flex; justify-content: space-between; font-size: 0.8rem; color: #d2deef; margin: 3px 0; }
+    .divider-line { height: 1px; background: linear-gradient(to right, transparent, rgba(148,163,184,0.5), transparent); margin: 10px 0 12px; }
+    .forecast-row { display: flex; justify-content: space-between; font-size: 0.8rem; color: #d2deef; margin: 3px 0; }
 
-  .news-bullet { font-size: 0.82rem; margin: 3px 0; color: #d3e2ff; }
-  .news-link { color: #7dd3fc; text-decoration: none; }
-  .news-link:hover { text-decoration: underline; color: #a5b4fc; }
+    .news-bullet { font-size: 0.82rem; margin: 3px 0; color: #d3e2ff; }
+    .news-link { color: #7dd3fc; text-decoration: none; }
+    .news-link:hover { text-decoration: underline; color: #a5b4fc; }
 
-  .ai-search { margin-top: 12px; display: flex; gap: 8px; align-items: center; }
-  .ai-input { flex: 1; padding: 8px 10px; border-radius: 999px; border: 1px solid rgba(148,163,184,0.6); background: rgba(15,23,42,0.9); color: #e5ecff; font-size: 0.85rem; outline: none; box-shadow: 0 0 0 1px rgba(15,23,42,0.7); }
-  .ai-input::placeholder { color: #9ca3c7; }
-  .ai-input:focus { border-color: rgba(56,189,248,0.9); box-shadow: 0 0 18px rgba(56,189,248,0.55); }
-  .ai-button { padding: 8px 14px; border-radius: 999px; border: none; font-size: 0.85rem; font-weight: 600; cursor: pointer; background: linear-gradient(135deg, #22c55e, #22d3ee); color: #020617; box-shadow: 0 18px 35px rgba(34,197,94,0.45); white-space: nowrap; }
-  .ai-button:hover { filter: brightness(1.08); box-shadow: 0 20px 45px rgba(34,197,94,0.7); }
-  .ai-status { font-size: 0.78rem; color: #a5b4fc; margin-top: 6px; }
-  .ai-answer-bubble { margin-top: 8px; padding: 10px 12px; border-radius: 16px; background: radial-gradient(circle at top left, #0ea5e9 0, #1e293b 55%); color: #ecfeff; font-size: 0.9rem; line-height: 1.4; box-shadow: 0 14px 30px rgba(15, 23, 42, 0.9); opacity: 0; transform: translateY(8px) scale(0.98); transition: opacity 0.25s ease-out, transform 0.25s ease-out; }
-  .ai-answer-bubble.show { opacity: 1; transform: translateY(0) scale(1); }
-  .hidden { display: none; }
+    .ai-search { margin-top: 12px; display: flex; gap: 8px; align-items: center; }
+    .ai-input {
+      flex: 1; padding: 8px 10px; border-radius: 999px;
+      border: 1px solid rgba(148,163,184,0.6);
+      background: rgba(15,23,42,0.9);
+      color: #e5ecff; font-size: 0.85rem; outline: none;
+      box-shadow: 0 0 0 1px rgba(15,23,42,0.7);
+    }
+    .ai-input::placeholder { color: #9ca3c7; }
+    .ai-input:focus { border-color: rgba(56,189,248,0.9); box-shadow: 0 0 18px rgba(56,189,248,0.55); }
+    .ai-button {
+      padding: 8px 14px; border-radius: 999px; border: none;
+      font-size: 0.85rem; font-weight: 600; cursor: pointer;
+      background: linear-gradient(135deg, #22c55e, #22d3ee);
+      color: #020617; box-shadow: 0 18px 35px rgba(34,197,94,0.45);
+      white-space: nowrap;
+    }
+    .ai-button:hover { filter: brightness(1.08); box-shadow: 0 20px 45px rgba(34,197,94,0.7); }
+    .ai-status { font-size: 0.78rem; color: #a5b4fc; margin-top: 6px; }
+    .ai-answer-bubble {
+      margin-top: 8px; padding: 10px 12px; border-radius: 16px;
+      background: radial-gradient(circle at top left, #0ea5e9 0, #1e293b 55%);
+      color: #ecfeff; font-size: 0.9rem; line-height: 1.4;
+      box-shadow: 0 14px 30px rgba(15, 23, 42, 0.9);
+      opacity: 0; transform: translateY(8px) scale(0.98);
+      transition: opacity 0.25s ease-out, transform 0.25s ease-out;
+    }
+    .ai-answer-bubble.show { opacity: 1; transform: translateY(0) scale(1); }
+    .hidden { display: none; }
 
-  .airport-row { display: flex; gap: 8px; align-items: center; margin-top: 4px; position: relative; }
-  .airport-input { flex: 1; padding: 8px 12px; border-radius: 999px; border: 1px solid rgba(148,163,184,0.7); background: rgba(15,23,42,0.9); color: #e5ecff; font-size: 0.85rem; outline: none; }
-  .airport-input:focus { border-color: rgba(56,189,248,0.9); box-shadow: 0 0 12px rgba(56,189,248,0.6); }
-  .geo-button { padding: 8px 12px; border-radius: 999px; border: none; font-size: 0.8rem; cursor: pointer; white-space: nowrap; background: linear-gradient(135deg, #22c55e, #22d3ee); color: #020617; box-shadow: 0 10px 20px rgba(34,197,94,0.4); }
-  .geo-button:hover { filter: brightness(1.06); }
+    .airport-row { display: flex; gap: 8px; align-items: center; margin-top: 4px; position: relative; }
+    .airport-input {
+      flex: 1; padding: 8px 12px; border-radius: 999px;
+      border: 1px solid rgba(148,163,184,0.7);
+      background: rgba(15,23,42,0.9);
+      color: #e5ecff; font-size: 0.85rem; outline: none;
+    }
+    .airport-input:focus { border-color: rgba(56,189,248,0.9); box-shadow: 0 0 12px rgba(56,189,248,0.6); }
+    .geo-button {
+      padding: 8px 12px; border-radius: 999px; border: none;
+      font-size: 0.8rem; cursor: pointer; white-space: nowrap;
+      background: linear-gradient(135deg, #22c55e, #22d3ee);
+      color: #020617; box-shadow: 0 10px 20px rgba(34,197,94,0.4);
+    }
+    .geo-button:hover { filter: brightness(1.06); }
 
-  .airport-dd {
-    position: absolute;
-    left: 0;
-    right: 0;
-    top: calc(100% + 6px);
-    background: rgba(2, 6, 23, 0.95);
-    border: 1px solid rgba(148,163,184,0.25);
-    border-radius: 14px;
-    overflow: hidden;
-    box-shadow: 0 20px 60px rgba(0,0,0,0.65);
-    z-index: 999;
-    display: none;
-  }
-  .airport-dd.show { display: block; }
-  .airport-dd-item {
-    padding: 10px 12px;
-    cursor: pointer;
-    font-size: 0.86rem;
-    color: #e5ecff;
-    border-bottom: 1px solid rgba(148,163,184,0.12);
-  }
-  .airport-dd-item:hover { background: rgba(56,189,248,0.12); }
-  .airport-dd-item small { display:block; color:#a6b4d9; margin-top:2px; font-size:0.78rem; }
-  .airport-dd-empty { padding: 10px 12px; color: #a6b4d9; font-size: 0.85rem; }
+    .airport-dd {
+      position: absolute;
+      left: 0; right: 0; top: calc(100% + 6px);
+      background: rgba(2, 6, 23, 0.95);
+      border: 1px solid rgba(148,163,184,0.25);
+      border-radius: 14px;
+      overflow: hidden;
+      box-shadow: 0 20px 60px rgba(0,0,0,0.65);
+      z-index: 999;
+      display: none;
+    }
+    .airport-dd.show { display: block; }
+    .airport-dd-item {
+      padding: 10px 12px; cursor: pointer;
+      font-size: 0.86rem; color: #e5ecff;
+      border-bottom: 1px solid rgba(148,163,184,0.12);
+    }
+    .airport-dd-item:hover { background: rgba(56,189,248,0.12); }
+    .airport-dd-empty { padding: 10px 12px; color: #a6b4d9; font-size: 0.85rem; }
 
-  #alt-ft { accent-color: #22d3ee; }
-  #wx-conditions, #wx-wind, #winds-aloft { text-shadow: 0 0 18px rgba(56,189,248,0.25); }
+    #alt-ft { accent-color: #22d3ee; }
+    #wx-conditions, #wx-wind, #winds-aloft { text-shadow: 0 0 18px rgba(56,189,248,0.25); }
 
-  @media (max-width: 900px) {
-    .dashboard-title { flex-direction: column; align-items: flex-start; }
-    .dashboard-grid { grid-template-columns: 1fr; }
-  }
+    @media (max-width: 900px) {
+      .dashboard-title { flex-direction: column; align-items: flex-start; }
+      .dashboard-grid { grid-template-columns: 1fr; }
+    }
 
-  section.tools-section { background: white; color: black; padding: 60px 30px; text-align: center; }
-  h2 { margin-bottom: 40px; }
-  .button-grid { display: flex; flex-wrap: wrap; justify-content: center; gap: 20px; }
-  .tool-button { background: black; color: white; padding: 20px 30px; border-radius: 10px; font-size: 1rem; font-weight: bold; text-decoration: none; width: 260px; transition: transform 0.2s ease; }
-  .tool-button:hover { background: #222; transform: scale(1.05); }
+    section.tools-section { background: white; color: black; padding: 60px 30px; text-align: center; }
+    h2 { margin-bottom: 40px; }
+    .button-grid { display: flex; flex-wrap: wrap; justify-content: center; gap: 20px; }
+    .tool-button {
+      background: black; color: white; padding: 20px 30px; border-radius: 10px;
+      font-size: 1rem; font-weight: bold; text-decoration: none;
+      width: 260px; transition: transform 0.2s ease;
+    }
+    .tool-button:hover { background: #222; transform: scale(1.05); }
 
-  footer { text-align: center; padding: 20px; font-size: 0.8rem; color: #aaa; background: #000; }
+    footer { text-align: center; padding: 20px; font-size: 0.8rem; color: #aaa; background: #000; }
 
-  lottie-player { width: 300px; height: 300px; margin: 20px auto; display: block; }
-  @media (min-width: 768px) { lottie-player { width: 800px !important; height: 400px !important; } }
-  @media (max-width: 600px) {
-    header { padding: 60px 20px 30px; }
-    lottie-player { width: 90% !important; max-width: 320px; height: auto !important; }
-    .tool-button { width: 90%; }
-  }
+    lottie-player { width: 300px; height: 300px; margin: 20px auto; display: block; }
+    @media (min-width: 768px) { lottie-player { width: 800px !important; height: 400px !important; } }
+    @media (max-width: 600px) {
+      header { padding: 60px 20px 30px; }
+      lottie-player { width: 90% !important; max-width: 320px; height: auto !important; }
+      .tool-button { width: 90%; }
+    }
 
-  /* METAR table UI */
-  .metar-shell {
-    margin-top: 8px;
-    border-radius: 18px;
-    border: 1px solid rgba(56,189,248,0.35);
-    background:
-      radial-gradient(circle at 20% 0%, rgba(34,211,238,0.18), transparent 55%),
-      radial-gradient(circle at 80% 20%, rgba(129,140,248,0.18), transparent 55%),
-      rgba(2, 6, 23, 0.55);
-    box-shadow:
-      0 18px 45px rgba(0,0,0,0.65),
-      0 0 0 1px rgba(15,23,42,0.35) inset;
-    overflow: hidden;
-  }
+    /* METAR UI */
+    .metar-shell {
+      margin-top: 8px;
+      border-radius: 18px;
+      border: 1px solid rgba(56,189,248,0.35);
+      background:
+        radial-gradient(circle at 20% 0%, rgba(34,211,238,0.18), transparent 55%),
+        radial-gradient(circle at 80% 20%, rgba(129,140,248,0.18), transparent 55%),
+        rgba(2, 6, 23, 0.55);
+      box-shadow:
+        0 18px 45px rgba(0,0,0,0.65),
+        0 0 0 1px rgba(15,23,42,0.35) inset;
+      overflow: hidden;
+    }
+    .metar-header {
+      display: flex; justify-content: space-between; align-items: center; gap: 10px;
+      padding: 10px 12px;
+      border-bottom: 1px solid rgba(148,163,184,0.22);
+      background: rgba(15,23,42,0.55);
+    }
+    .metar-title {
+      font-weight: 700; letter-spacing: 0.08em; text-transform: uppercase;
+      font-size: 0.78rem; color: #e5f3ff;
+    }
+    .metar-pill {
+      display: inline-flex; align-items: center; justify-content: center;
+      padding: 4px 10px; border-radius: 999px;
+      font-size: 0.72rem; letter-spacing: 0.08em; text-transform: uppercase;
+      border: 1px solid rgba(148,163,184,0.25);
+      background: rgba(2, 6, 23, 0.55);
+      color: #cfe6ff;
+    }
+    .metar-pill.good { border-color: rgba(34,197,94,0.35); box-shadow: 0 0 18px rgba(34,197,94,0.18); }
+    .metar-pill.warn { border-color: rgba(251,191,36,0.35); box-shadow: 0 0 18px rgba(251,191,36,0.14); }
+    .metar-pill.bad  { border-color: rgba(239,68,68,0.35); box-shadow: 0 0 18px rgba(239,68,68,0.14); }
 
-  .metar-header {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    gap: 10px;
-    padding: 10px 12px;
-    border-bottom: 1px solid rgba(148,163,184,0.22);
-    background: rgba(15,23,42,0.55);
-  }
-
-  .metar-title {
-    display: flex;
-    align-items: center;
-    gap: 10px;
-    font-weight: 700;
-    letter-spacing: 0.08em;
-    text-transform: uppercase;
-    font-size: 0.78rem;
-    color: #e5f3ff;
-  }
-
-  .metar-dot {
-    width: 10px;
-    height: 10px;
-    border-radius: 999px;
-    background: rgba(34,211,238,0.9);
-    box-shadow: 0 0 18px rgba(34,211,238,0.8);
-    flex: 0 0 auto;
-  }
-
-  .metar-badges {
-    display: flex;
-    align-items: center;
-    gap: 8px;
-    flex-wrap: wrap;
-    justify-content: flex-end;
-  }
-
-  .metar-pill {
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
-    padding: 4px 10px;
-    border-radius: 999px;
-    font-size: 0.72rem;
-    letter-spacing: 0.08em;
-    text-transform: uppercase;
-    border: 1px solid rgba(148,163,184,0.25);
-    background: rgba(2, 6, 23, 0.55);
-    color: #cfe6ff;
-  }
-
-  .metar-pill.good { border-color: rgba(34,197,94,0.35); box-shadow: 0 0 18px rgba(34,197,94,0.18); }
-  .metar-pill.warn { border-color: rgba(251,191,36,0.35); box-shadow: 0 0 18px rgba(251,191,36,0.14); }
-  .metar-pill.bad  { border-color: rgba(239,68,68,0.35); box-shadow: 0 0 18px rgba(239,68,68,0.14); }
-
-  .metar-table { width: 100%; border-collapse: collapse; font-size: 0.86rem; }
-  .metar-table td { padding: 10px 12px; border-bottom: 1px solid rgba(148,163,184,0.14); vertical-align: middle; }
-
-  .metar-k {
-    width: 42%;
-    color: #a5b4fc;
-    letter-spacing: 0.08em;
-    text-transform: uppercase;
-    font-size: 0.72rem;
-  }
-
-  .metar-v { color: #e0f2ff; font-weight: 600; }
-  .metar-subv { display: block; margin-top: 2px; font-size: 0.75rem; color: #c0cbe9; font-weight: 500; letter-spacing: 0.02em; }
-
-  .metar-raw {
-    padding: 10px 12px;
-    background: rgba(15,23,42,0.55);
-    border-top: 1px solid rgba(148,163,184,0.18);
-    font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
-    font-size: 0.82rem;
-    color: #cbd5ff;
-    white-space: pre-wrap;
-    word-break: break-word;
-  }
+    .metar-raw {
+      padding: 10px 12px;
+      background: rgba(15,23,42,0.55);
+      font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
+      font-size: 0.86rem;
+      color: #cbd5ff;
+      white-space: pre-wrap;
+      word-break: break-word;
+    }
   </style>
-
-  <script src="https://unpkg.com/@lottiefiles/lottie-player@latest/dist/lottie-player.js"></script>
 </head>
 
 <body>
@@ -288,53 +293,25 @@
         <div class="forecast-row"><span id="fh-4t">—</span><span id="fh-4w">—</span><span id="fh-4s">—</span></div>
       </div>
 
+      <!-- METAR CARD (Choice 1) -->
       <div class="dash-card" data-aos="zoom-in" data-aos-delay="250">
-        <h3>Airport METAR / TAF</h3>
+        <h3>METAR</h3>
 
-        <div class="metric-label">Search Airport (ICAO, IATA, City, Name)</div>
+        <div class="metric-label">Search Airport (ICAO, IATA, City)</div>
         <div class="airport-row">
-          <input id="airport-search" class="airport-input" type="text"
-                 placeholder="e.g. KLAX, LAX, Colombo, Heathrow, VCCC..." autocomplete="off" />
-          <button type="button" class="geo-button" id="geo-btn">Use my location</button>
-
+          <input id="airport-search" class="airport-input" type="text" placeholder="e.g. KLAX, LAX, Colombo, Heathrow" autocomplete="off" />
+          <button type="button" class="geo-button" id="metar-btn">Get METAR</button>
           <div id="airport-dd" class="airport-dd"></div>
-        </div>
-
-        <div class="metric-small" id="airport-distance" style="margin-top:6px;">
-          Selected: —
         </div>
 
         <div class="divider-line"></div>
 
-        <div class="metar-shell" id="metar-shell">
+        <div class="metar-shell">
           <div class="metar-header">
-            <div class="metar-title"><span class="metar-dot"></span>METAR Snapshot</div>
-            <div class="metar-badges">
-              <span class="metar-pill" id="metar-age">—</span>
-              <span class="metar-pill" id="metar-rating">—</span>
-            </div>
+            <div class="metar-title">Raw METAR</div>
+            <span class="metar-pill warn" id="metar-status">—</span>
           </div>
-
-          <table class="metar-table">
-            <tr><td class="metar-k">Airport</td><td class="metar-v" id="m-airport">—</td></tr>
-            <tr>
-              <td class="metar-k">Observed (Local)</td>
-              <td class="metar-v" id="m-obs-local">— <span class="metar-subv" id="m-obs-utc">—</span></td>
-            </tr>
-            <tr><td class="metar-k">Sky</td><td class="metar-v" id="m-sky">—</td></tr>
-            <tr><td class="metar-k">Visibility</td><td class="metar-v" id="m-vis">—</td></tr>
-            <tr>
-              <td class="metar-k">Wind</td>
-              <td class="metar-v" id="m-wind">— <span class="metar-subv" id="m-wind-sub">—</span></td>
-            </tr>
-            <tr>
-              <td class="metar-k">Temperature</td>
-              <td class="metar-v" id="m-temp">— <span class="metar-subv" id="m-humidity">—</span></td>
-            </tr>
-            <tr><td class="metar-k">Pressure</td><td class="metar-v" id="m-pressure">—</td></tr>
-          </table>
-
-          <div class="metar-raw" id="metar-raw">Search an airport above…</div>
+          <div class="metar-raw" id="metar-raw">Type an airport or ICAO code.</div>
         </div>
       </div>
 
@@ -377,6 +354,7 @@
   <footer>&copy; 2025 Ashwin Ganesh — All rights reserved</footer>
 
   <script src="https://unpkg.com/aos@2.3.1/dist/aos.js"></script>
+
   <script>
     AOS.init({ duration: 900, easing: 'ease-out-cubic', offset: 120, once: true });
 
@@ -391,9 +369,10 @@
     updateClock();
     setInterval(updateClock, 1000);
 
+    // ===== ISA AI =====
     const ISA_BACKEND_BASE = "https://isa-backend-olj9.onrender.com/api";
     const ISA_AI_ENDPOINT = `${ISA_BACKEND_BASE}/ask/`;
-    const ISA_METAR_ENDPOINT = `${ISA_BACKEND_BASE}/metar`; // /{icao}
+    const ISA_METAR_ENDPOINT = `${ISA_BACKEND_BASE}/metar`;
 
     async function askISA() {
       const input = document.getElementById("ai-query");
@@ -433,335 +412,159 @@
       }
     }
 
-    // ===== METAR UI helpers =====
-    function pillClassFor(rating) {
-      const r = (rating || "").toLowerCase();
-      if (r.includes("excellent") || r.includes("good")) return "metar-pill good";
-      if (r.includes("challenging") || r.includes("no report")) return "metar-pill warn";
-      if (r.includes("poor") || r.includes("bad") || r.includes("error") || r.includes("timeout")) return "metar-pill bad";
-      return "metar-pill";
-    }
-
-    function formatLocalTime(isoUtc) {
-      if (!isoUtc) return { local: "—", utc: "—" };
-      const d = new Date(isoUtc);
-      if (isNaN(d.getTime())) return { local: "—", utc: isoUtc };
-      return {
-        local: d.toLocaleString([], {
-          weekday: "short",
-          month: "short",
-          day: "numeric",
-          hour: "2-digit",
-          minute: "2-digit",
-          timeZoneName: "short",
-        }),
-        utc: `UTC ${d.toISOString().slice(11, 16)}Z`,
-      };
-    }
-
-    function ageFromIso(isoUtc) {
-      if (!isoUtc) return "—";
-      const d = new Date(isoUtc);
-      const now = new Date();
-      const mins = Math.round((now - d) / 60000);
-      if (!isFinite(mins)) return "—";
-      if (mins < 1) return "Just now";
-      if (mins < 60) return `${mins} min ago`;
-      const hrs = Math.floor(mins / 60);
-      const rem = mins % 60;
-      return `${hrs}h ${rem}m ago`;
-    }
-
-    function extractICAO(text) {
-      if (!text) return null;
-      const m = text.toUpperCase().match(/\b[A-Z0-9]{3,4}\b/);
-      return m ? m[0] : null;
-    }
-
-    // Abort + timeout
-    let METAR_REQ_SEQ = 0;
+    // ===== METAR + Airport Search (Choice 1) =====
+    let AIRPORTS = [];
+    let fuse = null;
     let metarAbort = null;
-
-    async function fetchMetar(icaoRaw) {
-      const icao = String(icaoRaw || "").trim().toUpperCase();
-      if (!icao) return;
-
-      const seq = ++METAR_REQ_SEQ;
-      if (metarAbort) metarAbort.abort();
-      metarAbort = new AbortController();
-
-      const rawEl = document.getElementById("metar-raw");
-      const ageEl = document.getElementById("metar-age");
-      const ratingEl = document.getElementById("metar-rating");
-
-      const mAirport = document.getElementById("m-airport");
-      const mObsLocal = document.getElementById("m-obs-local");
-      const mObsUtc = document.getElementById("m-obs-utc");
-      const mSky = document.getElementById("m-sky");
-      const mVis = document.getElementById("m-vis");
-      const mWind = document.getElementById("m-wind");
-      const mWindSub = document.getElementById("m-wind-sub");
-      const mTemp = document.getElementById("m-temp");
-      const mHumidity = document.getElementById("m-humidity");
-      const mPressure = document.getElementById("m-pressure");
-
-      rawEl.textContent = `Fetching METAR for ${icao}…`;
-      ageEl.textContent = "—";
-      ratingEl.textContent = "Loading…";
-      ratingEl.className = "metar-pill warn";
-
-      mAirport.textContent = icao;
-      mObsLocal.textContent = "—";
-      mObsUtc.textContent = "—";
-      mSky.textContent = "—";
-      mVis.textContent = "—";
-      mWind.textContent = "—";
-      mWindSub.textContent = "—";
-      mTemp.textContent = "—";
-      mHumidity.textContent = "—";
-      mPressure.textContent = "—";
-
-      const timeout = setTimeout(() => metarAbort?.abort(), 12000);
-
-      try {
-        const url = `${ISA_METAR_ENDPOINT}/${encodeURIComponent(icao)}?t=${Date.now()}`;
-        const res = await fetch(url, { cache: "no-store", signal: metarAbort.signal });
-        if (seq !== METAR_REQ_SEQ) return;
-
-        if (res.status === 204) {
-          rawEl.textContent = "No recent METAR found.";
-          ratingEl.textContent = "No report";
-          ratingEl.className = pillClassFor("no report");
-          return;
-        }
-
-        const text = await res.text();
-        if (seq !== METAR_REQ_SEQ) return;
-
-        let data = null;
-        if (text) { try { data = JSON.parse(text); } catch {} }
-
-        if (!res.ok) {
-          const detail = data?.detail || text || `HTTP ${res.status}`;
-          throw new Error(detail);
-        }
-
-        if (!data || !data.raw_text) {
-          rawEl.textContent = data?.detail || "No recent METAR found.";
-          ratingEl.textContent = "No report";
-          ratingEl.className = pillClassFor("no report");
-          return;
-        }
-
-        rawEl.textContent = data.raw_text;
-
-        const obsUtc = data.obs_time_utc || data.plain_english?.observed_utc || null;
-        const tLocal = formatLocalTime(obsUtc);
-        mObsLocal.textContent = tLocal.local;
-        mObsUtc.textContent = tLocal.utc;
-        ageEl.textContent = ageFromIso(obsUtc);
-
-        const rating = data.flight_conditions || data.plain_english?.flight_conditions || "Unknown";
-        ratingEl.textContent = rating;
-        ratingEl.className = pillClassFor(rating);
-
-        mSky.textContent = data.sky || data.plain_english?.sky || "—";
-
-        const vis = (data.visibility_mi ?? data.plain_english?.visibility_mi);
-        mVis.textContent = (vis == null) ? "—" : `${vis} mi`;
-
-        const wdir = (data.wind_dir_deg ?? data.plain_english?.wind?.dir_deg);
-        const wspd = (data.wind_speed_kt ?? data.plain_english?.wind?.speed_kt);
-        const wgst = (data.wind_gust_kt ?? data.plain_english?.wind?.gust_kt);
-
-        if (wspd == null) {
-          mWind.textContent = "—";
-          mWindSub.textContent = "—";
-        } else {
-          const dirTxt = (wdir == null) ? "VRB" : `${wdir}°`;
-          mWind.textContent = `${dirTxt} / ${wspd} kt`;
-          mWindSub.textContent = wgst ? `Gusts ${wgst} kt` : "No gusts";
-        }
-
-        const tc = (data.temp_c ?? data.plain_english?.temperature_c);
-        const dc = (data.dewpoint_c ?? data.plain_english?.dewpoint_c);
-        const rh = (data.humidity_est_pct ?? data.plain_english?.humidity_est_pct);
-
-        mTemp.textContent = (tc == null) ? "—" : `${tc} °C`;
-        mHumidity.textContent = (dc == null || rh == null) ? "—" : `Dew ${dc}°C • RH ~${rh}%`;
-
-        const p = (data.altimeter_inhg ?? data.plain_english?.pressure_inhg);
-        mPressure.textContent = (p == null) ? "—" : `${p} inHg`;
-
-      } catch (e) {
-        if (seq !== METAR_REQ_SEQ) return;
-        if (e?.name === "AbortError") {
-          rawEl.textContent = `Timed out fetching METAR for ${icao}. Try again.`;
-          ratingEl.textContent = "Timeout";
-          ratingEl.className = "metar-pill bad";
-          return;
-        }
-        console.error(e);
-        rawEl.textContent = `Error fetching METAR: ${e.message || e}`;
-        ratingEl.textContent = "Error";
-        ratingEl.className = "metar-pill bad";
-      } finally {
-        clearTimeout(timeout);
-      }
-    }
-
-    // ===== Airport search UI =====
-    let selectedAirport = null;
 
     const searchEl = document.getElementById("airport-search");
     const ddEl = document.getElementById("airport-dd");
-    const distEl = document.getElementById("airport-distance");
-    const geoBtn = document.getElementById("geo-btn");
+    const rawEl = document.getElementById("metar-raw");
+    const metarBtn = document.getElementById("metar-btn");
+    const metarStatus = document.getElementById("metar-status");
+
+    function setStatus(text, kind) {
+      metarStatus.textContent = text;
+      metarStatus.className = "metar-pill " + (kind || "warn");
+    }
 
     function showDropdown(on) {
       ddEl.classList.toggle("show", !!on);
     }
 
-    function setSelectedAirport(a) {
-      selectedAirport = a;
-      const label = a?.label || a?.icao || "—";
-      searchEl.value = label;
-      distEl.textContent = `Selected: ${label}`;
-      showDropdown(false);
-
-      const icao = a?.icao || extractICAO(label);
-      if (icao) fetchMetar(icao);
+    function airportLabel(a) {
+      const code = a.icao + (a.iata ? ` (${a.iata})` : "");
+      const right = [a.city, a.name].filter(Boolean).join(" — ");
+      const country = a.country ? ` · ${a.country}` : "";
+      return right ? `${code} — ${right}${country}` : `${code}${country}`;
     }
 
-    function renderDropdown(results, q) {
+
+    // Load local airports JSON (place airports.min.json next to index.html)
+    fetch("./airports.min.json", { cache: "no-store" })
+      .then(r => r.json())
+      .then(data => {
+        AIRPORTS = data || [];
+        fuse = new Fuse(AIRPORTS, {
+          threshold: 0.35,
+          keys: ["icao", "iata", "name", "city", "country"]
+        });
+      })
+      .catch(err => {
+        console.error("Could not load airports.min.json", err);
+        // Still allow manual ICAO entry even if list fails
+        fuse = null;
+      });
+
+    function renderDropdown(list) {
       ddEl.innerHTML = "";
-      if (!results || results.length === 0) {
-        const div = document.createElement("div");
-        div.className = "airport-dd-empty";
-        div.textContent = `No matches. Try ICAO (KJFK) or city/name.`;
-        ddEl.appendChild(div);
+      if (!list || !list.length) {
+        ddEl.innerHTML = `<div class="airport-dd-empty">No matches — press Enter to try ICAO</div>`;
         showDropdown(true);
         return;
       }
 
-      results.forEach((r) => {
-        const item = document.createElement("div");
-        item.className = "airport-dd-item";
-        item.innerHTML = `${r.label}<small>${(r.icao || "")}${r.iata ? " • " + r.iata : ""}</small>`;
-        item.addEventListener("mousedown", (e) => {
-          // mousedown so click doesn't lose focus first
+      list.slice(0, 10).forEach(a => {
+        const d = document.createElement("div");
+        d.className = "airport-dd-item";
+        d.textContent = airportLabel(a);
+        d.onmousedown = e => {
           e.preventDefault();
-          setSelectedAirport(r);
-        });
-        ddEl.appendChild(item);
+          searchEl.value = airportLabel(a);
+          showDropdown(false);
+          fetchMetar(a.icao);
+        };
+        ddEl.appendChild(d);
       });
-
       showDropdown(true);
     }
 
     let searchTimer = null;
-    async function doAirportSearch(q) {
-      q = (q || "").trim();
-      if (!q || q.length < 2) { showDropdown(false); return; }
-
-      try {
-        const url = `${ISA_METAR_ENDPOINT}/search?q=${encodeURIComponent(q)}&limit=10&t=${Date.now()}`;
-        const res = await fetch(url, { cache: "no-store" });
-        const data = await res.json();
-        renderDropdown(data?.results || [], q);
-      } catch (e) {
-        console.error(e);
-        ddEl.innerHTML = `<div class="airport-dd-empty">Search error. Try again.</div>`;
-        showDropdown(true);
-      }
-    }
-
-    function debounceSearch(q) {
-      if (searchTimer) clearTimeout(searchTimer);
-      searchTimer = setTimeout(() => doAirportSearch(q), 160);
-    }
-
-    searchEl.addEventListener("focus", () => {
-      // If user focuses the input, they probably want to search again:
-      // select-all makes editing easy
-      searchEl.select();
-    });
-
     searchEl.addEventListener("input", () => {
-      const v = searchEl.value;
-
-      // IMPORTANT FIX:
-      // If the input looks like a selected label, do NOT search that string.
-      if (v.includes("—") || v.includes("(")) {
-        showDropdown(false);
-        return;
-      }
-
-      selectedAirport = null;
-      debounceSearch(v);
-    });
-
-    searchEl.addEventListener("keydown", (e) => {
-      if (e.key === "Escape") {
-        showDropdown(false);
-        return;
-      }
-
-      if (e.key === "Enter") {
-        e.preventDefault();
-        const raw = searchEl.value.trim();
-        const icao = extractICAO(raw);
-
-        // If user typed a code, trust it directly
-        if (icao) {
-          setSelectedAirport({ icao, label: raw });
-          showDropdown(false);
-          return;
-        }
-
-        // otherwise choose first dropdown item
-        const first = ddEl.querySelector(".airport-dd-item");
-        if (first) first.dispatchEvent(new MouseEvent("mousedown"));
-      }
+      const q = (searchEl.value || "").trim();
+      if (!q || q.length < 2 || !fuse) { showDropdown(false); return; }
+      if (searchTimer) clearTimeout(searchTimer);
+      searchTimer = setTimeout(() => {
+        const res = fuse.search(q).map(r => r.item);
+        renderDropdown(res);
+      }, 120);
     });
 
     document.addEventListener("click", (e) => {
-      if (!ddEl.contains(e.target) && e.target !== searchEl) {
+      if (!ddEl.contains(e.target) && e.target !== searchEl) showDropdown(false);
+    });
+
+    searchEl.addEventListener("keydown", (e) => {
+      if (e.key === "Escape") { showDropdown(false); return; }
+      if (e.key === "Enter") {
+        e.preventDefault();
         showDropdown(false);
+        fetchMetar(searchEl.value);
       }
     });
 
-    // ===== Use my location -> backend nearest airport worldwide =====
-    geoBtn.addEventListener("click", () => {
-      if (!navigator.geolocation) {
-        alert("Geolocation not supported by this browser.");
+    metarBtn.addEventListener("click", () => fetchMetar(searchEl.value));
+
+    function extractICAO(text) {
+      const t = String(text || "").trim().toUpperCase();
+      const m4 = t.match(/\b[A-Z0-9]{4}\b/);
+      if (m4) return m4[0];
+      const m3 = t.match(/\b[A-Z0-9]{3}\b/);
+      return m3 ? m3[0] : null;
+    }
+
+
+    async function fetchMetar(input) {
+      const code = extractICAO(input);
+      if (!code) {
+        setStatus("Invalid", "bad");
+        rawEl.textContent = "Type an ICAO code like KLAX (or choose from the list).";
         return;
       }
 
-      navigator.geolocation.getCurrentPosition(async (pos) => {
-        const { latitude, longitude } = pos.coords;
+      if (metarAbort) metarAbort.abort();
+      metarAbort = new AbortController();
+      const timeout = setTimeout(() => metarAbort.abort(), 12000);
 
-        try {
-          const url = `${ISA_METAR_ENDPOINT}/nearest?lat=${encodeURIComponent(latitude)}&lon=${encodeURIComponent(longitude)}&limit=1&t=${Date.now()}`;
-          const res = await fetch(url, { cache: "no-store" });
-          const data = await res.json();
-          const best = data?.results?.[0];
-          if (!best) throw new Error("No nearest airport returned.");
+      setStatus("Loading…", "warn");
+      rawEl.textContent = `Fetching METAR for ${code}…`;
 
-          const label = best.label + (best.distance_km != null ? ` (${best.distance_km.toFixed(1)} km)` : "");
-          distEl.textContent = `Nearest: ${label}`;
-          setSelectedAirport(best);
-        } catch (e) {
-          console.error(e);
-          alert("Could not find nearest airport. Try searching manually.");
+      try {
+        const res = await fetch(`${ISA_METAR_ENDPOINT}/${encodeURIComponent(code)}?t=${Date.now()}`, {
+          signal: metarAbort.signal,
+          cache: "no-store"
+        });
+
+        if (res.status === 204) {
+          setStatus("No report", "warn");
+          rawEl.textContent = "No METAR available for that station (or not recent).";
+          return;
         }
-      }, (err) => {
-        console.error(err);
-        alert("Could not get location. Check browser permissions.");
-      });
-    });
 
-    // ===== Surface weather + winds aloft (same as your code) =====
+        const data = await res.json();
+        if (!data?.raw_text) {
+          setStatus("No report", "warn");
+          rawEl.textContent = "No METAR available.";
+          return;
+        }
+
+        setStatus("OK", "good");
+        rawEl.textContent = data.raw_text;
+      } catch (e) {
+        console.error(e);
+        if (e?.name === "AbortError") {
+          setStatus("Timeout", "bad");
+          rawEl.textContent = "Timed out fetching METAR. Try again.";
+        } else {
+          setStatus("Error", "bad");
+          rawEl.textContent = "METAR fetch failed.";
+        }
+      } finally {
+        clearTimeout(timeout);
+      }
+    }
+
+    // ===== Surface weather + winds aloft (unchanged) =====
     let ISA_LAT = 33.8177;
     let ISA_LON = -118.1516;
 
@@ -850,14 +653,10 @@
       });
       slider.addEventListener("change", refreshWXandWinds);
 
-      setInterval(() => {
-        if (selectedAirport?.icao) fetchMetar(selectedAirport.icao);
-      }, 5 * 60 * 1000);
-
       setInterval(refreshWXandWinds, 10 * 60 * 1000);
 
-      // optional default
-      setSelectedAirport({ icao: "KLGB", label: "KLGB (LGB) — Long Beach Airport · US" });
+      // Default METAR
+      fetchMetar("KLGB");
     });
   </script>
 </body>
