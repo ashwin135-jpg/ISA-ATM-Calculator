@@ -228,117 +228,10 @@
       word-break: break-word;
       border: 1px solid rgba(148,163,184,0.18);
     }
-  /* ===== Top Menu ===== */
-html { scroll-behavior: smooth; } /* smooth anchor scroll */
-
-    .top-nav{
-      position: sticky;
-      top: 0;
-      z-index: 9999;
-      backdrop-filter: blur(12px);
-      background: linear-gradient(to bottom, rgba(5,8,22,0.88), rgba(5,8,22,0.55));
-      border-bottom: 1px solid rgba(148,163,184,0.18);
-    }
-
-    .top-nav-inner{
-      max-width: 1100px;
-      margin: 0 auto;
-      padding: 12px 18px;
-      display:flex;
-      justify-content:space-between;
-      align-items:center;
-      gap: 12px;
-    }
-
-    .top-brand{
-      display:flex;
-      align-items:center;
-      gap:10px;
-      user-select:none;
-    }
-
-    .top-dot{
-      width: 12px;
-      height: 12px;
-      border-radius: 999px;
-      background: linear-gradient(135deg, #22d3ee, #818cf8);
-      box-shadow: 0 0 18px rgba(34,211,238,0.45);
-      border: 1px solid rgba(56,189,248,0.55);
-    }
-
-    .top-title{
-      font-weight: 700;
-      letter-spacing: 0.03em;
-      color: #e5ecff;
-      font-size: 0.95rem;
-    }
-
-    .top-links{
-      display:flex;
-      align-items:center;
-      gap: 10px;
-    }
-
-    .top-link{
-      text-decoration:none;
-      color: #cfe6ff;
-      font-weight: 650;
-      font-size: 0.85rem;
-      padding: 8px 12px;
-      border-radius: 999px;
-      border: 1px solid rgba(148,163,184,0.20);
-      background: rgba(2, 6, 23, 0.35);
-      transition: transform .15s ease, box-shadow .15s ease, border-color .15s ease, filter .15s ease;
-      white-space: nowrap;
-    }
-
-    .top-link:hover{
-      border-color: rgba(56,189,248,0.55);
-      box-shadow: 0 0 14px rgba(56,189,248,0.18);
-      transform: translateY(-1px);
-    }
-
-    .top-cta{
-      background: linear-gradient(135deg, rgba(34,197,94,0.95), rgba(34,211,238,0.95));
-      color: #020617;
-      border: none;
-      box-shadow: 0 14px 28px rgba(34,197,94,0.25);
-    }
-
-    .top-cta:hover{
-      filter: brightness(1.06);
-      box-shadow: 0 18px 40px rgba(34,197,94,0.42);
-    }
-
-    /* prevent sticky nav from covering anchors */
-    #dashboard, #calculators { scroll-margin-top: 80px; }
-
-    @media (max-width: 600px){
-      .top-nav-inner{ padding: 10px 12px; }
-      .top-title{ display:none; } /* keep it clean on mobile */
-      .top-link{ padding: 7px 10px; font-size: 0.82rem; }
-    }
-
-  
   </style>
 </head>
 
 <body>
-  <nav class="top-nav" data-aos="fade-down">
-      <div class="top-nav-inner">
-        <div class="top-brand">
-          <span class="top-dot"></span>
-          <span class="top-title">ISA Master Tool</span>
-        </div>
-
-        <div class="top-links">
-          <a href="#dashboard" class="top-link">Dashboard</a>
-          <a href="#calculators" class="top-link">Calculators</a>
-          <a href="isa_designer.html" class="top-link top-cta" target="_blank" rel="noopener">Designer</a>
-        </div>
-      </div>
-    </nav>
-
   <header data-aos="fade-down">
     <h1>✈ ISA Master Tool</h1>
     <p>Aerospace engineering tools for atmosphere, performance, and mission planning</p>
@@ -353,7 +246,7 @@ html { scroll-behavior: smooth; } /* smooth anchor scroll */
     </lottie-player>
   </header>
 
-  <section class="dashboard-section" id="dashboard">
+  <section class="dashboard-section">
     <div class="dashboard-title" data-aos="fade-up">
       <div>
         <div class="dashboard-title-main">ISA Command Center</div>
@@ -420,7 +313,7 @@ html { scroll-behavior: smooth; } /* smooth anchor scroll */
         <div class="forecast-row"><span id="fh-4t">—</span><span id="fh-4w">—</span><span id="fh-4s">—</span></div>
       </div>
 
-      <!-- METAR CARD -->
+      <!-- METAR CARD (Google-style) -->
       <div class="dash-card" data-aos="zoom-in" data-aos-delay="250">
         <h3>METAR</h3>
 
@@ -517,7 +410,7 @@ html { scroll-behavior: smooth; } /* smooth anchor scroll */
     </div>
   </section>
 
-  <section class="tools-section" id="calculators">
+  <section class="tools-section">
     <h2 data-aos="fade-up">Choose a Tool</h2>
     <div class="button-grid">
       <a href="https://isa-atm-calculator-tmepkr7qfrryb65yvtjg7j.streamlit.app/?tool=ISA%20Air%20Properties" class="tool-button" data-aos="zoom-in" data-aos-delay="100">ISA Air Properties</a>
@@ -529,17 +422,11 @@ html { scroll-behavior: smooth; } /* smooth anchor scroll */
     </div>
   </section>
 
-  <footer>&copy; 2026 Ashwin Ganesh — All rights reserved</footer>
+  <footer>&copy; 2025 Ashwin Ganesh — All rights reserved</footer>
 
   <script src="https://unpkg.com/aos@2.3.1/dist/aos.js"></script>
 
   <script>
-    //new
-        function cToF(c) {
-      return (c * 9 / 5 + 32);
-    }
-      //new
-      
     AOS.init({ duration: 900, easing: 'ease-out-cubic', offset: 120, once: true });
 
     function updateClock() {
@@ -596,17 +483,6 @@ html { scroll-behavior: smooth; } /* smooth anchor scroll */
       }
     }
 
-    // ===== Shared helpers =====
-    function altitudeToPressureLevel(altFt) {
-      if (altFt <= 5000) return 850;
-      if (altFt <= 12000) return 700;
-      if (altFt <= 18000) return 600;
-      if (altFt <= 24000) return 500;
-      if (altFt <= 30000) return 400;
-      if (altFt <= 36000) return 300;
-      return 250;
-    }
-
     // ===== METAR + Airport Search =====
     let AIRPORTS = [];
     let fuse = null;
@@ -657,19 +533,25 @@ html { scroll-behavior: smooth; } /* smooth anchor scroll */
     }
 
     function parseCeilingFtFromSkyString(sky) {
+      // handles: "Overcast @ 700 ft" or "Broken @ 1,200 ft"
       const m = String(sky || "").match(/@\s*([\d,]+)\s*ft/i);
       if (!m) return null;
       return parseInt(m[1].replace(/,/g,""), 10);
     }
 
     function flightCategory(visibilityMi, ceilingFt){
+      // simple FAA-ish thresholds
       if (visibilityMi == null && ceilingFt == null) return {cat:"UNK", reason:"Missing vis/ceiling"};
       const vis = visibilityMi;
       const ceil = ceilingFt;
 
+      // LIFR
       if ((vis != null && vis < 1) || (ceil != null && ceil < 500)) return {cat:"LIFR", reason:"Very low vis/ceiling"};
+      // IFR
       if ((vis != null && vis < 3) || (ceil != null && ceil < 1000)) return {cat:"IFR", reason:"Low vis/ceiling"};
+      // MVFR
       if ((vis != null && vis < 5) || (ceil != null && ceil < 3000)) return {cat:"MVFR", reason:"Marginal vis/ceiling"};
+      // VFR
       return {cat:"VFR", reason:"Good vis and ceiling"};
     }
 
@@ -682,14 +564,17 @@ html { scroll-behavior: smooth; } /* smooth anchor scroll */
 
       const parts = [];
 
+      // Sky
       if (sky && sky !== "—") parts.push(sky.replace("@", "at"));
 
+      // Visibility
       if (vis != null) {
         if (vis < 1) parts.push("very low visibility");
         else if (vis < 3) parts.push("low visibility");
         else if (vis < 5) parts.push("reduced visibility");
       }
 
+      // Wind
       if (wspd != null) {
         if (wspd === 0) parts.push("calm wind");
         else {
@@ -698,6 +583,7 @@ html { scroll-behavior: smooth; } /* smooth anchor scroll */
         }
       }
 
+      // Humidity hint (dewpoint spread)
       const t = data.temp_c;
       const d = data.dewpoint_c;
       if (t != null && d != null) {
@@ -706,16 +592,19 @@ html { scroll-behavior: smooth; } /* smooth anchor scroll */
       }
 
       const headline = parts.length ? parts.join(", ") : "Weather details available below.";
-      const sub = "Derived from METAR. Raw METAR is available below.";
+      let sub = "Derived from METAR. Raw METAR is available below.";
+
       return { headline: headline.charAt(0).toUpperCase() + headline.slice(1), sub };
     }
 
+    // Raw METAR toggle
     toggleBtn.addEventListener("click", () => {
       const isHidden = rawEl.classList.contains("hidden");
       rawEl.classList.toggle("hidden", !isHidden);
       toggleBtn.textContent = isHidden ? "Hide raw METAR" : "Show raw METAR";
     });
 
+    // Load local airports JSON (place airports.min.json next to index.html)
     fetch("./airports.min.json", { cache: "no-store" })
       .then(r => r.json())
       .then(data => {
@@ -727,7 +616,7 @@ html { scroll-behavior: smooth; } /* smooth anchor scroll */
       })
       .catch(err => {
         console.error("Could not load airports.min.json", err);
-        fuse = null;
+        fuse = null; // allow manual ICAO
       });
 
     function renderDropdown(list) {
@@ -846,14 +735,17 @@ html { scroll-behavior: smooth; } /* smooth anchor scroll */
           return;
         }
 
+        // Station + time
         stationEl.textContent = data.icao || code;
-
         const obsIso = data.obs_time_utc || null;
         if (obsIso) {
           const d = new Date(obsIso);
           observedEl.textContent = isNaN(d.getTime()) ? obsIso : d.toLocaleString([], { weekday:"short", month:"short", day:"numeric", hour:"2-digit", minute:"2-digit", timeZoneName:"short" });
-        } else observedEl.textContent = "—";
+        } else {
+          observedEl.textContent = "—";
+        }
 
+        // Key conditions
         const tc = data.temp_c;
         const dc = data.dewpoint_c;
         const rh = data.humidity_est_pct;
@@ -865,10 +757,10 @@ html { scroll-behavior: smooth; } /* smooth anchor scroll */
         const gust = data.wind_gust_kt;
 
         tempEl.textContent = (tc == null) ? "—" : `${tc} °C`;
-        dewEl.textContent  = (dc == null) ? "—" : `${dc} °C`;
-        rhEl.textContent   = (rh == null) ? "—" : `${rh}%`;
+        dewEl.textContent = (dc == null) ? "—" : `${dc} °C`;
+        rhEl.textContent  = (rh == null) ? "—" : `${rh}%`;
         presEl.textContent = (p == null) ? "—" : `${p} inHg`;
-        visEl.textContent  = (vis == null) ? "—" : `${vis} mi`;
+        visEl.textContent = (vis == null) ? "—" : `${vis} mi`;
 
         if (wspd == null) windEl.textContent = "—";
         else if (wspd === 0) windEl.textContent = "Calm";
@@ -879,15 +771,18 @@ html { scroll-behavior: smooth; } /* smooth anchor scroll */
 
         skyEl.textContent = sky || "—";
 
+        // Summary
         const s = makeSummary(data);
         summaryEl.textContent = s.headline;
         summarySubEl.textContent = s.sub;
 
+        // Flight category
         const ceilingFt = parseCeilingFtFromSkyString(sky);
         const fc = flightCategory(vis, ceilingFt);
         setFlightBadge(fc.cat);
         flightReasonEl.textContent = fc.reason;
 
+        // Raw
         rawEl.textContent = data.raw_text;
 
       } catch (e) {
@@ -908,40 +803,18 @@ html { scroll-behavior: smooth; } /* smooth anchor scroll */
       }
     }
 
-    // ===== Surface weather + winds aloft (SMART LOCATION) =====
+    // ===== Surface weather + winds aloft (unchanged) =====
     let ISA_LAT = 33.8177;
     let ISA_LON = -118.1516;
-    const cityLabelEl = document.getElementById("city-label");
 
-    async function reverseGeocode(lat, lon) {
-      const url =
-        "https://geocoding-api.open-meteo.com/v1/reverse?" +
-        `latitude=${encodeURIComponent(lat)}&longitude=${encodeURIComponent(lon)}` +
-        "&language=en&format=json";
-
-      const ctrl = new AbortController();
-      const t = setTimeout(() => ctrl.abort(), 8000);
-
-      try {
-        const res = await fetch(url, { signal: ctrl.signal });
-        if (!res.ok) throw new Error("Reverse geocode failed");
-        const data = await res.json();
-        const best = data?.results?.[0];
-        if (!best) return null;
-
-        const name = best.name || best.city || best.admin1 || null;
-        const admin = best.admin1 || null;
-        const country = best.country_code || best.country || null;
-
-        if (name && admin) return `${name}, ${admin}`;
-        if (name && country) return `${name}, ${country}`;
-        if (name) return name;
-        return null;
-      } catch {
-        return null;
-      } finally {
-        clearTimeout(t);
-      }
+    function altitudeToPressureLevel(altFt) {
+      if (altFt <= 5000) return 850;
+      if (altFt <= 12000) return 700;
+      if (altFt <= 18000) return 600;
+      if (altFt <= 24000) return 500;
+      if (altFt <= 30000) return 400;
+      if (altFt <= 36000) return 300;
+      return 250;
     }
 
     async function fetchSurfaceWeather(lat, lon) {
@@ -1010,37 +883,8 @@ html { scroll-behavior: smooth; } /* smooth anchor scroll */
       fetchWindsAloft(ISA_LAT, ISA_LON, alt).catch(console.error);
     }
 
-    function initSmartLocation() {
-      cityLabelEl.textContent = "Detecting location…";
-
-      if (!navigator.geolocation) {
-        cityLabelEl.textContent = "Long Beach, CA";
-        refreshWXandWinds();
-        return;
-      }
-
-      navigator.geolocation.getCurrentPosition(
-        async (pos) => {
-          ISA_LAT = pos.coords.latitude;
-          ISA_LON = pos.coords.longitude;
-
-          const label = await reverseGeocode(ISA_LAT, ISA_LON);
-          cityLabelEl.textContent = label || `Lat ${ISA_LAT.toFixed(2)}, Lon ${ISA_LON.toFixed(2)}`;
-
-          refreshWXandWinds();
-        },
-        (err) => {
-          console.warn("Geolocation denied/failed:", err);
-          cityLabelEl.textContent = "Long Beach, CA";
-          refreshWXandWinds();
-        },
-        { enableHighAccuracy: false, timeout: 8000, maximumAge: 15 * 60 * 1000 }
-      );
-    }
-
-    // ===== Init =====
     document.addEventListener("DOMContentLoaded", () => {
-      initSmartLocation();
+      refreshWXandWinds();
 
       const slider = document.getElementById("alt-ft");
       slider.addEventListener("input", () => {
@@ -1050,7 +894,7 @@ html { scroll-behavior: smooth; } /* smooth anchor scroll */
 
       setInterval(refreshWXandWinds, 10 * 60 * 1000);
 
-      // Default METAR (still KLGB unless user searches)
+      // Default METAR
       fetchMetar("KLGB");
     });
   </script>
