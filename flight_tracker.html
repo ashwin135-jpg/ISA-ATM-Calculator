@@ -635,8 +635,9 @@
         setPill(data?.status || "UNKNOWN");
 
         // Dep / Arr
-        el("r-dep").textContent = `${data?.dep?.iata || "—"} • ${data?.dep?.city || "—"}`;
-        el("r-arr").textContent = `${data?.arr?.iata || "—"} • ${data?.arr?.city || "—"}`;
+        el("r-dep").textContent = `${data?.dep?.iata || "—"} • ${data?.dep?.label || "—"}`;
+        el("r-arr").textContent = `${data?.arr?.iata || "—"} • ${data?.arr?.label || "—"}`;
+
 
         el("r-dep-time").textContent =
           `Sched ${fmtTime(data?.dep?.sched)} • Est ${fmtTime(data?.dep?.est)} • Act ${fmtTime(data?.dep?.actual)}`;
@@ -645,22 +646,31 @@
           `Sched ${fmtTime(data?.arr?.sched)} • Est ${fmtTime(data?.arr?.est)} • Act ${fmtTime(data?.arr?.actual)}`;
 
         // Aircraft
-        el("r-aircraft").textContent = data?.aircraft?.type || "—";
+        el("r-aircraft").textContent = (data?.aircraft?.type || data?.aircraft?.reg) ? "Aircraft info available" : "Aircraft info not provided";
         el("r-reg").textContent = data?.aircraft?.reg ? `Reg ${data.aircraft.reg}` : "—";
 
         // Progress
         const pFromBackend = Number.isFinite(Number(data?.progress_pct)) ? Number(data.progress_pct) : null;
         const pFromTimes = computeProgress(data?.dep?.actual || data?.dep?.est, data?.arr?.est || data?.arr?.sched);
-        const pct = (pFromBackend != null && pFromBackend > 0) ? pFromBackend : (pFromTimes != null ? pFromTimes : 0);
+        const pct = (pFromBackend != null && pFromBackend > 0) ? pFromBackend : (pFromTimes != null ? pFromTimes : null);
+        if (pct == null){
+          el("r-progress-text").textContent = "—";
+          el("r-progress-fill").style.width = "0%";
+          el("r-progress-sub").textContent = "Progress estimate unavailable.";
+        } else {
+          const p = Math.max(0, Math.min(100, pct));
+          el("r-progress-text").textContent = `${p}% to destination`;
+          el("r-progress-fill").style.width = `${p}%`;
+          el("r-progress-sub").textContent = "Time-based estimate (improves when we add live position).";
+        }
 
-        el("r-progress-text").textContent = `${Math.max(0, Math.min(100, pct))}% to destination`;
-        el("r-progress-fill").style.width = `${Math.max(0, Math.min(100, pct))}%`;
 
         // Live (optional)
         const live = data?.live;
         el("r-live").textContent = live
-          ? `Lat ${fmtNum(live.lat,2)}, Lon ${fmtNum(live.lon,2)} • Alt ${live.alt_ft ?? "—"} ft • GS ${live.gs_kt ?? "—"} kt • HDG ${live.hdg_deg ?? "—"}°`
-          : "No live position available for this flight.";
+          ? `${(live.on_ground === false) ? "Airborne" : "On ground"} • Alt ${live.alt_ft ?? "—"} ft • Speed ${live.gs_kt ?? "—"} kt`
+            + (live.source ? ` • Source: ${String(live.source).toUpperCase()}` : "")
+          : "Live position not available right now.";
 
         // Extras (terminal/gate if present)
         const extras = [];
