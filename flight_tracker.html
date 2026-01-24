@@ -7,6 +7,19 @@
 
   <link href="https://unpkg.com/aos@2.3.1/dist/aos.css" rel="stylesheet">
 
+  <!-- Leaflet (map) -->
+  <link
+    rel="stylesheet"
+    href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"
+    integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY="
+    crossorigin=""
+  />
+  <script
+    src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"
+    integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo="
+    crossorigin=""
+  ></script>
+
   <style>
     :root{
       --bg0:#050816;
@@ -16,7 +29,6 @@
       --stroke2: rgba(56,189,248,0.55);
       --text:#e5ecff;
       --muted:#a6b4d9;
-      --glow: rgba(56,189,248,0.25);
       --good: rgba(34,197,94,0.35);
       --warn: rgba(251,191,36,0.35);
       --bad:  rgba(239,68,68,0.35);
@@ -31,7 +43,7 @@
       overflow-x: hidden;
     }
 
-    /* ===== Futuristic Background Grid ===== */
+    /* Background */
     .bg-grid{
       position: fixed; inset: 0;
       background:
@@ -42,7 +54,6 @@
       pointer-events:none;
       opacity: 0.9;
     }
-
     .scanline{
       position: fixed; left:-20%; right:-20%;
       height: 120px;
@@ -58,7 +69,7 @@
       100%{ transform: translateY(140vh); }
     }
 
-    /* ===== Top Nav (matches your style) ===== */
+    /* Top Nav */
     .top-nav{
       position: sticky;
       top: 0;
@@ -129,7 +140,7 @@
       box-shadow: 0 18px 40px rgba(34,197,94,0.42);
     }
 
-    /* ===== Layout ===== */
+    /* Layout */
     .wrap{
       max-width: 1150px;
       margin: 0 auto;
@@ -155,7 +166,6 @@
       font-size: 0.98rem;
       max-width: 820px;
     }
-
     .tag-pill{
       display: inline-flex; align-items: center; justify-content: center;
       padding: 6px 12px; border-radius: 999px;
@@ -204,7 +214,7 @@
       margin: 12px 0;
     }
 
-    /* ===== Inputs ===== */
+    /* Inputs */
     .row{ display:flex; gap: 10px; align-items:center; }
     .input{
       flex:1;
@@ -240,10 +250,9 @@
       box-shadow: 0 20px 45px rgba(34,197,94,0.55);
     }
 
-    .muted{ color: var(--muted); font-size: 0.9rem; }
     .status{ color: #a5b4fc; font-size: 0.86rem; margin-top: 8px; min-height: 18px; }
 
-    /* ===== Result UI ===== */
+    /* Result UI */
     .result{
       margin-top: 12px;
       border-radius: 18px;
@@ -336,7 +345,7 @@
       transition: width 0.35s ease;
     }
 
-    /* ===== Right-side panel: Recent Tracks ===== */
+    /* Right-side panel */
     .mini{
       font-size: 0.78rem;
       letter-spacing: 0.09em;
@@ -380,16 +389,37 @@
       color:#c0cbe9;
       font-size: 0.84rem;
     }
+    .muted{ color: var(--muted); font-size: 0.9rem; }
 
-    .hint{
-      margin-top: 10px;
-      padding: 10px 12px;
-      border-radius: 14px;
-      border: 1px solid rgba(148,163,184,0.14);
+    /* Map */
+    .map-wrap{
+      margin-top: 12px;
+      border-radius: 16px;
+      overflow: hidden;
+      border: 1px solid rgba(148,163,184,0.20);
       background: rgba(2,6,23,0.35);
-      color: #cfe6ff;
-      font-size: 0.9rem;
-      line-height: 1.35;
+      display:none;
+    }
+    .map-wrap.show{ display:block; }
+    #live-map{
+      width: 100%;
+      height: 280px;
+    }
+    .map-caption{
+      padding: 10px 12px;
+      font-size: 0.84rem;
+      color: #c0cbe9;
+      border-top: 1px solid rgba(148,163,184,0.14);
+      background: rgba(2,6,23,0.35);
+    }
+
+    /* Leaflet theming */
+    .leaflet-container{
+      background: #020617;
+    }
+    .leaflet-control-attribution{
+      font-size: 10px;
+      opacity: 0.75;
     }
 
     @media (max-width: 960px){
@@ -399,6 +429,7 @@
     @media (max-width: 520px){
       .row{ flex-direction: column; align-items: stretch; }
       .btn{ width: 100%; }
+      #live-map{ height: 240px; }
     }
   </style>
 </head>
@@ -413,7 +444,6 @@
         <span class="top-dot"></span>
         <span class="top-title">ISA Master Tool</span>
       </div>
-
       <div class="top-links">
         <a href="index.html" class="top-link">Home</a>
         <a href="isa_designer.html" class="top-link" target="_blank" rel="noopener">Designer</a>
@@ -425,31 +455,23 @@
   <div class="wrap">
     <div class="hero" data-aos="fade-up">
       <div>
-        <h1>✈ ISA Smart Flight Tracker</h1>
-        <p>
-          Enter a flight number to lock onto live status + departure/arrival timing.
-          This page is designed like a cockpit display: clean, fast, readable.
-        </p>
+        <h1>✈ ISA Flight Tracker</h1>
+        <p>Enter a flight number to view status, departure/arrival times, and live position when available.</p>
       </div>
       <div class="tag-pill">Live Tracking</div>
     </div>
 
     <div class="grid">
-      <!-- Left: Tracker -->
+      <!-- Left -->
       <div class="card" data-aos="zoom-in" data-aos-delay="80">
         <h3>Track a Flight</h3>
 
         <div class="row">
-          <input id="flight-input" class="input" type="text" placeholder="e.g. AA100, DL405, UA12" autocomplete="off">
+          <input id="flight-input" class="input" type="text" placeholder="AA100" autocomplete="off">
           <button class="btn" type="button" onclick="trackFlight()">Lock Signal</button>
         </div>
 
         <div class="status" id="status-line"></div>
-
-        <div class="divider-line"></div>
-        <div class="muted">
-          Tip: Use the airline IATA + number (AA100). If your provider supports ICAO callsigns too, we can add it.
-        </div>
 
         <!-- Result -->
         <div class="result" id="result">
@@ -482,38 +504,34 @@
               <div class="progress-rail">
                 <div class="progress-fill" id="r-progress-fill"></div>
               </div>
-              <div class="s" id="r-progress-sub">Time-based estimate (improves when we add live position).</div>
+              <div class="s" id="r-progress-sub">—</div>
             </div>
 
             <div class="kv">
-              <div class="k">Aircraft</div>
-              <div class="v" id="r-aircraft">—</div>
-              <div class="s" id="r-reg">—</div>
+              <div class="k">Live</div>
+              <div class="v" id="r-live">—</div>
+              <div class="s" id="r-extra">—</div>
             </div>
 
             <div class="kv span">
-              <div class="k">Live</div>
-              <div class="v" id="r-live">—</div>
-              <div class="s" id="r-extra">Terminal/Gate may appear if your provider returns it.</div>
+              <div class="k">Live Map</div>
+
+              <div class="map-wrap" id="map-wrap">
+                <div id="live-map"></div>
+                <div class="map-caption" id="map-caption">—</div>
+              </div>
+
+              <div class="s" id="map-fallback">No live position yet.</div>
             </div>
           </div>
         </div>
       </div>
 
-      <!-- Right: Recent / Help -->
+      <!-- Right -->
       <div class="card" data-aos="zoom-in" data-aos-delay="160">
         <h3>Mission Log</h3>
-        <div class="mini">Recent Tracks</div>
-
+        <div class="mini">Recent</div>
         <div class="recent" id="recent"></div>
-
-        <div class="hint">
-          <b>How it works:</b> this page calls your backend:
-          <span style="font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, 'Liberation Mono', 'Courier New', monospace;">
-            /api/flight/&lt;flight&gt;
-          </span><br><br>
-          Next upgrade: auto-refresh toggle + live map/radar view.
-        </div>
       </div>
     </div>
   </div>
@@ -522,7 +540,6 @@
   <script>
     AOS.init({ duration: 900, easing: 'ease-out-cubic', offset: 120, once: true });
 
-    // Use the same backend base as your index.html
     const ISA_BACKEND_BASE = "https://isa-backend-olj9.onrender.com/api";
     const ISA_FLIGHT_ENDPOINT = `${ISA_BACKEND_BASE}/flight`;
 
@@ -534,7 +551,6 @@
       pill.textContent = t;
       pill.classList.remove("ok","warn","bad");
 
-      // Map common statuses into glow colors
       if (["LANDED","ARRIVED","ON TIME","EN ROUTE","ACTIVE","DEPARTED"].includes(t)) pill.classList.add("ok");
       else if (["DELAYED","SCHEDULED","BOARDING","TAXIING","UNKNOWN"].includes(t)) pill.classList.add("warn");
       else if (["CANCELLED","CANCELED","DIVERTED"].includes(t)) pill.classList.add("bad");
@@ -545,10 +561,13 @@
       if (!x) return "—";
       const d = new Date(x);
       if (isNaN(d.getTime())) return String(x);
-      return d.toLocaleString([], { weekday:"short", hour:"2-digit", minute:"2-digit", month:"short", day:"numeric" });
+      return d.toLocaleString([], {
+        weekday:"short", month:"short", day:"numeric",
+        hour:"2-digit", minute:"2-digit",
+        timeZoneName:"short"
+      });
     }
 
-    // Basic progress estimate if times exist
     function computeProgress(depActualOrEst, arrEstOrSched){
       try{
         const t0 = depActualOrEst ? new Date(depActualOrEst).getTime() : null;
@@ -563,7 +582,7 @@
     }
 
     function saveRecent(flight, route, status){
-      const key = "isa_recent_flights_v1";
+      const key = "isa_recent_flights_v2";
       const cur = JSON.parse(localStorage.getItem(key) || "[]");
       const item = { flight, route, status, ts: Date.now() };
       const next = [item, ...cur.filter(x => x.flight !== flight)].slice(0, 8);
@@ -571,14 +590,21 @@
       renderRecent();
     }
 
+    function badgeClass(status){
+      const t = String(status || "").toUpperCase();
+      if (["LANDED","ARRIVED","ON TIME","EN ROUTE","ACTIVE","DEPARTED"].includes(t)) return "ok";
+      if (["CANCELLED","CANCELED","DIVERTED"].includes(t)) return "bad";
+      return "warn";
+    }
+
     function renderRecent(){
-      const key = "isa_recent_flights_v1";
+      const key = "isa_recent_flights_v2";
       const list = JSON.parse(localStorage.getItem(key) || "[]");
       const wrap = el("recent");
       wrap.innerHTML = "";
 
       if (!list.length){
-        wrap.innerHTML = `<div class="muted">No tracks yet. Search a flight to start a mission log.</div>`;
+        wrap.innerHTML = `<div class="muted">No recent flights yet.</div>`;
         return;
       }
 
@@ -601,18 +627,125 @@
       });
     }
 
-    function badgeClass(status){
-      const t = String(status || "").toUpperCase();
-      if (["LANDED","ARRIVED","ON TIME","EN ROUTE","ACTIVE","DEPARTED"].includes(t)) return "ok";
-      if (["CANCELLED","CANCELED","DIVERTED"].includes(t)) return "bad";
-      return "warn";
+    // ----------------------------
+    // Live Map (Leaflet)
+    // ----------------------------
+    let map = null;
+    let planeMarker = null;
+    let headingLine = null;
+    let mapInitialized = false;
+
+    function ensureMap(){
+      if (map) return;
+
+      map = L.map("live-map", {
+        zoomControl: true,
+        scrollWheelZoom: true
+      });
+
+      // Free tiles (OpenStreetMap)
+      L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png", {
+        maxZoom: 18
+      }).addTo(map);
+
+      // Start somewhere neutral
+      map.setView([20, 0], 2);
+      mapInitialized = true;
     }
 
+    function makePlaneIcon(){
+      // Simple SVG "plane" marker, rotated via CSS transform
+      const svg = `
+        <svg xmlns="http://www.w3.org/2000/svg" width="36" height="36" viewBox="0 0 24 24">
+          <path fill="rgba(34,211,238,0.95)" d="M21 16v-2l-8-5V3.5a1.5 1.5 0 0 0-3 0V9L2 14v2l8-2.5V19l-2 1.5V22l3-1l3 1v-1.5L13 19v-5.5z"/>
+        </svg>
+      `;
+      return L.divIcon({
+        className: "",
+        html: `<div id="plane-icon" style="width:36px;height:36px;transform-origin:50% 50%;">${svg}</div>`,
+        iconSize: [36, 36],
+        iconAnchor: [18, 18]
+      });
+    }
+
+    function setPlaneRotation(deg){
+      const n = document.getElementById("plane-icon");
+      if (!n) return;
+      const d = Number.isFinite(Number(deg)) ? Number(deg) : 0;
+      n.style.transform = `rotate(${d}deg)`;
+      n.style.filter = "drop-shadow(0 0 10px rgba(34,211,238,0.35))";
+    }
+
+    function drawHeading(lat, lon, hdgDeg){
+      if (!map) return;
+      const hdg = Number.isFinite(Number(hdgDeg)) ? Number(hdgDeg) : null;
+      if (hdg == null) return;
+
+      // Simple heading line projection
+      const distanceKm = 120; // visual line length
+      const rad = Math.PI / 180;
+      const dLat = (distanceKm / 111) * Math.cos(hdg * rad);
+      const dLon = (distanceKm / (111 * Math.cos(lat * rad))) * Math.sin(hdg * rad);
+      const lat2 = lat + dLat;
+      const lon2 = lon + dLon;
+
+      const pts = [[lat, lon], [lat2, lon2]];
+
+      if (!headingLine){
+        headingLine = L.polyline(pts, { weight: 2, opacity: 0.8 }).addTo(map);
+      } else {
+        headingLine.setLatLngs(pts);
+      }
+    }
+
+    function updateMap(liveMap){
+      const wrap = el("map-wrap");
+      const fallback = el("map-fallback");
+
+      if (!liveMap || liveMap.lat == null || liveMap.lon == null){
+        wrap.classList.remove("show");
+        fallback.textContent = "No live position yet.";
+        return;
+      }
+
+      ensureMap();
+
+      const lat = Number(liveMap.lat);
+      const lon = Number(liveMap.lon);
+      const hdg = Number.isFinite(Number(liveMap.hdg_deg)) ? Number(liveMap.hdg_deg) : 0;
+
+      wrap.classList.add("show");
+      fallback.textContent = "";
+
+      if (!planeMarker){
+        planeMarker = L.marker([lat, lon], { icon: makePlaneIcon() }).addTo(map);
+      } else {
+        planeMarker.setLatLng([lat, lon]);
+      }
+
+      setPlaneRotation(hdg);
+      drawHeading(lat, lon, hdg);
+
+      // First time: zoom closer. After that: keep it smooth.
+      if (mapInitialized && !map._isaLocked){
+        map.setView([lat, lon], 5);
+        map._isaLocked = true;
+      } else {
+        map.panTo([lat, lon], { animate: true, duration: 0.5 });
+      }
+
+      const src = String(liveMap.source || "").toUpperCase() || "LIVE";
+      el("map-caption").textContent = `${src} position • ${lat.toFixed(2)}, ${lon.toFixed(2)}`;
+    }
+
+    // ----------------------------
+    // Tracker
+    // ----------------------------
     async function trackFlight(){
       const flight = (el("flight-input").value || "").trim().toUpperCase();
       if (!flight) return;
 
-      el("status-line").textContent = "Acquiring transponder…";
+      el("status-line").textContent = "Acquiring signal…";
       el("result").classList.remove("show");
 
       try{
@@ -638,47 +771,38 @@
         el("r-dep").textContent = `${data?.dep?.iata || "—"} • ${data?.dep?.label || "—"}`;
         el("r-arr").textContent = `${data?.arr?.iata || "—"} • ${data?.arr?.label || "—"}`;
 
-
-        el("r-dep-time").textContent =
-          `Sched ${fmtTime(data?.dep?.sched)} • Est ${fmtTime(data?.dep?.est)} • Act ${fmtTime(data?.dep?.actual)}`;
-
-        el("r-arr-time").textContent =
-          `Sched ${fmtTime(data?.arr?.sched)} • Est ${fmtTime(data?.arr?.est)} • Act ${fmtTime(data?.arr?.actual)}`;
-
-        // Aircraft
-        el("r-aircraft").textContent = (data?.aircraft?.type || data?.aircraft?.reg) ? "Aircraft info available" : "Aircraft info not provided";
-        el("r-reg").textContent = data?.aircraft?.reg ? `Reg ${data.aircraft.reg}` : "—";
+        el("r-dep-time").textContent = `Sched ${fmtTime(data?.dep?.sched)} • Est ${fmtTime(data?.dep?.est)} • Act ${fmtTime(data?.dep?.actual)}`;
+        el("r-arr-time").textContent = `Sched ${fmtTime(data?.arr?.sched)} • Est ${fmtTime(data?.arr?.est)} • Act ${fmtTime(data?.arr?.actual)}`;
 
         // Progress
-        const pFromBackend = Number.isFinite(Number(data?.progress_pct)) ? Number(data.progress_pct) : null;
         const pFromTimes = computeProgress(data?.dep?.actual || data?.dep?.est, data?.arr?.est || data?.arr?.sched);
-        const pct = (pFromBackend != null && pFromBackend > 0) ? pFromBackend : (pFromTimes != null ? pFromTimes : null);
-        if (pct == null){
+        if (pFromTimes == null){
           el("r-progress-text").textContent = "—";
           el("r-progress-fill").style.width = "0%";
           el("r-progress-sub").textContent = "Progress estimate unavailable.";
         } else {
-          const p = Math.max(0, Math.min(100, pct));
+          const p = Math.max(0, Math.min(100, pFromTimes));
           el("r-progress-text").textContent = `${p}% to destination`;
           el("r-progress-fill").style.width = `${p}%`;
-          el("r-progress-sub").textContent = "Time-based estimate (improves when we add live position).";
+          el("r-progress-sub").textContent = "Time-based estimate.";
         }
 
-
-        // Live (optional)
+        // Live (no clutter)
         const live = data?.live;
         el("r-live").textContent = live
           ? `${(live.on_ground === false) ? "Airborne" : "On ground"} • Alt ${live.alt_ft ?? "—"} ft • Speed ${live.gs_kt ?? "—"} kt`
-            + (live.source ? ` • Source: ${String(live.source).toUpperCase()}` : "")
-          : "Live position not available right now.";
+          : "No live telemetry.";
 
-        // Extras (terminal/gate if present)
+        // Terminal/Gate (only if present)
         const extras = [];
         if (data?.dep?.terminal) extras.push(`DEP T${data.dep.terminal}`);
         if (data?.dep?.gate) extras.push(`DEP G${data.dep.gate}`);
         if (data?.arr?.terminal) extras.push(`ARR T${data.arr.terminal}`);
         if (data?.arr?.gate) extras.push(`ARR G${data.arr.gate}`);
-        el("r-extra").textContent = extras.length ? extras.join(" • ") : "Terminal/Gate may appear if your provider returns it.";
+        el("r-extra").textContent = extras.length ? extras.join(" • ") : "—";
+
+        // Map update (SAFE: handles null)
+        updateMap(data?.live_map);
 
         el("result").classList.add("show");
         el("status-line").textContent = "";
@@ -691,14 +815,7 @@
       }
     }
 
-    function fmtNum(x, n){
-      if (x == null) return "—";
-      const v = Number(x);
-      if (!Number.isFinite(v)) return String(x);
-      return v.toFixed(n);
-    }
-
-    // Enter key to search
+    // Enter key
     document.addEventListener("DOMContentLoaded", () => {
       renderRecent();
       el("flight-input").addEventListener("keydown", (e) => {
