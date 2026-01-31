@@ -558,15 +558,9 @@
     }
 
     function fmtTime(x){
-      if (!x) return "—";
-      const d = new Date(x);
-      if (isNaN(d.getTime())) return String(x);
-      return d.toLocaleString([], {
-        weekday:"short", month:"short", day:"numeric",
-        hour:"2-digit", minute:"2-digit",
-        timeZoneName:"short"
-      });
+      return x || "—";
     }
+
 
     function computeProgress(depActualOrEst, arrEstOrSched){
       try{
@@ -771,8 +765,11 @@
         el("r-dep").textContent = `${data?.dep?.iata || "—"} • ${data?.dep?.label || "—"}`;
         el("r-arr").textContent = `${data?.arr?.iata || "—"} • ${data?.arr?.label || "—"}`;
 
-        el("r-dep-time").textContent = `Sched ${fmtTime(data?.dep?.sched)} • Est ${fmtTime(data?.dep?.est)} • Act ${fmtTime(data?.dep?.actual)}`;
-        el("r-arr-time").textContent = `Sched ${fmtTime(data?.arr?.sched)} • Est ${fmtTime(data?.arr?.est)} • Act ${fmtTime(data?.arr?.actual)}`;
+        el("r-dep-time").textContent =
+          `Sched ${fmtTime(data?.dep?.sched_local)} • Est ${fmtTime(data?.dep?.est_local)} • Act ${fmtTime(data?.dep?.actual_local)}`;
+        el("r-arr-time").textContent =
+          `Sched ${fmtTime(data?.arr?.sched_local)} • Est ${fmtTime(data?.arr?.est_local)} • Act ${fmtTime(data?.arr?.actual_local)}`;
+
 
         // Progress
         const pFromTimes = computeProgress(data?.dep?.actual || data?.dep?.est, data?.arr?.est || data?.arr?.sched);

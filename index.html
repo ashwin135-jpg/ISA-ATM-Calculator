@@ -7,749 +7,908 @@
 
   <link href="https://unpkg.com/aos@2.3.1/dist/aos.css" rel="stylesheet">
   <script src="https://unpkg.com/@lottiefiles/lottie-player@latest/dist/lottie-player.js"></script>
-
-  <!-- Airport fuzzy search -->
   <script src="https://cdn.jsdelivr.net/npm/fuse.js@6.6.2"></script>
 
   <style>
-    body { margin: 0; font-family: 'Segoe UI', sans-serif; background: #050816; color: white; }
-    header { text-align: center; padding: 40px 20px 20px; }
-    header h1 { font-size: 2.5rem; margin-bottom: 10px; }
-    header p { font-size: 1.2rem; color: #ccc; }
+  :root{
+    --bg:#050816;
+    --stroke: rgba(148,163,184,0.14);
+    --text:#e8f0ff;
+    --muted:#a7b3d6;
 
-    .dashboard-section {
-      padding: 40px 20px 60px;
-      background: radial-gradient(circle at top, #050816 0, #020617 55%, #000000 100%);
-      color: #e5ecff;
-    }
-    .dashboard-title {
-      max-width: 1100px; margin: 0 auto 20px auto;
-      display: flex; justify-content: space-between; align-items: center; gap: 10px;
-    }
-    .dashboard-title-main { font-size: 1.4rem; font-weight: 600; letter-spacing: 0.03em; }
-    .dashboard-subtext { font-size: 0.9rem; color: #a6b4d9; }
-    .tag-pill {
-      display: inline-flex; align-items: center; justify-content: center;
-      padding: 4px 10px; border-radius: 999px;
-      font-size: 0.7rem; text-transform: uppercase; letter-spacing: 0.09em;
-      background: linear-gradient(135deg, rgba(34,211,238,0.18), rgba(129,140,248,0.25));
-      color: #e0faff; border: 1px solid rgba(56,189,248,0.6);
-      box-shadow: 0 0 16px rgba(45,212,191,0.5);
-    }
-    .dashboard-grid {
-      max-width: 1100px; margin: 0 auto;
-      display: grid; grid-template-columns: 1.2fr 1.8fr;
-      grid-template-rows: auto auto; gap: 20px;
-    }
+    /* ISA accents */
+    --a1:#22d3ee; /* cyan */
+    --a2:#818cf8; /* indigo */
+    --a3:#38bdf8; /* sky */
 
-    .dash-card {
-      background: radial-gradient(circle at top left, #111827 0, #020617 75%);
-      border-radius: 22px; padding: 18px 20px;
-      box-shadow: 0 22px 50px rgba(0,0,0,0.75);
-      border: 1px solid rgba(148,163,184,0.25);
-      color: #e5ecff;
-      transition: transform 0.2s ease, box-shadow 0.2s ease, border-color 0.2s ease;
-    }
-    .dash-card:hover { transform: translateY(-4px); box-shadow: 0 28px 70px rgba(15,23,42,0.95); border-color: rgba(56,189,248,0.6); }
-    .dash-card h3 { margin-top: 0; margin-bottom: 8px; font-size: 1rem; font-weight: 600; letter-spacing: 0.06em; text-transform: uppercase; color: #f9fbff; }
+    /* SkyLab-ish surfaces */
+    --hero-grad: radial-gradient(circle at top, #0b1636 0%, #070f24 55%, #03060f 100%);
+    --card-grad: linear-gradient(180deg, rgba(255,255,255,0.06), rgba(255,255,255,0.03));
+    --shadow-soft: 0 22px 60px rgba(0,0,0,0.42);
+    --shadow: 0 30px 80px rgba(0,0,0,0.55);
+  }
 
-    .dash-row { display: flex; justify-content: space-between; align-items: center; gap: 10px; }
-    .big-city { font-size: 1.4rem; font-weight: 600; color: #f9fafb; }
-    .big-time { font-size: 2.7rem; font-weight: 700; color: #e5f3ff; }
-    .date-line { font-size: 0.85rem; color: #9ca9c9; margin-top: 4px; }
+  *{box-sizing:border-box}
+  html { scroll-behavior: smooth; }
+  body{
+    margin:0;
+    font-family: "Segoe UI", system-ui, -apple-system, Arial, sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    font-weight: 430;                 /* thinner overall */
+  }
+  a{color:inherit}
 
-    .metric-label { font-size: 0.75rem; text-transform: uppercase; letter-spacing: 0.1em; color: #9ca3ff; margin-bottom: 4px; }
-    .metric-value { font-size: 1.2rem; font-weight: 600; color: #e0f2ff; }
-    .metric-small { font-size: 0.85rem; color: #c0cbe9; }
+  /* ========= Top Nav ========= */
+  .top-nav{
+    position: sticky;
+    top:0;
+    z-index:9999;
+    backdrop-filter: blur(12px);
+    background: linear-gradient(to bottom, rgba(5,8,22,0.92), rgba(5,8,22,0.55));
+    border-bottom: 1px solid var(--stroke);
+  }
+  .top-nav-inner{
+    max-width: 1180px;
+    margin:0 auto;
+    padding: 12px 18px;
+    display:flex;
+    align-items:center;
+    justify-content:space-between;
+    gap:12px;
+  }
 
-    .divider-line { height: 1px; background: linear-gradient(to right, transparent, rgba(148,163,184,0.5), transparent); margin: 10px 0 12px; }
-    .forecast-row { display: flex; justify-content: space-between; font-size: 0.8rem; color: #d2deef; margin: 3px 0; }
+  .brand{
+    display:flex;
+    align-items:center;
+    gap:10px;
+    user-select:none;
+    font-weight:650;                  /* thinner */
+    letter-spacing:0.02em;
+    min-width: 220px;
+  }
+  .brand-badge{
+    width:36px;height:36px;
+    border-radius:12px;
+    display:flex;align-items:center;justify-content:center;
+    background: linear-gradient(135deg, rgba(34,211,238,0.22), rgba(129,140,248,0.18));
+    border: 1px solid rgba(56,189,248,0.35);
+    box-shadow: 0 0 18px rgba(34,211,238,0.18);
+    overflow:hidden;
+  }
+  .brand-badge img{
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    display:block;
+  }
 
-    .news-bullet { font-size: 0.82rem; margin: 3px 0; color: #d3e2ff; }
-    .news-link { color: #7dd3fc; text-decoration: none; }
-    .news-link:hover { text-decoration: underline; color: #a5b4fc; }
+  .brand-badge svg{
+    transform: rotate(90deg);
+    transform-origin: 50% 50%;
+  }
 
-    .ai-search { margin-top: 12px; display: flex; gap: 8px; align-items: center; }
-    .ai-input {
-      flex: 1; padding: 8px 10px; border-radius: 999px;
-      border: 1px solid rgba(148,163,184,0.6);
-      background: rgba(15,23,42,0.9);
-      color: #e5ecff; font-size: 0.85rem; outline: none;
-      box-shadow: 0 0 0 1px rgba(15,23,42,0.7);
-    }
-    .ai-input::placeholder { color: #9ca3c7; }
-    .ai-input:focus { border-color: rgba(56,189,248,0.9); box-shadow: 0 0 18px rgba(56,189,248,0.55); }
-    .ai-button {
-      padding: 8px 14px; border-radius: 999px; border: none;
-      font-size: 0.85rem; font-weight: 600; cursor: pointer;
-      background: linear-gradient(135deg, #22c55e, #22d3ee);
-      color: #020617; box-shadow: 0 18px 35px rgba(34,197,94,0.45);
-      white-space: nowrap;
-    }
-    .ai-button:hover { filter: brightness(1.08); box-shadow: 0 20px 45px rgba(34,197,94,0.7); }
-    .ai-status { font-size: 0.78rem; color: #a5b4fc; margin-top: 6px; }
-    .ai-answer-bubble {
-      margin-top: 8px; padding: 10px 12px; border-radius: 16px;
-      background: radial-gradient(circle at top left, #0ea5e9 0, #1e293b 55%);
-      color: #ecfeff; font-size: 0.9rem; line-height: 1.4;
-      box-shadow: 0 14px 30px rgba(15, 23, 42, 0.9);
-      opacity: 0; transform: translateY(8px) scale(0.98);
-      transition: opacity 0.25s ease-out, transform 0.25s ease-out;
-    }
-    .ai-answer-bubble.show { opacity: 1; transform: translateY(0) scale(1); }
-    .hidden { display: none; }
+  .brand-title{
+    display:flex;
+    flex-direction:column;
+    line-height:1.05;
+  }
+  .brand-title .t1{font-size:0.96rem; font-weight:650;}
+  .brand-title .t2{font-size:0.74rem;color:var(--muted);font-weight:520;}
 
-    .airport-row { display: flex; gap: 8px; align-items: center; margin-top: 4px; position: relative; }
-    .airport-input {
-      flex: 1; padding: 8px 12px; border-radius: 999px;
-      border: 1px solid rgba(148,163,184,0.7);
-      background: rgba(15,23,42,0.9);
-      color: #e5ecff; font-size: 0.85rem; outline: none;
-    }
-    .airport-input:focus { border-color: rgba(56,189,248,0.9); box-shadow: 0 0 12px rgba(56,189,248,0.6); }
-    .geo-button {
-      padding: 8px 12px; border-radius: 999px; border: none;
-      font-size: 0.8rem; cursor: pointer; white-space: nowrap;
-      background: linear-gradient(135deg, #22c55e, #22d3ee);
-      color: #020617; box-shadow: 0 10px 20px rgba(34,197,94,0.4);
-    }
-    .geo-button:hover { filter: brightness(1.06); }
+  .menu{
+    display:flex;
+    align-items:center;
+    gap:10px;
+    flex-wrap:wrap;
+    justify-content:flex-end;
+  }
+  .menu a{
+    text-decoration:none;
+    font-weight:600;                  /* thinner */
+    font-size:0.88rem;
+    padding: 8px 12px;
+    border-radius:999px;
+    border: 1px solid rgba(148,163,184,0.16);
+    background: rgba(2, 6, 23, 0.35);
+    transition: transform .15s ease, box-shadow .15s ease, border-color .15s ease, filter .15s ease;
+    white-space:nowrap;
+    color:#d8e6ff;
+  }
+  .menu a:hover{
+    border-color: rgba(56,189,248,0.45);
+    box-shadow: 0 0 16px rgba(56,189,248,0.14);
+    transform: translateY(-1px);
+  }
 
-    .airport-dd {
-      position: absolute;
-      left: 0; right: 0; top: calc(100% + 6px);
-      background: rgba(2, 6, 23, 0.95);
-      border: 1px solid rgba(148,163,184,0.25);
-      border-radius: 14px;
-      overflow: hidden;
-      box-shadow: 0 20px 60px rgba(0,0,0,0.65);
-      z-index: 999;
-      display: none;
-    }
-    .airport-dd.show { display: block; }
-    .airport-dd-item {
-      padding: 10px 12px; cursor: pointer;
-      font-size: 0.86rem; color: #e5ecff;
-      border-bottom: 1px solid rgba(148,163,184,0.12);
-    }
-    .airport-dd-item:hover { background: rgba(56,189,248,0.12); }
-    .airport-dd-empty { padding: 10px 12px; color: #a6b4d9; font-size: 0.85rem; }
+  @media (max-width: 820px){
+    .brand-title .t2{display:none}
+    .menu a{font-size:0.84rem;padding:7px 10px}
+  }
+  @media (max-width: 520px){
+    .brand-title{display:none}
+    .brand{min-width:auto}
+  }
 
-    #alt-ft { accent-color: #22d3ee; }
-    #wx-conditions, #wx-wind, #winds-aloft { text-shadow: 0 0 18px rgba(56,189,248,0.25); }
+  /* ========= Hero (SkyLab spacing, title + gradient, lottie in background) ========= */
+  .hero{
+    background: var(--hero-grad);
+    position: relative;
+    overflow:hidden;
+    isolation: isolate;           /* prevents stacking issues */
+    min-height: 360px;
+    display:flex;
+    align-items:center;
+  }
 
-    @media (max-width: 900px) {
-      .dashboard-title { flex-direction: column; align-items: flex-start; }
-      .dashboard-grid { grid-template-columns: 1fr; }
-    }
+  /* background lottie layer */
+  .hero-bg-lottie{
+    position:absolute;
+    inset:-40px;
+    z-index:0;
+    pointer-events:none;
+    opacity: 0.16;
+    filter: blur(0.4px) saturate(0.9);
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    transform: translateY(8px);
+  }
+  .hero-bg-lottie lottie-player{
+    width: min(1400px, 120vw);
+    height: 520px;
+  }
 
-    section.tools-section { background: white; color: black; padding: 60px 30px; text-align: center; }
-    h2 { margin-bottom: 40px; }
-    .button-grid { display: flex; flex-wrap: wrap; justify-content: center; gap: 20px; }
-    .tool-button {
-      background: black; color: white; padding: 20px 30px; border-radius: 10px;
-      font-size: 1rem; font-weight: bold; text-decoration: none;
-      width: 260px; transition: transform 0.2s ease;
-    }
-    .tool-button:hover { background: #222; transform: scale(1.05); }
+  /* readable overlay */
+  .hero-overlay{
+    position:absolute;
+    inset:0;
+    z-index:1;
+    pointer-events:none;
+    background:
+      radial-gradient(circle at 50% 35%, rgba(0,0,0,0.10), rgba(0,0,0,0.55) 70%),
+      linear-gradient(to bottom, rgba(5,8,22,0.25), rgba(5,8,22,0.80));
+  }
 
-    footer { text-align: center; padding: 20px; font-size: 0.8rem; color: #aaa; background: #000; }
+  /* foreground */
+  .hero-inner{
+    position: relative;
+    z-index:2;
+    max-width: 1100px;
+    margin:0 auto;
+    padding: 62px 18px 56px;
+    display:flex;
+    flex-direction:column;
+    align-items:center;
+    text-align:center;
+    gap: 12px;
+  }
 
-    lottie-player { width: 300px; height: 300px; margin: 20px auto; display: block; }
-    @media (min-width: 768px) { lottie-player { width: 800px !important; height: 400px !important; } }
-    @media (max-width: 600px) {
-      header { padding: 60px 20px 30px; }
-      lottie-player { width: 90% !important; max-width: 320px; height: auto !important; }
-      .tool-button { width: 90%; }
-    }
+  /* NEW: ISA title with gradient like SkyLab */
+  .hero-title{
+    margin:0;
+    font-size: clamp(2.0rem, 4.4vw, 3.2rem);
+    font-weight: 650;                 /* thinner */
+    letter-spacing: 0.01em;
+    background: linear-gradient(90deg, var(--a1), var(--a3), var(--a2));
+    -webkit-background-clip: text;
+    background-clip: text;
+    color: transparent;
+    text-shadow: 0 10px 28px rgba(0,0,0,0.28);
+  }
 
-    /* METAR pill */
-    .metar-pill {
-      display: inline-flex; align-items: center; justify-content: center;
-      padding: 4px 10px; border-radius: 999px;
-      font-size: 0.72rem; letter-spacing: 0.08em; text-transform: uppercase;
-      border: 1px solid rgba(148,163,184,0.25);
-      background: rgba(2, 6, 23, 0.55);
-      color: #cfe6ff;
-    }
-    .metar-pill.good { border-color: rgba(34,197,94,0.35); box-shadow: 0 0 18px rgba(34,197,94,0.18); }
-    .metar-pill.warn { border-color: rgba(251,191,36,0.35); box-shadow: 0 0 18px rgba(251,191,36,0.14); }
-    .metar-pill.bad  { border-color: rgba(239,68,68,0.35); box-shadow: 0 0 18px rgba(239,68,68,0.14); }
+  .hero-sub{
+    margin:0;
+    max-width: 860px;
+    color: rgba(216,230,255,0.78);
+    font-size: 1.02rem;
+    line-height:1.6;
+    font-weight: 420;                 /* thinner */
+  }
 
-    /* Google-style METAR grid */
-    .metar-grid{
-      display:grid;
-      grid-template-columns: repeat(2, minmax(0,1fr));
-      gap:12px;
-      margin-top: 8px;
-    }
-    .metar-kv{
-      border: 1px solid rgba(148,163,184,0.18);
-      background: rgba(2,6,23,0.35);
-      border-radius: 14px;
-      padding: 10px 12px;
-    }
-    .metar-kv-span{ grid-column: 1 / -1; }
-    .metar-k2{
-      font-size: 0.72rem;
-      text-transform: uppercase;
-      letter-spacing: 0.1em;
-      color: #9ca3ff;
-      margin-bottom: 4px;
-    }
-    .metar-v2{
-      font-size: 1.0rem;
-      font-weight: 650;
-      color: #e0f2ff;
-    }
-    .metar-collapse{
-      width:100%;
-      padding: 10px 12px;
-      border-radius: 14px;
-      border: 1px solid rgba(148,163,184,0.22);
-      background: rgba(15,23,42,0.55);
-      color:#cfe6ff;
-      cursor:pointer;
-      font-weight: 650;
-    }
-    .metar-collapse:hover{
-      border-color: rgba(56,189,248,0.55);
-      box-shadow: 0 0 14px rgba(56,189,248,0.18);
-    }
-    .metar-raw {
-      margin-top: 10px;
-      padding: 10px 12px;
-      border-radius: 14px;
-      background: rgba(15,23,42,0.55);
-      font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
-      font-size: 0.86rem;
-      color: #cbd5ff;
-      white-space: pre-wrap;
-      word-break: break-word;
-      border: 1px solid rgba(148,163,184,0.18);
-    }
+  .hero-search{
+    margin-top: 10px;
+    display:flex;
+    gap:12px;
+    width: min(760px, 92vw);
+    align-items:center;
+    justify-content:center;
+  }
+  .hero-search input{
+    flex:1;
+    padding: 14px 16px;
+    border-radius: 12px;
+    border: 1px solid rgba(148,163,184,0.18);
+    background: rgba(255,255,255,0.06);
+    color: var(--text);
+    outline:none;
+    font-size: 0.98rem;
+    font-weight: 450;
+    box-shadow: 0 0 0 1px rgba(3,6,15,0.35);
+  }
+  .hero-search input::placeholder{color: rgba(167,179,214,0.85)}
+  .hero-search input:focus{
+    border-color: rgba(56,189,248,0.45);
+    box-shadow: 0 0 20px rgba(56,189,248,0.16);
+  }
+  .hero-search button{
+    padding: 14px 16px;
+    border-radius: 12px;
+    border:none;
+    cursor:pointer;
+    font-weight:650;                  /* thinner */
+    background: linear-gradient(135deg, rgba(56,189,248,0.95), rgba(129,140,248,0.95));
+    color:#061021;
+    min-width: 90px;
+    box-shadow: 0 18px 36px rgba(56,189,248,0.18);
+  }
+  .hero-search button:hover{filter:brightness(1.06)}
 
-    /* ===== Top Menu ===== */
-      html { scroll-behavior: smooth; } /* smooth anchor scroll */
+  @media (max-width: 680px){
+    .hero{ min-height: 320px; }
+    .hero-inner{ padding: 48px 16px 44px; }
+    .hero-bg-lottie lottie-player{ height: 440px; }
+    .hero-sub{ font-size: 0.98rem; }
+  }
 
-      .top-nav{
-        position: sticky;
-        top: 0;
-        z-index: 9999;
-        backdrop-filter: blur(12px);
-        background: linear-gradient(to bottom, rgba(5,8,22,0.88), rgba(5,8,22,0.55));
-        border-bottom: 1px solid rgba(148,163,184,0.18);
-      }
+  /* ========= Main content wrapper ========= */
+  .section{
+    padding: 40px 18px 90px;
+    background: radial-gradient(circle at top, #050816 0, #020617 55%, #000 100%);
+  }
+  .wrap{
+    max-width: 1180px;
+    margin: 0 auto;
+  }
 
-      .top-nav-inner{
-        max-width: 1100px;
-        margin: 0 auto;
-        padding: 12px 18px;
-        display:flex;
-        justify-content:space-between;
-        align-items:center;
-        gap: 12px;
-      }
+  /* ========= Weather block (matches SkyLab layout) ========= */
+  .weather-block{
+    margin-top: -58px; /* float into hero like SkyLab */
+    display:grid;
+    grid-template-columns: 1.9fr 1fr;
+    gap: 22px;
+    align-items:stretch;
+  }
+  @media (max-width: 980px){
+    .weather-block{grid-template-columns: 1fr; margin-top: -42px;}
+  }
 
-      .top-brand{
-        display:flex;
-        align-items:center;
-        gap:10px;
-        user-select:none;
-      }
+  .panel{
+    background: var(--card-grad);
+    border: 1px solid var(--stroke);
+    border-radius: 18px;
+    box-shadow: var(--shadow-soft);
+    overflow:hidden;
+  }
 
-      .top-dot{
-        width: 12px;
-        height: 12px;
-        border-radius: 999px;
-        background: linear-gradient(135deg, #22d3ee, #818cf8);
-        box-shadow: 0 0 18px rgba(34,211,238,0.45);
-        border: 1px solid rgba(56,189,248,0.55);
-      }
+  /* ===== UPDATED: Futuristic ISA blue weather card ===== */
+  .wx-card{
+    background:
+      radial-gradient(circle at 18% 18%, rgba(34,211,238,0.38), transparent 55%),
+      radial-gradient(circle at 82% 22%, rgba(129,140,248,0.30), transparent 58%),
+      linear-gradient(135deg, #0b2a66 0%, #0a3a8a 40%, #0a57c7 100%);
+    border-radius: 18px;
+    padding: 26px 26px 18px;
+    min-height: 260px;
+    position:relative;
+    border: 1px solid rgba(255,255,255,0.10);
+  }
 
-      .top-title{
-        font-weight: 700;
-        letter-spacing: 0.03em;
-        color: #e5ecff;
-        font-size: 0.95rem;
-      }
+  .wx-top{
+    display:flex;
+    align-items:flex-start;
+    justify-content:space-between;
+    gap:14px;
+  }
+  .wx-station-code{
+    font-weight:650;
+    font-size:0.84rem;
+    letter-spacing:0.12em;
+    opacity:0.95;
+    text-transform:uppercase;
+  }
+  .wx-station-name{
+    margin-top:6px;
+    font-weight:650;
+    font-size: 1.35rem;
+    letter-spacing:0.01em;
+  }
 
-      .top-links{
-        display:flex;
-        align-items:center;
-        gap: 10px;
-      }
+  .wx-mid{
+    margin-top: 18px;
+    display:flex;
+    align-items:center;
+    justify-content:space-between;
+    gap: 16px;
+  }
+  .wx-temp{
+    font-size: 3.8rem;
+    font-weight: 650;
+    letter-spacing:-0.02em;
+    line-height:0.95;
+  }
+  .wx-desc{
+    margin-top: 8px;
+    font-size: 1.02rem;
+    color: rgba(245,250,255,0.9);
+    font-weight:520;
+  }
 
-      .top-link{
-        text-decoration:none;
-        color: #cfe6ff;
-        font-weight: 650;
-        font-size: 0.85rem;
-        padding: 8px 12px;
-        border-radius: 999px;
-        border: 1px solid rgba(148,163,184,0.20);
-        background: rgba(2, 6, 23, 0.35);
-        transition: transform .15s ease, box-shadow .15s ease, border-color .15s ease, filter .15s ease;
-        white-space: nowrap;
-      }
+  .wx-iconbox{
+    display:flex;
+    flex-direction:column;
+    align-items:center;
+    justify-content:center;
+    gap:8px;
+    min-width: 110px;
+  }
+  .wx-icon{
+    width: 68px;
+    height: 68px;
+    border-radius: 16px;
+    background: rgba(255,255,255,0.10);
+    border: 1px solid rgba(255,255,255,0.12);
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    font-size: 28px;
+    box-shadow: 0 18px 40px rgba(0,0,0,0.25);
+  }
+  .wx-icon-label{
+    font-weight:600;
+    font-size:0.92rem;
+    color: rgba(245,250,255,0.9);
+  }
 
-      .top-link:hover{
-        border-color: rgba(56,189,248,0.55);
-        box-shadow: 0 0 14px rgba(56,189,248,0.18);
-        transform: translateY(-1px);
-      }
+  .wx-metrics{
+    margin-top: 18px;
+    padding-top: 14px;
+    border-top: 1px solid rgba(255,255,255,0.14);
+    display:grid;
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+    gap: 12px;
+    color: rgba(245,250,255,0.92);
+  }
+  @media (max-width: 640px){
+    .wx-metrics{grid-template-columns: repeat(2, minmax(0, 1fr));}
+  }
+  .wx-metric .k{
+    font-size:0.78rem;
+    opacity:0.88;
+    letter-spacing:0.06em;
+    font-weight:600;
+  }
+  .wx-metric .v{
+    margin-top:6px;
+    font-size:1.05rem;
+    font-weight:650;
+    letter-spacing:0.01em;
+  }
 
-      .top-cta{
-        background: linear-gradient(135deg, rgba(34,197,94,0.95), rgba(34,211,238,0.95));
-        color: #020617;
-        border: none;
-        box-shadow: 0 14px 28px rgba(34,197,94,0.25);
-      }
+  /* Raw METAR strip */
+  .raw-strip{
+    padding: 14px 16px;
+    border-top: 1px solid rgba(255,255,255,0.14);
+    background: rgba(0,0,0,0.14);
+  }
+  .raw-strip .label{
+    font-size:0.76rem;
+    letter-spacing:0.12em;
+    text-transform:uppercase;
+    color: rgba(245,250,255,0.78);
+    margin-bottom: 8px;
+    font-weight:650;
+  }
+  .raw-strip pre{
+    margin:0;
+    font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
+    font-size: 0.9rem;
+    line-height:1.5;
+    color: rgba(220,240,255,0.92);
+    white-space: pre-wrap;
+    word-break: break-word;
+  }
 
-      .top-cta:hover{
-        filter: brightness(1.06);
-        box-shadow: 0 18px 40px rgba(34,197,94,0.42);
-      }
+  /* what to wear */
+  .wear-card{
+    border-radius: 18px;
+    padding: 18px;
+    background: linear-gradient(180deg, rgba(255,255,255,0.06), rgba(255,255,255,0.03));
+    border: 1px solid rgba(148,163,184,0.14);
+    box-shadow: var(--shadow-soft);
+    min-height: 260px;
+    display:flex;
+    flex-direction:column;
+    gap: 12px;
+  }
+  .wear-head{
+    display:flex;
+    align-items:center;
+    justify-content:space-between;
+    gap: 10px;
+    margin-bottom: 2px;
+  }
+  .wear-title{
+    display:flex;
+    align-items:center;
+    gap:10px;
+    font-weight:650;
+    font-size: 1.05rem;
+  }
+  .wear-badge{
+    width: 36px;
+    height: 36px;
+    border-radius: 12px;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    background: rgba(56,189,248,0.14);
+    border: 1px solid rgba(56,189,248,0.22);
+    box-shadow: 0 0 16px rgba(56,189,248,0.10);
+  }
+  .wear-temp{
+    color: rgba(167,179,214,0.92);
+    font-weight:600;
+  }
 
-      /* prevent sticky nav from covering anchors */
-      #dashboard, #calculators { scroll-margin-top: 80px; }
+  .wear-field{
+    background: rgba(0,0,0,0.14);
+    border: 1px solid rgba(148,163,184,0.14);
+    border-radius: 12px;
+    padding: 12px 12px;
+    display:flex;
+    align-items:center;
+    justify-content:space-between;
+    gap: 10px;
+  }
+  .wear-field .k{color: rgba(167,179,214,0.92); font-weight:600; font-size:0.86rem;}
+  .wear-field .v{font-weight:650; color:#eaf4ff; font-size:0.94rem; text-align:right;}
 
-      @media (max-width: 600px){
-        .top-nav-inner{ padding: 10px 12px; }
-        .top-title{ display:none; } /* keep it clean on mobile */
-        .top-link{ padding: 7px 10px; font-size: 0.82rem; }
-      }
+  .wear-note{
+    margin-top:auto;
+    background: linear-gradient(135deg, rgba(56,189,248,0.12), rgba(34,197,94,0.08));
+    border: 1px solid rgba(148,163,184,0.14);
+    border-radius: 12px;
+    padding: 12px 12px;
+    color: rgba(225,250,255,0.92);
+    font-weight:520;
+    font-size: 0.92rem;
+  }
 
-  </style>
+  /* ========= Secondary row ========= */
+  .secondary{
+    margin-top: 28px;
+    display:grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 22px;
+  }
+  @media (max-width: 980px){ .secondary{grid-template-columns:1fr;} }
+
+  .card{
+    background: var(--card-grad);
+    border: 1px solid var(--stroke);
+    border-radius: 18px;
+    padding: 16px 18px;
+    box-shadow: var(--shadow-soft);
+  }
+  .card h3{
+    margin:0 0 10px;
+    font-size: 0.92rem;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: rgba(235,245,255,0.92);
+    font-weight:650;
+  }
+  .row{display:flex;align-items:center;justify-content:space-between;gap:12px;}
+  .muted{color: var(--muted); font-size:0.9rem;}
+  .big{font-size:1.9rem;font-weight:650;}
+  .pill{
+    display:inline-flex;
+    align-items:center;
+    justify-content:center;
+    padding: 6px 10px;
+    border-radius:999px;
+    border: 1px solid rgba(148,163,184,0.18);
+    background: rgba(0,0,0,0.14);
+    color: rgba(230,245,255,0.9);
+    font-weight:650;
+    font-size:0.84rem;
+    white-space:nowrap;
+  }
+  input[type="range"]{width:100%; accent-color: var(--a1);}
+
+  /* ========= Explore tiles ========= */
+  .explore{
+    margin-top: 28px;
+    padding: 22px;
+    border-radius: 18px;
+    border: 1px solid rgba(148,163,184,0.14);
+    background: linear-gradient(180deg, rgba(255,255,255,0.03), rgba(255,255,255,0.015));
+    box-shadow: 0 18px 46px rgba(0,0,0,0.35);
+  }
+  .explore h2{
+    margin:0 0 14px;
+    font-size: 1.15rem;
+    font-weight: 650;
+    letter-spacing:0.01em;
+  }
+  .tiles{
+    display:grid;
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+    gap: 14px;
+  }
+  @media (max-width: 980px){ .tiles{grid-template-columns: repeat(2, minmax(0, 1fr));} }
+  @media (max-width: 520px){ .tiles{grid-template-columns: 1fr;} }
+
+  .tile{
+    text-decoration:none;
+    background: rgba(0,0,0,0.14);
+    border: 1px solid rgba(148,163,184,0.14);
+    border-radius: 16px;
+    padding: 16px;
+    min-height: 122px;
+    display:flex;
+    flex-direction:column;
+    gap: 10px;
+    transition: transform .16s ease, box-shadow .16s ease, border-color .16s ease;
+  }
+  .tile:hover{
+    transform: translateY(-6px);
+    border-color: rgba(56,189,248,0.30);
+    box-shadow: 0 22px 56px rgba(0,0,0,0.5);
+  }
+  .tile .icon{
+    width: 44px;
+    height: 44px;
+    border-radius: 14px;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    font-weight: 650;
+    color: #071024;
+    box-shadow: 0 18px 36px rgba(0,0,0,0.25);
+  }
+  .i1{background: linear-gradient(135deg, rgba(56,189,248,0.95), rgba(34,211,238,0.90));}
+  .i2{background: linear-gradient(135deg, rgba(129,140,248,0.95), rgba(56,189,248,0.85));}
+  .i3{background: linear-gradient(135deg, rgba(34,197,94,0.92), rgba(34,211,238,0.85));}
+  .i4{background: linear-gradient(135deg, rgba(251,191,36,0.95), rgba(56,189,248,0.75));}
+
+  .tile .t{font-weight:650; font-size:1.02rem;}
+  .tile .d{color: rgba(167,179,214,0.9); font-weight:450; font-size:0.92rem; line-height:1.35;}
+  .tile .arrow{margin-top:auto; color: rgba(167,179,214,0.95); font-weight:650;}
+
+  /* Footer */
+  footer{
+    padding: 22px 18px;
+    text-align:center;
+    color: rgba(167,179,214,0.8);
+    border-top: 1px solid rgba(148,163,184,0.10);
+    background: #000;
+  }
+
+  #dashboard, #explore, #resources { scroll-margin-top: 88px; }
+</style>
+
 </head>
 
 <body>
-
+  <!-- TOP NAV -->
   <nav class="top-nav" data-aos="fade-down">
     <div class="top-nav-inner">
-      <div class="top-brand">
-        <span class="top-dot"></span>
-        <span class="top-title">ISA Master Tool</span>
+      <div class="brand">
+        <div class="brand-badge" aria-hidden="true">
+          <!-- If you have a logo, set src="isa_logo.png" (or your URL). Otherwise the SVG shows. -->
+          <!-- <img src="isa_logo.png" alt="ISA Master Tool Logo"> -->
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none">
+            <path d="M21 16v-2l-8-5V3.5c0-.83-.67-1.5-1.5-1.5S10 2.67 10 3.5V9L2 14v2l8-2.5V19l-2 1.5V22l3.5-1 3.5 1v-1.5L13 19v-5.5L21 16Z"
+                  fill="rgba(232,240,255,0.95)"/>
+          </svg>
+        </div>
+        <div class="brand-title">
+          <div class="t1">ISA Master Tool</div>
+          <div class="t2">Weather • Tracking • Design</div>
+        </div>
       </div>
 
-      <div class="top-links">
-        <a href="#dashboard" class="top-link">Dashboard</a>
-        <a href="#calculators" class="top-link">Calculators</a>
-        <a href="flight_tracker.html" class="top-link top-cta" target="_blank" rel="noopener">Tracker</a>
-        <a href="isa_designer.html" class="top-link top-cta" target="_blank" rel="noopener">Designer</a>
+      <!-- TOP MENU: only these -->
+      <div class="menu" aria-label="Main navigation">
+        <a href="flight_tracker.html" target="_blank" rel="noopener">Flight Tracker</a>
+        <a href="isa_designer.html" target="_blank" rel="noopener">ISA Designer</a>
+        <a href="isa_new.html" target="_blank" rel="noopener">News</a>
+        <a href="learning.html" target="_blank" rel="noopener">Learning</a>
       </div>
     </div>
   </nav>
 
-  <header data-aos="fade-down">
-    <h1>✈ ISA Master Tool</h1>
-    <p>Aerospace engineering tools for atmosphere, performance, and mission planning</p>
-    <h3>Created by Ashwin Ganesh</h3>
-
-    <lottie-player
-      src="https://lottie.host/68ecc80f-3865-4071-89bf-1db845e65c6e/O67It7eqk8.json"
-      background="transparent"
-      speed="1"
-      loop
-      autoplay>
-    </lottie-player>
-  </header>
-
-  <section class="dashboard-section">
-    <div class="dashboard-title" data-aos="fade-up">
-      <div>
-        <div class="dashboard-title-main">ISA Command Center</div>
-        <div class="dashboard-subtext">Live cockpit: weather, winds aloft, METAR, and ISA AI.</div>
-      </div>
-      <div class="tag-pill">Dashboard</div>
+  <!-- HERO (NO big header, just search; lottie is true background) -->
+  <section class="hero">
+    <div class="hero-bg-lottie" aria-hidden="true">
+      <lottie-player
+        src="https://lottie.host/68ecc80f-3865-4071-89bf-1db845e65c6e/O67It7eqk8.json"
+        background="transparent"
+        speed="1"
+        loop
+        autoplay>
+      </lottie-player>
     </div>
+    <div class="hero-overlay" aria-hidden="true"></div>
 
-    <div class="dashboard-grid">
-      <div class="dash-card" data-aos="zoom-in" data-aos-delay="50">
-        <h3>Local Time & Winds Aloft</h3>
-        <div class="dash-row">
-          <div>
-            <div class="metric-label">City</div>
-            <div class="big-city" id="city-label">Long Beach, CA</div>
-            <div class="date-line" id="date-line"></div>
-          </div>
-          <div style="text-align:right;">
-            <div class="metric-label">Current Time</div>
-            <div class="big-time" id="clock">--:--</div>
-          </div>
-        </div>
+    <div class="hero-inner">
+      <h1 class="hero-title">ISA Master Tool</h1>
+      <p class="hero-sub">
+        Search a city, ZIP, or airport code to load weather + METAR.
+      </p>
 
-        <div class="divider-line"></div>
-
-        <div class="dash-row">
-          <div style="flex:1;">
-            <div class="metric-label">Cruise Altitude (ft)</div>
-            <input id="alt-ft" type="range" min="0" max="42000" step="1000" value="8000" style="width:100%;">
-            <div class="metric-small"><span id="alt-ft-label">8,000</span> ft</div>
-          </div>
-
-          <div style="text-align:right; min-width: 160px;">
-            <div class="metric-label">Winds Aloft</div>
-            <div class="metric-value" id="winds-aloft">Loading…</div>
-            <div class="metric-small" id="winds-aloft-sub">—</div>
-          </div>
-        </div>
-      </div>
-
-      <div class="dash-card" data-aos="zoom-in" data-aos-delay="150">
-        <h3>Surface Weather Snapshot</h3>
-
-        <div class="dash-row">
-          <div>
-            <div class="metric-label">Conditions</div>
-            <div class="metric-value" id="wx-conditions">Loading…</div>
-            <div class="metric-small" id="wx-sub">—</div>
-          </div>
-
-          <div style="text-align:right;">
-            <div class="metric-label">Wind • Pressure</div>
-            <div class="metric-value" id="wx-wind">—</div>
-            <div class="metric-small" id="wx-pressure">—</div>
-          </div>
-        </div>
-
-        <div class="divider-line"></div>
-
-        <div class="metric-label" style="margin-bottom:6px;">Next Hours</div>
-        <div class="forecast-row"><span id="fh-1t">—</span><span id="fh-1w">—</span><span id="fh-1s">—</span></div>
-        <div class="forecast-row"><span id="fh-2t">—</span><span id="fh-2w">—</span><span id="fh-2s">—</span></div>
-        <div class="forecast-row"><span id="fh-3t">—</span><span id="fh-3w">—</span><span id="fh-3s">—</span></div>
-        <div class="forecast-row"><span id="fh-4t">—</span><span id="fh-4w">—</span><span id="fh-4s">—</span></div>
-      </div>
-
-      <!-- METAR CARD (Google-style) -->
-      <div class="dash-card" data-aos="zoom-in" data-aos-delay="250">
-        <h3>METAR</h3>
-
-        <div class="metric-label">Search Airport (ICAO, IATA, City)</div>
-        <div class="airport-row">
-          <input id="airport-search" class="airport-input" type="text"
-                 placeholder="e.g. KLAX, LAX, Colombo, Heathrow" autocomplete="off" />
-          <button type="button" class="geo-button" id="metar-btn">Get METAR</button>
-          <div id="airport-dd" class="airport-dd"></div>
-        </div>
-
-        <div class="divider-line"></div>
-
-        <div style="display:flex; justify-content:space-between; align-items:flex-start; gap:10px;">
-          <div>
-            <div class="metric-label">Station</div>
-            <div class="metric-value" id="metar-station">—</div>
-            <div class="metric-small" id="metar-observed">—</div>
-          </div>
-
-          <div style="text-align:right;">
-            <div class="metric-label">Flight Rules</div>
-            <span class="metar-pill warn" id="metar-flightcat">—</span>
-            <div class="metric-small" id="metar-flightreason">—</div>
-          </div>
-        </div>
-
-        <div class="divider-line"></div>
-
-        <div class="metric-label">Weather Summary</div>
-        <div class="metric-value" id="metar-summary">Type an airport above…</div>
-        <div class="metric-small" id="metar-summary-sub">—</div>
-
-        <div class="divider-line"></div>
-
-        <div class="metar-grid">
-          <div class="metar-kv">
-            <div class="metar-k2">Temperature</div>
-            <div class="metar-v2" id="metar-temp">—</div>
-          </div>
-          <div class="metar-kv">
-            <div class="metar-k2">Dew Point</div>
-            <div class="metar-v2" id="metar-dew">—</div>
-          </div>
-          <div class="metar-kv">
-            <div class="metar-k2">Humidity</div>
-            <div class="metar-v2" id="metar-rh">—</div>
-          </div>
-          <div class="metar-kv">
-            <div class="metar-k2">Pressure</div>
-            <div class="metar-v2" id="metar-pres">—</div>
-          </div>
-          <div class="metar-kv">
-            <div class="metar-k2">Wind</div>
-            <div class="metar-v2" id="metar-wind">—</div>
-          </div>
-          <div class="metar-kv">
-            <div class="metar-k2">Visibility</div>
-            <div class="metar-v2" id="metar-vis">—</div>
-          </div>
-          <div class="metar-kv metar-kv-span">
-            <div class="metar-k2">Sky / Ceiling</div>
-            <div class="metar-v2" id="metar-sky">—</div>
-          </div>
-        </div>
-
-        <div class="divider-line"></div>
-
-        <button class="metar-collapse" type="button" id="metar-toggle">Show raw METAR</button>
-        <div class="metar-raw hidden" id="metar-raw">—</div>
-      </div>
-
-      <div class="dash-card" data-aos="zoom-in" data-aos-delay="350">
-        <h3>Aerospace News &amp; ISA AI</h3>
-
-        <div class="metric-label">Links (news feed comes next)</div>
-        <div class="news-bullet">• <a class="news-link" href="https://www.nasa.gov/news-release/" target="_blank" rel="noopener">NASA updates</a></div>
-        <div class="news-bullet">• <a class="news-link" href="https://www.flightglobal.com/news" target="_blank" rel="noopener">FlightGlobal</a></div>
-        <div class="news-bullet">• <a class="news-link" href="https://spacenews.com/" target="_blank" rel="noopener">SpaceNews</a></div>
-
-        <div class="divider-line"></div>
-
-        <div class="metric-label">Ask ISA AI</div>
-        <div class="metric-small" style="margin-bottom:6px;">Ask any aerospace question. Answer appears below.</div>
-
-        <div class="ai-search">
-          <input id="ai-query" class="ai-input" type="text" placeholder="e.g. Explain lift vs drag at high Mach"/>
-          <button class="ai-button" type="button" onclick="askISA()">Ask</button>
-        </div>
-
-        <div id="ai-status" class="ai-status"></div>
-        <div id="ai-answer" class="ai-answer-bubble hidden"></div>
+      <div class="hero-search" data-aos="fade-up">
+        <input id="global-search" type="text" placeholder="Search city, ZIP, IATA/ICAO (e.g., LAX, KLAX, Long Beach, 90802)" autocomplete="off">
+        <button id="global-search-btn" type="button">Search</button>
       </div>
     </div>
   </section>
 
-  <section class="tools-section" id="calculators">
-    <h2 data-aos="fade-up">Choose a Tool</h2>
-    <div class="button-grid">
-      <a href="https://isa-atm-calculator-tmepkr7qfrryb65yvtjg7j.streamlit.app/?tool=ISA%20Air%20Properties" class="tool-button" data-aos="zoom-in" data-aos-delay="100">ISA Air Properties</a>
-      <a href="https://isa-atm-calculator-tmepkr7qfrryb65yvtjg7j.streamlit.app/?tool=Mach%20Number%20Calculator" class="tool-button" data-aos="zoom-in" data-aos-delay="200">Mach Number Calculator</a>
-      <a href="https://isa-atm-calculator-tmepkr7qfrryb65yvtjg7j.streamlit.app/?tool=Lift%20and%20Drag%20Calculator" class="tool-button" data-aos="zoom-in" data-aos-delay="300">Lift &amp; Drag Calculator</a>
-      <a href="https://isa-atm-calculator-tmepkr7qfrryb65yvtjg7j.streamlit.app/?tool=Fuel%20Consumption%20%26%20Range%20Estimator" class="tool-button" data-aos="zoom-in" data-aos-delay="400">Fuel &amp; Range Estimator</a>
-      <a href="https://isa-atm-calculator-tmepkr7qfrryb65yvtjg7j.streamlit.app/?tool=Mission%20Planner" class="tool-button" data-aos="zoom-in" data-aos-delay="500">Mission Planner</a>
-      <a href="https://isa-atm-calculator-tmepkr7qfrryb65yvtjg7j.streamlit.app/?tool=City%20to%20City%20Flight%20Estimator" class="tool-button" data-aos="zoom-in" data-aos-delay="600">City to City Estimator</a>
+  <!-- MAIN -->
+  <section class="section" id="dashboard">
+    <div class="wrap">
+      <!-- Weather + What to Wear -->
+      <div class="weather-block">
+        <!-- Big weather card -->
+        <div class="panel">
+          <div class="wx-card" aria-live="polite">
+            <div class="wx-top">
+              <div>
+                <div class="wx-station-code" id="hero-station-code">KLGB</div>
+                <div class="wx-station-name" id="hero-station-name">Long Beach Airport</div>
+              </div>
+              <div class="wx-iconbox">
+                <div class="wx-icon" id="hero-icon">☀️</div>
+                <div class="wx-icon-label" id="hero-small">Clear</div>
+              </div>
+            </div>
+
+            <div class="wx-mid">
+              <div>
+                <div class="wx-temp">
+                  <span id="hero-temp">—</span><span style="font-size:1.2rem;font-weight:900;opacity:0.92;margin-left:6px;">°C</span>
+                </div>
+                <div class="wx-desc" id="hero-desc">—</div>
+              </div>
+            </div>
+
+            <div class="wx-metrics">
+              <div class="wx-metric">
+                <div class="k">Wind</div>
+                <div class="v" id="hero-wind">—</div>
+              </div>
+              <div class="wx-metric">
+                <div class="k">Feels Like</div>
+                <div class="v" id="hero-feels">—</div>
+              </div>
+              <div class="wx-metric">
+                <div class="k">Visibility</div>
+                <div class="v" id="hero-vis">—</div>
+              </div>
+              <div class="wx-metric">
+                <div class="k">Pressure</div>
+                <div class="v" id="hero-pres">—</div>
+              </div>
+            </div>
+          </div>
+
+          <div class="raw-strip">
+            <div class="label">Raw METAR</div>
+            <pre id="hero-raw">—</pre>
+          </div>
+        </div>
+
+        <!-- What to wear -->
+        <aside class="wear-card" aria-label="What to wear">
+          <div class="wear-head">
+            <div class="wear-title">
+              <div class="wear-badge" aria-hidden="true">👕</div>
+              <div>What to Wear</div>
+            </div>
+            <div class="wear-temp" id="wear-temp-small">—</div>
+          </div>
+
+          <div class="wear-field"><div class="k">Top</div><div class="v" id="wear-top-val">—</div></div>
+          <div class="wear-field"><div class="k">Bottom</div><div class="v" id="wear-bottom-val">—</div></div>
+          <div class="wear-field"><div class="k">Footwear</div><div class="v" id="wear-foot-val">—</div></div>
+          <div class="wear-field"><div class="k">Accessories</div><div class="v" id="wear-access-val">—</div></div>
+
+          <div class="wear-note" id="wear-note">💡 Dress in layers to adjust to changing conditions.</div>
+        </aside>
+      </div>
+
+      <!-- Secondary row -->
+      <div class="secondary">
+        <div class="card">
+          <h3>Local Time & Winds Aloft</h3>
+          <div class="row">
+            <div>
+              <div class="muted">Location</div>
+              <div style="font-weight:950;font-size:1.15rem" id="city-label">Long Beach, CA</div>
+              <div class="muted" id="date-line">—</div>
+            </div>
+            <div style="text-align:right">
+              <div class="muted">Local time</div>
+              <div class="big" id="clock">--:--</div>
+            </div>
+          </div>
+
+          <div style="height:14px"></div>
+
+          <div class="row" style="align-items:flex-end">
+            <div style="flex:1">
+              <div class="muted" style="font-weight:800">Cruise Altitude</div>
+              <input id="alt-ft" type="range" min="0" max="42000" step="1000" value="8000">
+              <div class="muted"><span id="alt-ft-label">8,000</span> ft</div>
+            </div>
+            <div style="text-align:right; min-width: 170px;">
+              <div class="muted" style="font-weight:800">Winds Aloft</div>
+              <div class="pill" id="winds-aloft">—</div>
+              <div class="muted" id="winds-aloft-sub" style="margin-top:6px">—</div>
+            </div>
+          </div>
+        </div>
+
+        <div class="card">
+          <h3>Airport / METAR Search</h3>
+          <div class="muted" style="margin-bottom:10px">Type ICAO/IATA/city (e.g. KLAX, LAX, Colombo). Select from dropdown.</div>
+
+          <div style="display:flex;gap:10px;align-items:center;position:relative">
+            <input id="airport-search" type="text"
+              style="flex:1;padding:12px 14px;border-radius:12px;border:1px solid rgba(148,163,184,0.18);background:rgba(255,255,255,0.06);color:var(--text);outline:none"
+              placeholder="Search airport..."
+              autocomplete="off" />
+            <button id="metar-btn" type="button"
+              style="padding:12px 14px;border-radius:12px;border:none;font-weight:900;cursor:pointer;background:linear-gradient(135deg, rgba(56,189,248,0.95), rgba(129,140,248,0.95));color:#061021">
+              Get METAR
+            </button>
+
+            <div id="airport-dd"
+              style="position:absolute;left:0;right:0;top:calc(100% + 8px);background:rgba(2, 6, 23, 0.96);border:1px solid rgba(148,163,184,0.18);border-radius:14px;overflow:hidden;box-shadow:0 24px 70px rgba(0,0,0,0.6);display:none;z-index:9999">
+            </div>
+          </div>
+
+          <!-- hidden “source” fields used by syncHeroWeather -->
+          <div style="display:none">
+            <div id="wx-conditions">—</div>
+            <div id="wx-wind">—</div>
+            <div id="wx-pressure">—</div>
+
+            <div id="metar-station">—</div>
+            <div id="metar-summary">—</div>
+            <div id="metar-temp">—</div>
+            <div id="metar-vis">—</div>
+            <div id="metar-raw">—</div>
+          </div>
+
+          <div class="muted" style="margin-top:12px">
+            Tip: global search above also works (city/zip/airport).
+          </div>
+        </div>
+      </div>
+
+      <!-- Explore (ONLY 4 tools) -->
+      <div class="explore" id="explore" data-aos="fade-up">
+        <h2>Explore ISA Master Tool</h2>
+        <div class="tiles">
+          <a class="tile" href="flight_tracker.html" target="_blank" rel="noopener">
+            <div class="icon i1">✈</div>
+            <div class="t">Flight Tracker</div>
+            <div class="d">Track any flight in real-time.</div>
+            <div class="arrow">›</div>
+          </a>
+
+          <a class="tile" href="isa_designer.html" target="_blank" rel="noopener">
+            <div class="icon i2">🛠</div>
+            <div class="t">ISA Designer</div>
+            <div class="d">Design & simulate aircraft concepts.</div>
+            <div class="arrow">›</div>
+          </a>
+
+          <a class="tile" href="isa_new.html" target="_blank" rel="noopener">
+            <div class="icon i3">📰</div>
+            <div class="t">News</div>
+            <div class="d">Latest aviation & space news.</div>
+            <div class="arrow">›</div>
+          </a>
+
+          <a class="tile" href="learning.html" target="_blank" rel="noopener">
+            <div class="icon i4">📚</div>
+            <div class="t">Learning</div>
+            <div class="d">Aero resources & guides.</div>
+            <div class="arrow">›</div>
+          </a>
+        </div>
+      </div>
     </div>
   </section>
 
-  <footer>&copy; 2025 Ashwin Ganesh — All rights reserved</footer>
+  <footer id="resources">
+    © 2025 Ashwin Ganesh — ISA Master Tool
+  </footer>
 
   <script src="https://unpkg.com/aos@2.3.1/dist/aos.js"></script>
-
   <script>
-    AOS.init({ duration: 900, easing: 'ease-out-cubic', offset: 120, once: true });
+    AOS.init({ duration: 850, easing: 'ease-out-cubic', offset: 120, once: true });
 
+    // ===== clock =====
     function updateClock() {
       const now = new Date();
-      const hours = String(now.getHours()).padStart(2, "0");
-      const mins = String(now.getMinutes()).padStart(2, "0");
-      document.getElementById("clock").textContent = `${hours}:${mins}`;
-      const options = { weekday: "long", day: "numeric", month: "short", year: "numeric" };
-      document.getElementById("date-line").textContent = now.toLocaleDateString(undefined, options);
+      document.getElementById("clock").textContent = now.toLocaleTimeString([], {hour:"2-digit", minute:"2-digit"});
+      document.getElementById("date-line").textContent = now.toLocaleDateString(undefined, {weekday:"long", month:"short", day:"numeric", year:"numeric"});
     }
     updateClock();
     setInterval(updateClock, 1000);
 
-    // ===== ISA AI =====
+    // ===== endpoints =====
     const ISA_BACKEND_BASE = "https://isa-backend-olj9.onrender.com/api";
-    const ISA_AI_ENDPOINT = `${ISA_BACKEND_BASE}/ask/`;
     const ISA_METAR_ENDPOINT = `${ISA_BACKEND_BASE}/metar`;
 
-    async function askISA() {
-      const input = document.getElementById("ai-query");
-      const statusEl = document.getElementById("ai-status");
-      const answerEl = document.getElementById("ai-answer");
-      const question = (input.value || "").trim();
-      if (!question) return;
-
-      statusEl.textContent = "Thinking...";
-      answerEl.classList.add("hidden");
-      answerEl.classList.remove("show");
-
-      try {
-        const resp = await fetch(ISA_AI_ENDPOINT, {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ question })
-        });
-
-        const text = await resp.text();
-        let data = null;
-        try { data = JSON.parse(text); } catch {}
-
-        if (!resp.ok) {
-          const detail = data?.detail || text || `HTTP ${resp.status}`;
-          throw new Error(`AI error (${resp.status}): ${detail}`);
-        }
-
-        answerEl.textContent = data?.answer || "No answer returned.";
-      } catch (err) {
-        console.error(err);
-        answerEl.textContent = String(err.message || err);
-      } finally {
-        statusEl.textContent = "";
-        answerEl.classList.remove("hidden");
-        requestAnimationFrame(() => answerEl.classList.add("show"));
-      }
-    }
-
-    // ===== METAR + Airport Search =====
+    // ===== airport dataset + fuse =====
     let AIRPORTS = [];
     let fuse = null;
-    let metarAbort = null;
 
     const searchEl = document.getElementById("airport-search");
     const ddEl = document.getElementById("airport-dd");
     const metarBtn = document.getElementById("metar-btn");
 
-    const stationEl = document.getElementById("metar-station");
-    const observedEl = document.getElementById("metar-observed");
-    const flightCatEl = document.getElementById("metar-flightcat");
-    const flightReasonEl = document.getElementById("metar-flightreason");
+    function showDropdown(on){ ddEl.style.display = on ? "block" : "none"; }
 
-    const summaryEl = document.getElementById("metar-summary");
-    const summarySubEl = document.getElementById("metar-summary-sub");
-
-    const tempEl = document.getElementById("metar-temp");
-    const dewEl = document.getElementById("metar-dew");
-    const rhEl = document.getElementById("metar-rh");
-    const presEl = document.getElementById("metar-pres");
-    const windEl = document.getElementById("metar-wind");
-    const visEl = document.getElementById("metar-vis");
-    const skyEl = document.getElementById("metar-sky");
-
-    const rawEl = document.getElementById("metar-raw");
-    const toggleBtn = document.getElementById("metar-toggle");
-
-    function showDropdown(on) {
-      ddEl.classList.toggle("show", !!on);
-    }
-
-    function airportLabel(a) {
+    function airportLabel(a){
       const code = a.icao + (a.iata ? ` (${a.iata})` : "");
       const right = [a.city, a.name].filter(Boolean).join(" — ");
       const country = a.country ? ` · ${a.country}` : "";
       return right ? `${code} — ${right}${country}` : `${code}${country}`;
     }
 
-    function setFlightBadge(cat){
-      const c = String(cat || "—").toUpperCase();
-      flightCatEl.textContent = c;
-      flightCatEl.classList.remove("good","warn","bad");
-      if (c === "VFR") flightCatEl.classList.add("good");
-      else if (c === "MVFR") flightCatEl.classList.add("warn");
-      else if (c === "IFR" || c === "LIFR") flightCatEl.classList.add("bad");
-      else flightCatEl.classList.add("warn");
-    }
-
-    function parseCeilingFtFromSkyString(sky) {
-      // handles: "Overcast @ 700 ft" or "Broken @ 1,200 ft"
-      const m = String(sky || "").match(/@\s*([\d,]+)\s*ft/i);
-      if (!m) return null;
-      return parseInt(m[1].replace(/,/g,""), 10);
-    }
-
-    function flightCategory(visibilityMi, ceilingFt){
-      // simple FAA-ish thresholds
-      if (visibilityMi == null && ceilingFt == null) return {cat:"UNK", reason:"Missing vis/ceiling"};
-      const vis = visibilityMi;
-      const ceil = ceilingFt;
-
-      // LIFR
-      if ((vis != null && vis < 1) || (ceil != null && ceil < 500)) return {cat:"LIFR", reason:"Very low vis/ceiling"};
-      // IFR
-      if ((vis != null && vis < 3) || (ceil != null && ceil < 1000)) return {cat:"IFR", reason:"Low vis/ceiling"};
-      // MVFR
-      if ((vis != null && vis < 5) || (ceil != null && ceil < 3000)) return {cat:"MVFR", reason:"Marginal vis/ceiling"};
-      // VFR
-      return {cat:"VFR", reason:"Good vis and ceiling"};
-    }
-
-    function makeSummary(data){
-      const sky = data.sky || "—";
-      const vis = data.visibility_mi;
-      const wdir = data.wind_dir_deg;
-      const wspd = data.wind_speed_kt;
-      const gust = data.wind_gust_kt;
-
-      const parts = [];
-
-      // Sky
-      if (sky && sky !== "—") parts.push(sky.replace("@", "at"));
-
-      // Visibility
-      if (vis != null) {
-        if (vis < 1) parts.push("very low visibility");
-        else if (vis < 3) parts.push("low visibility");
-        else if (vis < 5) parts.push("reduced visibility");
-      }
-
-      // Wind
-      if (wspd != null) {
-        if (wspd === 0) parts.push("calm wind");
-        else {
-          const dirTxt = (wdir == null) ? "variable" : `${wdir}°`;
-          parts.push(`wind ${dirTxt} at ${wspd} kt${gust ? ` gust ${gust}` : ""}`);
-        }
-      }
-
-      // Humidity hint (dewpoint spread)
-      const t = data.temp_c;
-      const d = data.dewpoint_c;
-      if (t != null && d != null) {
-        const spread = Math.abs(t - d);
-        if (spread <= 2) parts.push("very humid (fog/mist possible)");
-      }
-
-      const headline = parts.length ? parts.join(", ") : "Weather details available below.";
-      let sub = "Derived from METAR. Raw METAR is available below.";
-
-      return { headline: headline.charAt(0).toUpperCase() + headline.slice(1), sub };
-    }
-
-    // Raw METAR toggle
-    toggleBtn.addEventListener("click", () => {
-      const isHidden = rawEl.classList.contains("hidden");
-      rawEl.classList.toggle("hidden", !isHidden);
-      toggleBtn.textContent = isHidden ? "Hide raw METAR" : "Show raw METAR";
-    });
-
-    // Load local airports JSON (place airports.min.json next to index.html)
-    fetch("./airports.min.json", { cache: "no-store" })
-      .then(r => r.json())
-      .then(data => {
-        AIRPORTS = data || [];
-        fuse = new Fuse(AIRPORTS, {
-          threshold: 0.35,
-          keys: ["icao", "iata", "name", "city", "country"]
-        });
-      })
-      .catch(err => {
-        console.error("Could not load airports.min.json", err);
-        fuse = null; // allow manual ICAO
-      });
-
-    function renderDropdown(list) {
+    function renderDropdown(list){
       ddEl.innerHTML = "";
-      if (!list || !list.length) {
-        ddEl.innerHTML = `<div class="airport-dd-empty">No matches — press Enter to try ICAO</div>`;
+      if (!list || !list.length){
+        ddEl.innerHTML = `<div style="padding:10px 12px;color:#a6b4d9;font-size:0.9rem">No matches — press Enter to try ICAO/IATA</div>`;
         showDropdown(true);
         return;
       }
 
       list.slice(0, 10).forEach(a => {
         const d = document.createElement("div");
-        d.className = "airport-dd-item";
         d.textContent = airportLabel(a);
-        d.onmousedown = e => {
+        d.style.padding = "10px 12px";
+        d.style.cursor = "pointer";
+        d.style.borderBottom = "1px solid rgba(148,163,184,0.10)";
+        d.style.color = "#e5ecff";
+        d.onmouseenter = () => d.style.background = "rgba(56,189,248,0.10)";
+        d.onmouseleave = () => d.style.background = "transparent";
+        d.onmousedown = (e) => {
           e.preventDefault();
           searchEl.value = airportLabel(a);
           showDropdown(false);
+
+          if (a.lat != null && a.lon != null){
+            ISA_LAT = Number(a.lat);
+            ISA_LON = Number(a.lon);
+          }
+          if (a.city) document.getElementById("city-label").textContent = a.city + (a.country ? `, ${a.country}` : "");
+          if (a.name) document.getElementById("hero-station-name").textContent = a.name;
+
           fetchMetar(a.icao);
         };
         ddEl.appendChild(d);
       });
       showDropdown(true);
     }
+
+    fetch("./airports.min.json", { cache: "no-store" })
+      .then(r => r.json())
+      .then(data => {
+        AIRPORTS = data || [];
+        fuse = new Fuse(AIRPORTS, { threshold: 0.35, keys: ["icao","iata","name","city","country"] });
+      })
+      .catch(err => {
+        console.error("Could not load airports.min.json", err);
+        fuse = null;
+      });
 
     let searchTimer = null;
     searchEl.addEventListener("input", () => {
@@ -759,7 +918,7 @@
       searchTimer = setTimeout(() => {
         const res = fuse.search(q).map(r => r.item);
         renderDropdown(res);
-      }, 120);
+      }, 110);
     });
 
     document.addEventListener("click", (e) => {
@@ -777,6 +936,22 @@
 
     metarBtn.addEventListener("click", () => fetchMetar(searchEl.value));
 
+    // ===== global search (city/zip/airport) =====
+    const globalEl = document.getElementById("global-search");
+    const globalBtn = document.getElementById("global-search-btn");
+    globalBtn.addEventListener("click", onGlobalSearch);
+    globalEl.addEventListener("keydown", (e)=>{ if(e.key==="Enter") onGlobalSearch(); });
+
+    async function geocode(q){
+      try{
+        const url = `https://geocoding-api.open-meteo.com/v1/search?name=${encodeURIComponent(q)}&count=5&language=en&format=json`;
+        const r = await fetch(url);
+        if (!r.ok) return null;
+        const data = await r.json();
+        return (data && data.results && data.results.length) ? data.results[0] : null;
+      }catch(e){ return null; }
+    }
+
     function extractICAO(text) {
       const t = String(text || "").trim().toUpperCase();
       const m4 = t.match(/\b[A-Z0-9]{4}\b/);
@@ -785,134 +960,49 @@
       return m3 ? m3[0] : null;
     }
 
-    function setLoading(code){
-      stationEl.textContent = code || "—";
-      observedEl.textContent = "Loading…";
-      setFlightBadge("—");
-      flightReasonEl.textContent = "—";
-      summaryEl.textContent = "Fetching METAR…";
-      summarySubEl.textContent = "—";
-      tempEl.textContent = "—";
-      dewEl.textContent = "—";
-      rhEl.textContent = "—";
-      presEl.textContent = "—";
-      windEl.textContent = "—";
-      visEl.textContent = "—";
-      skyEl.textContent = "—";
-      rawEl.textContent = "—";
-      rawEl.classList.add("hidden");
-      toggleBtn.textContent = "Show raw METAR";
-    }
+    async function onGlobalSearch(){
+      const q = (globalEl.value || "").trim();
+      if(!q) return;
 
-    async function fetchMetar(input) {
-      const code = extractICAO(input);
-      if (!code) {
-        stationEl.textContent = "—";
-        summaryEl.textContent = "Type an ICAO code like KLAX (or choose from the list).";
-        summarySubEl.textContent = "—";
-        setFlightBadge("Invalid");
-        flightReasonEl.textContent = "Invalid station code";
+      const code = extractICAO(q);
+      if (code && AIRPORTS && AIRPORTS.length){
+        const codeUp = code.toUpperCase();
+        const match = AIRPORTS.find(a =>
+          String(a.icao||"").toUpperCase() === codeUp ||
+          String(a.iata||"").toUpperCase() === codeUp
+        );
+        if (match){
+          if (match.lat != null && match.lon != null){
+            ISA_LAT = Number(match.lat);
+            ISA_LON = Number(match.lon);
+          }
+          if (match.city) document.getElementById("city-label").textContent = match.city + (match.country ? `, ${match.country}` : "");
+          if (match.name) document.getElementById("hero-station-name").textContent = match.name;
+
+          fetchMetar(match.icao || codeUp);
+          refreshWXandWinds();
+          return;
+        }
+        fetchMetar(codeUp);
+      }
+
+      const g = await geocode(q);
+      if (!g){
+        if (code) fetchMetar(code);
         return;
       }
-
-      if (metarAbort) metarAbort.abort();
-      metarAbort = new AbortController();
-      const timeout = setTimeout(() => metarAbort.abort(), 12000);
-
-      setLoading(code);
-
-      try {
-        const res = await fetch(`${ISA_METAR_ENDPOINT}/${encodeURIComponent(code)}?t=${Date.now()}`, {
-          signal: metarAbort.signal,
-          cache: "no-store"
-        });
-
-        if (res.status === 204) {
-          summaryEl.textContent = "No METAR available for that station (or not recent).";
-          summarySubEl.textContent = "Try another station code.";
-          setFlightBadge("No report");
-          flightReasonEl.textContent = "No recent METAR returned";
-          return;
-        }
-
-        const data = await res.json();
-        if (!data?.raw_text) {
-          summaryEl.textContent = "No METAR available.";
-          summarySubEl.textContent = "Try another station code.";
-          setFlightBadge("No report");
-          flightReasonEl.textContent = "No raw METAR returned";
-          return;
-        }
-
-        // Station + time
-        stationEl.textContent = data.icao || code;
-        const obsIso = data.obs_time_utc || null;
-        if (obsIso) {
-          const d = new Date(obsIso);
-          observedEl.textContent = isNaN(d.getTime()) ? obsIso : d.toLocaleString([], { weekday:"short", month:"short", day:"numeric", hour:"2-digit", minute:"2-digit", timeZoneName:"short" });
-        } else {
-          observedEl.textContent = "—";
-        }
-
-        // Key conditions
-        const tc = data.temp_c;
-        const dc = data.dewpoint_c;
-        const rh = data.humidity_est_pct;
-        const p  = data.altimeter_inhg;
-        const vis = data.visibility_mi;
-        const sky = data.sky;
-        const wdir = data.wind_dir_deg;
-        const wspd = data.wind_speed_kt;
-        const gust = data.wind_gust_kt;
-
-        tempEl.textContent = (tc == null) ? "—" : `${tc} °C`;
-        dewEl.textContent = (dc == null) ? "—" : `${dc} °C`;
-        rhEl.textContent  = (rh == null) ? "—" : `${rh}%`;
-        presEl.textContent = (p == null) ? "—" : `${p} inHg`;
-        visEl.textContent = (vis == null) ? "—" : `${vis} mi`;
-
-        if (wspd == null) windEl.textContent = "—";
-        else if (wspd === 0) windEl.textContent = "Calm";
-        else {
-          const dirTxt = (wdir == null) ? "VRB" : `${wdir}°`;
-          windEl.textContent = `${dirTxt} / ${wspd} kt${gust ? ` (G${gust})` : ""}`;
-        }
-
-        skyEl.textContent = sky || "—";
-
-        // Summary
-        const s = makeSummary(data);
-        summaryEl.textContent = s.headline;
-        summarySubEl.textContent = s.sub;
-
-        // Flight category
-        const ceilingFt = parseCeilingFtFromSkyString(sky);
-        const fc = flightCategory(vis, ceilingFt);
-        setFlightBadge(fc.cat);
-        flightReasonEl.textContent = fc.reason;
-
-        // Raw
-        rawEl.textContent = data.raw_text;
-
-      } catch (e) {
-        console.error(e);
-        if (e?.name === "AbortError") {
-          summaryEl.textContent = "Timed out fetching METAR. Try again.";
-          summarySubEl.textContent = "Backend request exceeded 12 seconds.";
-          setFlightBadge("Timeout");
-          flightReasonEl.textContent = "Request timed out";
-        } else {
-          summaryEl.textContent = "METAR fetch failed.";
-          summarySubEl.textContent = "Check backend status / station code.";
-          setFlightBadge("Error");
-          flightReasonEl.textContent = "Request error";
-        }
-      } finally {
-        clearTimeout(timeout);
-      }
+      ISA_LAT = g.latitude;
+      ISA_LON = g.longitude;
+      document.getElementById("city-label").textContent = `${g.name}${g.admin1 ? ", " + g.admin1 : ""}${g.country ? ", " + g.country : ""}`;
+      document.getElementById("hero-station-name").textContent = `${g.name}${g.admin1 ? ", " + g.admin1 : ""}`;
+      refreshWXandWinds();
     }
 
-    // ===== Surface weather + winds aloft (unchanged) =====
+    // ===== wind/pressure globals for feels-like =====
+    let LAST_SURFACE_TEMP_C = null;
+    let LAST_WIND_KT = null;
+
+    // ===== surface weather + winds aloft =====
     let ISA_LAT = 33.8177;
     let ISA_LON = -118.1516;
 
@@ -926,12 +1016,23 @@
       return 250;
     }
 
+    function hpaToInhg(hpa){
+      if (hpa == null) return null;
+      return hpa * 0.029529983071445;
+    }
+
+    function windChillC(tempC, windKmh){
+      if (tempC == null || windKmh == null) return null;
+      if (tempC > 10 || windKmh < 4.8) return tempC;
+      return 13.12 + 0.6215*tempC - 11.37*Math.pow(windKmh,0.16) + 0.3965*tempC*Math.pow(windKmh,0.16);
+    }
+
     async function fetchSurfaceWeather(lat, lon) {
       const url =
         "https://api.open-meteo.com/v1/forecast?" +
         `latitude=${encodeURIComponent(lat)}&longitude=${encodeURIComponent(lon)}` +
         "&current=temperature_2m,relative_humidity_2m,pressure_msl,wind_speed_10m,wind_direction_10m" +
-        "&hourly=temperature_2m,wind_speed_10m,wind_direction_10m" +
+        "&hourly=temperature_2m,wind_speed_10m,wind_direction_10m,precipitation" +
         "&forecast_days=1&timezone=auto";
 
       const res = await fetch(url);
@@ -939,30 +1040,24 @@
       const data = await res.json();
 
       const t = data.current.temperature_2m;
-      const rh = data.current.relative_humidity_2m;
-      const p = data.current.pressure_msl;
-      const ws = data.current.wind_speed_10m;
+      const p_hpa = data.current.pressure_msl;
+      const ws_ms = data.current.wind_speed_10m;
       const wd = data.current.wind_direction_10m;
 
-      const wsKt = (ws * 0.539957).toFixed(0);
+      const wsKt = (ws_ms * 1.9438444924406);
+      const p_inhg = hpaToInhg(p_hpa);
 
-      document.getElementById("wx-conditions").textContent = `${t.toFixed(0)}°C`;
-      document.getElementById("wx-sub").textContent = `Humidity ${rh}%`;
-      document.getElementById("wx-wind").textContent = `${wd.toFixed(0)}° / ${wsKt} kt`;
-      document.getElementById("wx-pressure").textContent = `${p.toFixed(0)} hPa`;
+      document.getElementById("wx-conditions").textContent = (t == null) ? "—" : `${Math.round(t)}°C`;
+      document.getElementById("wx-wind").textContent = (wd == null || wsKt == null) ? "—" : `${Math.round(wsKt)} kts @ ${Math.round(wd)}°`;
+      document.getElementById("wx-pressure").textContent = (p_inhg == null) ? "—" : `${p_inhg.toFixed(2)}" Hg`;
 
-      for (let i = 1; i <= 4; i++) {
-        const time = data.hourly.time[i];
-        const hhmm = new Date(time).toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" });
-        const ht = data.hourly.temperature_2m[i];
-        const hws = data.hourly.wind_speed_10m[i];
-        const hwd = data.hourly.wind_direction_10m[i];
-        const hwsKt = (hws * 0.539957).toFixed(0);
+      LAST_SURFACE_TEMP_C = (t == null) ? null : Number(t);
+      LAST_WIND_KT = (wsKt == null) ? null : Number(wsKt);
 
-        document.getElementById(`fh-${i}t`).textContent = hhmm;
-        document.getElementById(`fh-${i}w`).textContent = `${ht.toFixed(0)}°C`;
-        document.getElementById(`fh-${i}s`).textContent = `${hwd.toFixed(0)}° ${hwsKt} kt`;
-      }
+      const precip0 = (data.hourly && data.hourly.precipitation && data.hourly.precipitation.length) ? (data.hourly.precipitation[0] || 0) : 0;
+      updateWhatToWear(LAST_SURFACE_TEMP_C, precip0);
+
+      syncHeroWeather();
     }
 
     async function fetchWindsAloft(lat, lon, altFt) {
@@ -979,10 +1074,10 @@
 
       const ws = data.hourly[`windspeed_${level}hPa`][0];
       const wd = data.hourly[`winddirection_${level}hPa`][0];
-      const wsKt = (ws * 0.539957).toFixed(0);
 
-      document.getElementById("winds-aloft").textContent = `${wd.toFixed(0)}° / ${wsKt} kt`;
-      document.getElementById("winds-aloft-sub").textContent = `${level} hPa level`;
+      const wsKt = (ws * 0.539957);
+      document.getElementById("winds-aloft").textContent = `${Math.round(wd)}° / ${Math.round(wsKt)} kt`;
+      document.getElementById("winds-aloft-sub").textContent = `${level} hPa`;
     }
 
     function refreshWXandWinds() {
@@ -992,6 +1087,148 @@
       fetchWindsAloft(ISA_LAT, ISA_LON, alt).catch(console.error);
     }
 
+    // ===== METAR fetch (backend) =====
+    async function fetchMetar(input) {
+      const code = extractICAO(input);
+      if (!code) return;
+
+      try {
+        const res = await fetch(`${ISA_METAR_ENDPOINT}/${encodeURIComponent(code)}?t=${Date.now()}`, { cache: "no-store" });
+
+        if (res.status === 204) {
+          document.getElementById("metar-station").textContent = code;
+          document.getElementById("metar-summary").textContent = "No recent METAR returned.";
+          document.getElementById("metar-temp").textContent = "—";
+          document.getElementById("metar-vis").textContent = "—";
+          document.getElementById("metar-raw").textContent = "—";
+          syncHeroWeather();
+          return;
+        }
+
+        const data = await res.json();
+        if (!data?.raw_text) return;
+
+        document.getElementById("metar-station").textContent = data.icao || code;
+        document.getElementById("metar-temp").textContent = (data.temp_c == null) ? "—" : `${data.temp_c} °C`;
+        document.getElementById("metar-vis").textContent = (data.visibility_mi == null) ? "—" : `${data.visibility_mi} SM`;
+        document.getElementById("metar-raw").textContent = data.raw_text || "—";
+
+        const summary = (data.sky && data.sky !== "—") ? data.sky : "METAR available below.";
+        document.getElementById("metar-summary").textContent = summary;
+
+        const st = String(data.icao || code).toUpperCase();
+        const match = AIRPORTS.find(a => String(a.icao||"").toUpperCase() === st || String(a.iata||"").toUpperCase() === st);
+        if (match?.name) document.getElementById("hero-station-name").textContent = match.name;
+
+        syncHeroWeather();
+      } catch (e) {
+        console.error(e);
+      }
+    }
+
+    // ===== What-to-wear logic =====
+    function updateWhatToWear(tempC, precipMm){
+      const top = document.getElementById("wear-top-val");
+      const bottom = document.getElementById("wear-bottom-val");
+      const foot = document.getElementById("wear-foot-val");
+      const access = document.getElementById("wear-access-val");
+      const note = document.getElementById("wear-note");
+
+      if (tempC == null || isNaN(Number(tempC))){
+        top.textContent = "—";
+        bottom.textContent = "—";
+        foot.textContent = "—";
+        access.textContent = "—";
+        note.textContent = "💡 Dress in layers to adjust to changing conditions.";
+        return;
+      }
+
+      const t = Number(tempC);
+      const rainy = (precipMm || 0) > 0.1;
+
+      if (t < 0){
+        top.textContent = "Thermal + heavy coat";
+        bottom.textContent = "Insulated pants";
+        foot.textContent = rainy ? "Waterproof boots" : "Winter boots";
+        access.textContent = "Hat, gloves, scarf";
+      } else if (t < 8){
+        top.textContent = "Jacket + warm layer";
+        bottom.textContent = "Thick pants";
+        foot.textContent = rainy ? "Waterproof shoes" : "Sneakers";
+        access.textContent = "Light gloves";
+      } else if (t < 16){
+        top.textContent = "Hoodie / light jacket";
+        bottom.textContent = "Jeans / trousers";
+        foot.textContent = "Sneakers";
+        access.textContent = rainy ? "Umbrella" : "—";
+      } else if (t < 25){
+        top.textContent = "T-shirt + light layer";
+        bottom.textContent = "Light pants";
+        foot.textContent = "Sneakers";
+        access.textContent = "Sunglasses";
+      } else {
+        top.textContent = "T-shirt";
+        bottom.textContent = "Shorts / light pants";
+        foot.textContent = "Sneakers";
+        access.textContent = "Sunglasses";
+      }
+
+      note.textContent = rainy
+        ? "☔ Light precipitation possible — keep a layer & umbrella handy."
+        : "💡 Dress in layers to adjust to changing conditions.";
+    }
+
+    // ===== Sync Hero =====
+    function syncHeroWeather() {
+      const temp = document.getElementById("wx-conditions")?.textContent || "—";
+      const wind = document.getElementById("wx-wind")?.textContent || "—";
+      const pres = document.getElementById("wx-pressure")?.textContent || "—";
+
+      const station = document.getElementById("metar-station")?.textContent || "—";
+      const summary = document.getElementById("metar-summary")?.textContent || "—";
+      const mt = document.getElementById("metar-temp")?.textContent || "—";
+      const vis = document.getElementById("metar-vis")?.textContent || "—";
+      const raw = document.getElementById("metar-raw")?.textContent || "—";
+
+      document.getElementById("hero-station-code").textContent = station || "—";
+
+      const heroTemp = (mt && mt !== "—") ? mt.replace(" °C","") : temp.replace("°C","");
+      document.getElementById("hero-temp").textContent = heroTemp || "—";
+
+      document.getElementById("wear-temp-small").textContent = (mt && mt !== "—") ? mt : temp;
+      document.getElementById("hero-desc").textContent = (summary && summary !== "—") ? summary : "—";
+      document.getElementById("hero-wind").textContent = wind || "—";
+      document.getElementById("hero-vis").textContent = vis || "—";
+      document.getElementById("hero-pres").textContent = pres || "—";
+      document.getElementById("hero-raw").textContent = raw || "—";
+
+      let feels = "—";
+      if (LAST_SURFACE_TEMP_C != null && LAST_WIND_KT != null){
+        const windKmh = LAST_WIND_KT * 1.852;
+        const wc = windChillC(LAST_SURFACE_TEMP_C, windKmh);
+        feels = `${Math.round(wc)}°C`;
+      }
+      document.getElementById("hero-feels").textContent = feels;
+
+      const desc = (summary || "").toLowerCase();
+      const iconEl = document.getElementById("hero-icon");
+      const smallEl = document.getElementById("hero-small");
+      if (desc.includes("snow")) { iconEl.textContent = "❄️"; smallEl.textContent = "Snow"; }
+      else if (desc.includes("rain") || desc.includes("shower") || desc.includes("precip") || desc.includes("drizzle")) { iconEl.textContent = "🌧️"; smallEl.textContent = "Rain"; }
+      else if (desc.includes("mist") || desc.includes("fog")) { iconEl.textContent = "🌫️"; smallEl.textContent = "Fog"; }
+      else if (desc.includes("cloud") || desc.includes("ovc") || desc.includes("bkn")) { iconEl.textContent = "☁️"; smallEl.textContent = "Cloudy"; }
+      else { iconEl.textContent = "☀️"; smallEl.textContent = "Clear"; }
+
+      let tnum = null;
+      const m = (mt || "").match(/(-?\d+\.?\d*)/);
+      if (m) tnum = Number(m[1]);
+      if (tnum == null && LAST_SURFACE_TEMP_C != null) tnum = Number(LAST_SURFACE_TEMP_C);
+
+      const precipFlag = /rain|shower|snow|precip|sleet|drizzle/i.test(summary);
+      updateWhatToWear(tnum, precipFlag ? 1 : 0);
+    }
+
+    // ===== init + slider =====
     document.addEventListener("DOMContentLoaded", () => {
       refreshWXandWinds();
 
@@ -1001,10 +1238,8 @@
       });
       slider.addEventListener("change", refreshWXandWinds);
 
-      setInterval(refreshWXandWinds, 10 * 60 * 1000);
-
-      // Default METAR
       fetchMetar("KLGB");
+      setInterval(refreshWXandWinds, 10 * 60 * 1000);
     });
   </script>
 </body>
