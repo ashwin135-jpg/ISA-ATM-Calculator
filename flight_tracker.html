@@ -588,6 +588,42 @@
     @media (max-width: 860px){
       .topbar{flex-wrap:wrap; justify-content:center}
     }
+
+    .menu{
+      display:flex;
+      align-items:center;
+      gap:10px;
+      flex-wrap:wrap;
+      justify-content:flex-end;
+    }
+
+    .menu a{
+      text-decoration:none;
+      font-weight:600;
+      font-size:0.88rem;
+      padding: 8px 12px;
+      border-radius:999px;                 /* key: pill shape */
+      border: 1px solid rgba(148,163,184,0.16);
+      background: rgba(2, 6, 23, 0.35);
+      transition: transform .15s ease, box-shadow .15s ease, border-color .15s ease, filter .15s ease;
+      white-space:nowrap;
+      color:#d8e6ff;
+    }
+
+    .menu a:hover{
+      border-color: rgba(56,189,248,0.45);
+      box-shadow: 0 0 16px rgba(56,189,248,0.14);
+      transform: translateY(-1px);
+    }
+
+    /* Optional: show which page you're on, without changing size */
+    .menu a.active{
+      border-color: rgba(56,189,248,0.55);
+      background: linear-gradient(135deg, rgba(56,189,248,0.18), rgba(129,140,248,0.14));
+      box-shadow: 0 0 18px rgba(56,189,248,0.12);
+    }
+
+
   </style>
 </head>
 
@@ -609,18 +645,17 @@
 
         <div class="brand-title">
           <div class="t1">ISA Master Tool</div>
-          <div class="t2">Weather • Tracking • Design</div>
         </div>
       </div>
 
 
-      <nav class="nav" aria-label="Primary">
-        <a class="nav-link" href="index.html">Home</a>
-        <a class="nav-link active" href="#" onclick="window.scrollTo({top:0, behavior:'smooth'}); return false;">Flight Tracker</a>
-        <a class="nav-link" href="isa_designer.html" target="_blank" rel="noopener">ISA Designer</a>
-        <a class="nav-link" href="news.html">News</a>
-        <a class="nav-link" href="learning.html">Learning</a>
-      </nav>
+      <div class="menu" aria-label="Main navigation">
+        <a href="index.html">Home</a>
+        <a href="isa_designer.html" target="_blank" rel="noopener">ISA Designer</a>
+        <a href="isa_new.html" target="_blank" rel="noopener">News</a>
+        <a href="learning.html" target="_blank" rel="noopener">Learning</a>
+      </div>
+
     </div>
   </div>
 
