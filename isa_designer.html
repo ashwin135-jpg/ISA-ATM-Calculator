@@ -22,20 +22,14 @@
       --shadow: 0 22px 55px rgba(0,0,0,0.65);
       --radius: 18px;
     }
-
     *{ box-sizing:border-box; }
-
     body{
       margin:0;
       font-family: 'Segoe UI', sans-serif;
       background: radial-gradient(circle at top, var(--bg0) 0, var(--bg1) 55%, #000 100%);
       color: var(--text);
     }
-
-    header{
-      text-align:center;
-      padding: 26px 18px 10px;
-    }
+    header{ text-align:center; padding: 26px 18px 10px; }
     header h1{ margin:0 0 6px; font-size: 2.0rem; }
     header p{ margin:0; color:#c9d2ee; font-size: 1.0rem; }
     header .sub{ margin-top:8px; color: var(--muted); font-size: .9rem; }
@@ -65,7 +59,6 @@
       border-color: var(--borderHi);
       box-shadow: 0 0 14px rgba(56,189,248,0.18);
     }
-
     .tag-pill{
       display:inline-flex;
       align-items:center;
@@ -82,11 +75,7 @@
       white-space: nowrap;
     }
 
-    .wrap{
-      max-width: 1180px;
-      margin: 0 auto;
-      padding: 0 18px 60px;
-    }
+    .wrap{ max-width: 1180px; margin: 0 auto; padding: 0 18px 60px; }
 
     .titleRow{
       display:flex;
@@ -105,7 +94,6 @@
       flex-wrap:wrap;
       justify-content:flex-end;
     }
-
     .pill{
       display:inline-flex;
       align-items:center;
@@ -153,14 +141,12 @@
       filter:none;
     }
 
-    /* --- Main two-column layout (like screenshot) --- */
     .grid{
       display:grid;
       grid-template-columns: 1.05fr 1.35fr;
       gap: 18px;
       align-items:start;
     }
-
     .card{
       background: radial-gradient(circle at top left, rgba(17,24,39,0.85) 0, rgba(2,6,23,0.75) 75%);
       border-radius: 22px;
@@ -170,7 +156,6 @@
       position: relative;
       overflow:hidden;
     }
-
     .cardHead{
       display:flex;
       align-items:center;
@@ -188,14 +173,12 @@
       align-items:center;
       gap:10px;
     }
-
     .divider{
       height: 1px;
       background: linear-gradient(to right, transparent, rgba(148,163,184,0.45), transparent);
       margin: 10px 0;
     }
 
-    /* --- 3D Preview area --- */
     .previewFrame{
       height: 360px;
       border-radius: var(--radius);
@@ -233,7 +216,6 @@
       font-variant-numeric: tabular-nums;
     }
 
-    /* --- AI CAD block --- */
     .cadBtn{
       width:100%;
       padding: 11px 14px;
@@ -248,7 +230,6 @@
     }
     .cadBtn:hover{ transform: translateY(-1px); filter: brightness(1.04); }
 
-    /* --- Right panel tabs + fields --- */
     .tabs{
       display:inline-flex;
       gap:6px;
@@ -296,9 +277,7 @@
       font-variant-numeric: tabular-nums;
     }
 
-    select, input[type="range"], input[type="number"]{
-      width:100%;
-    }
+    select, input[type="range"], input[type="number"]{ width:100%; }
     select{
       padding: 10px 12px;
       border-radius: 12px;
@@ -307,9 +286,7 @@
       color: var(--text);
       outline:none;
     }
-    input[type="range"]{
-      accent-color: #60a5fa;
-    }
+    input[type="range"]{ accent-color: #60a5fa; }
     .row2{
       display:grid;
       grid-template-columns: 1fr 140px;
@@ -498,8 +475,8 @@
               <span class="meta mono" id="valMTOW">—</span>
             </div>
             <div class="row2">
-              <input id="mtow" type="range" min="5" max="200" step="0.5"/>
-              <input id="mtow_num" type="number" step="0.5"/>
+              <input id="mtow" type="range"/>
+              <input id="mtow_num" type="number"/>
             </div>
           </div>
 
@@ -509,8 +486,8 @@
               <span class="meta mono" id="valSpan">—</span>
             </div>
             <div class="row2">
-              <input id="wing_span" type="range" min="2" max="60" step="0.1"/>
-              <input id="wing_span_num" type="number" step="0.1"/>
+              <input id="wing_span" type="range"/>
+              <input id="wing_span_num" type="number"/>
             </div>
           </div>
 
@@ -520,8 +497,8 @@
               <span class="meta mono" id="valArea">—</span>
             </div>
             <div class="row2">
-              <input id="wing_area" type="range" min="0.5" max="200" step="0.1"/>
-              <input id="wing_area_num" type="number" step="0.1"/>
+              <input id="wing_area" type="range"/>
+              <input id="wing_area_num" type="number"/>
             </div>
           </div>
         </div>
@@ -628,20 +605,22 @@
 
   <script src="https://unpkg.com/aos@2.3.1/dist/aos.js"></script>
 
-  <!-- Three.js (unpkg) -->
+  <!-- Three.js -->
   <script src="https://unpkg.com/three@0.160.0/build/three.min.js"></script>
+  <!-- OrbitControls (UMD build that attaches to THREE.OrbitControls reliably) -->
   <script src="https://unpkg.com/three@0.160.0/examples/js/controls/OrbitControls.js"></script>
 
   <script>
+  // ============================
+  // INIT + SAFETY
+  // ============================
   AOS.init({ duration: 850, easing: 'ease-out-cubic', offset: 120, once: true });
 
-  // ===== Backend base =====
   const ISA_BACKEND_BASE = "https://isa-backend-olj9.onrender.com/api";
   const DESIGNER_DEFAULT = `${ISA_BACKEND_BASE}/designer/default`;
   const DESIGNER_COMPUTE = `${ISA_BACKEND_BASE}/designer/compute`;
   const DESIGNER_EXPORT  = `${ISA_BACKEND_BASE}/designer/export`;
 
-  // ===== State =====
   let state = null;
   let computeTimer = null;
 
@@ -652,33 +631,14 @@
     el.classList.remove("good","warn","bad");
     if(mode) el.classList.add(mode);
   }
-
   function num(x, digits=2){
     if (x === null || x === undefined || Number.isNaN(x)) return "—";
     return Number(x).toFixed(digits);
   }
-
-  // ===== Small helpers (state-safe) =====
-  function setScalar(obj, value, unit){
-    if(!obj) return { value, unit };
-    obj.value = value;
-    obj.unit = unit;
-    return obj;
-  }
-
-  function ensure(obj, key, fallback){
-    if(obj[key] === undefined || obj[key] === null) obj[key] = fallback;
-    return obj[key];
-  }
-
-  function clamp(v, min, max){
-    return Math.min(max, Math.max(min, v));
-  }
+  function clamp(v, min, max){ return Math.min(max, Math.max(min, v)); }
 
   // =======================
-  // Vehicle Types (UI presets)
-  // NOTE: Keep v1 UI imperial to match backend state keys (lb/ft),
-  // even if you label "commercial" as metric later.
+  // UI Presets
   // =======================
   const VEHICLE_PRESETS = {
     uav: {
@@ -707,7 +667,6 @@
     },
     commercial: {
       name: "Commercial Plane",
-      // keep imperial range so you don't fight backend keys in v1
       mtow:   {min: 20000, max: 220000, step: 500, value: 165000, label:"MTOW (lb)"},
       span:   {min: 30, max: 200, step: 0.1, value: 115, label:"Wing Span b (ft)"},
       area:   {min: 100, max: 3000, step: 1, value: 1345, label:"Wing Area S (ft²)"},
@@ -718,9 +677,7 @@
 
   function setRange(id, cfg){
     const r = $(id);
-    r.min = cfg.min;
-    r.max = cfg.max;
-    r.step = cfg.step;
+    r.min = cfg.min; r.max = cfg.max; r.step = cfg.step;
   }
 
   function refreshValueBadges(){
@@ -729,7 +686,6 @@
     $("valArea").textContent  = `${$("wing_area_num").value}`;
     $("valCruise").textContent= `${$("cruise_speed_num").value}`;
     $("valAlt").textContent   = `${$("altitude_num").value}`;
-
     $("valTaper").textContent = `${$("taper_ratio_num").value}`;
     $("valCLmax").textContent = `${$("cl_max_num").value}`;
     $("valCD0").textContent   = `${$("cd0_num").value}`;
@@ -740,7 +696,6 @@
     const p = VEHICLE_PRESETS[typeKey] || VEHICLE_PRESETS.uav;
 
     $("modelName").textContent = p.name;
-
     $("lblMTOW").textContent   = p.mtow.label;
     $("lblSpan").textContent   = p.span.label;
     $("lblArea").textContent   = p.area.label;
@@ -753,22 +708,18 @@
     setRange("cruise_speed", p.cruise);
     setRange("altitude", p.alt);
 
-    // only set defaults if UI is blank-ish (or on init)
-    if(!$("mtow_num").value) {
-      $("mtow").value = p.mtow.value; $("mtow_num").value = p.mtow.value;
-      $("wing_span").value = p.span.value; $("wing_span_num").value = p.span.value;
-      $("wing_area").value = p.area.value; $("wing_area_num").value = p.area.value;
-      $("cruise_speed").value = p.cruise.value; $("cruise_speed_num").value = p.cruise.value;
-      $("altitude").value = p.alt.value; $("altitude_num").value = p.alt.value;
-    }
+    // ALWAYS set values on type change (this ensures sliders are never blank)
+    $("mtow").value = p.mtow.value; $("mtow_num").value = p.mtow.value;
+    $("wing_span").value = p.span.value; $("wing_span_num").value = p.span.value;
+    $("wing_area").value = p.area.value; $("wing_area_num").value = p.area.value;
+    $("cruise_speed").value = p.cruise.value; $("cruise_speed_num").value = p.cruise.value;
+    $("altitude").value = p.alt.value; $("altitude_num").value = p.alt.value;
 
     refreshValueBadges();
-    update3DFromUI();
+    update3DFromUI(); // immediate
   }
 
-  // =======================
   // Tabs
-  // =======================
   document.querySelectorAll(".tab").forEach(btn=>{
     btn.addEventListener("click", ()=>{
       document.querySelectorAll(".tab").forEach(b=>b.classList.remove("active"));
@@ -780,9 +731,7 @@
     });
   });
 
-  // =======================
-  // Slider sync helpers
-  // =======================
+  // Slider binding
   function bindRangePair(rangeId, numId, onChange){
     const r = $(rangeId), n = $(numId);
 
@@ -796,9 +745,9 @@
       const v = parseFloat(n.value);
       if(Number.isFinite(v)){
         const min = parseFloat(r.min), max = parseFloat(r.max);
-        const clamped = clamp(v, min, max);
-        r.value = clamped;
-        n.value = clamped;
+        const vv = clamp(v, min, max);
+        r.value = vv;
+        n.value = vv;
         refreshValueBadges();
         onChange?.();
       }
@@ -806,7 +755,7 @@
   }
 
   // =======================
-  // Backend calls
+  // Backend
   // =======================
   async function apiDefault(typeKey){
     const url = `${DESIGNER_DEFAULT}?type=${encodeURIComponent(typeKey || "uav")}`;
@@ -814,7 +763,6 @@
     if(!r.ok) throw new Error(await r.text());
     return await r.json();
   }
-
   async function apiCompute(stateObj){
     const r = await fetch(DESIGNER_COMPUTE, {
       method:"POST",
@@ -824,7 +772,6 @@
     if(!r.ok) throw new Error(await r.text());
     return await r.json();
   }
-
   async function apiExport(stateObj){
     const r = await fetch(DESIGNER_EXPORT, {
       method:"POST",
@@ -836,97 +783,29 @@
   }
 
   // =======================
-  // UI <-> State sync
+  // State update (minimal)
   // =======================
-  function hydrateUIFromState(){
-    if(!state) return;
-
-    const typeKey = state.meta?.vehicle_type || $("vehicleType").value || "uav";
-    $("vehicleType").value = typeKey;
-    applyPresetToUI(typeKey);
-
-    // Pull from state, clamp to slider ranges, write into UI
-    const mtow  = state.inputs?.mass?.mtow_lb?.value ?? 0;
-    const span  = state.inputs?.geometry?.wing_span_ft?.value ?? 0;
-    const area  = state.inputs?.geometry?.wing_area_ft2?.value ?? 0;
-
-    const taper = state.inputs?.geometry?.taper_ratio?.value ?? 0.55;
-    const clmax = state.inputs?.aero?.cl_max?.value ?? 1.6;
-    const cd0   = state.inputs?.aero?.cd0?.value ?? 0.03;
-    const e     = state.inputs?.aero?.oswald_e?.value ?? 0.80;
-
-    const cruise= state.inputs?.mission?.cruise_speed_kt?.value ?? 55;
-    const alt   = state.inputs?.environment?.altitude_ft?.value ?? state.inputs?.mission?.cruise_altitude_ft?.value ?? 8000;
-
-    function setPair(rangeId, numId, v){
-      const r = $(rangeId), n = $(numId);
-      const min = parseFloat(r.min), max = parseFloat(r.max);
-      const vv = clamp(Number(v) || 0, min, max);
-      r.value = vv;
-      n.value = vv;
-    }
-
-    setPair("mtow", "mtow_num", mtow);
-    setPair("wing_span", "wing_span_num", span);
-    setPair("wing_area", "wing_area_num", area);
-    setPair("cruise_speed", "cruise_speed_num", cruise);
-    setPair("altitude", "altitude_num", alt);
-
-    // Aero fields
-    $("taper_ratio").value = taper; $("taper_ratio_num").value = taper;
-    $("cl_max").value = clmax;      $("cl_max_num").value = clmax;
-    $("cd0").value = cd0;           $("cd0_num").value = cd0;
-    $("oswald_e").value = e;        $("oswald_e_num").value = e;
-
-    refreshValueBadges();
-  }
-
   function syncUIToState(){
     if(!state) return;
-
     const typeKey = $("vehicleType").value || "uav";
     state.meta.vehicle_type = typeKey;
-    state.meta.name = VEHICLE_PRESETS[typeKey]?.name || state.meta.name;
 
-    // --- Read UI values ---
-    const mtow  = parseFloat($("mtow_num").value);
-    const span  = parseFloat($("wing_span_num").value);
-    const area  = parseFloat($("wing_area_num").value);
+    // update only the fields you expose
+    state.inputs.mass.mtow_lb.value = parseFloat($("mtow_num").value);
+    state.inputs.geometry.wing_span_ft.value = parseFloat($("wing_span_num").value);
+    state.inputs.geometry.wing_area_ft2.value = parseFloat($("wing_area_num").value);
 
-    const taper = parseFloat($("taper_ratio_num").value);
-    const clmax = parseFloat($("cl_max_num").value);
-    const cd0   = parseFloat($("cd0_num").value);
-    const e     = parseFloat($("oswald_e_num").value);
+    state.inputs.geometry.taper_ratio.value = parseFloat($("taper_ratio_num").value);
+    state.inputs.aero.cl_max.value = parseFloat($("cl_max_num").value);
+    state.inputs.aero.cd0.value = parseFloat($("cd0_num").value);
+    state.inputs.aero.oswald_e.value = parseFloat($("oswald_e_num").value);
 
-    const cruise= parseFloat($("cruise_speed_num").value);
-    const alt   = parseFloat($("altitude_num").value);
-
-    // Guard nested structure (in case)
-    ensure(state, "inputs", {});
-    ensure(state.inputs, "mass", {});
-    ensure(state.inputs, "geometry", {});
-    ensure(state.inputs, "aero", {});
-    ensure(state.inputs, "mission", {});
-    ensure(state.inputs, "environment", {});
-
-    // Scalars exist
-    state.inputs.mass.mtow_lb = setScalar(state.inputs.mass.mtow_lb, mtow, "lb");
-    state.inputs.geometry.wing_span_ft = setScalar(state.inputs.geometry.wing_span_ft, span, "ft");
-    state.inputs.geometry.wing_area_ft2 = setScalar(state.inputs.geometry.wing_area_ft2, area, "ft^2");
-    state.inputs.geometry.taper_ratio = setScalar(state.inputs.geometry.taper_ratio, taper, "none");
-
-    state.inputs.aero.cl_max = setScalar(state.inputs.aero.cl_max, clmax, "none");
-    state.inputs.aero.cd0 = setScalar(state.inputs.aero.cd0, cd0, "none");
-    state.inputs.aero.oswald_e = setScalar(state.inputs.aero.oswald_e, e, "none");
-
-    state.inputs.mission.cruise_speed_kt = setScalar(state.inputs.mission.cruise_speed_kt, cruise, "kt");
-    state.inputs.mission.cruise_altitude_ft = setScalar(state.inputs.mission.cruise_altitude_ft, alt, "ft");
-    state.inputs.environment.altitude_ft = setScalar(state.inputs.environment.altitude_ft, alt, "ft");
+    const alt = parseFloat($("altitude_num").value);
+    state.inputs.mission.cruise_speed_kt.value = parseFloat($("cruise_speed_num").value);
+    state.inputs.mission.cruise_altitude_ft.value = alt;
+    state.inputs.environment.altitude_ft.value = alt;
   }
 
-  // =======================
-  // Results rendering
-  // =======================
   function renderResults(){
     const ar  = state?.computed?.geometry?.aspect_ratio?.value;
     const mac = state?.computed?.geometry?.mac_ft?.value;
@@ -943,11 +822,8 @@
     $("outLD").textContent = ld ? num(ld.ld.value, 2) : "—";
     $("outVstall").textContent = stall ? `${num(stall.v_stall_kt.value, 1)} kt` : "—";
 
-    const p = end ? num(end.power_required_hp.value, 2) : "—";
-    const e = end ? num(end.endurance_hr.value, 2) : "—";
-    const r = end ? num(end.range_nmi_at_cruise.value, 1) : "—";
-    $("outP").textContent = end ? `${p} hp` : "—";
-    $("outER").textContent = end ? `${e} hr • ${r} nmi` : "—";
+    $("outP").textContent = end ? `${num(end.power_required_hp.value,2)} hp` : "—";
+    $("outER").textContent = end ? `${num(end.endurance_hr.value,2)} hr • ${num(end.range_nmi_at_cruise.value,1)} nmi` : "—";
 
     const warnList = $("warnList");
     warnList.innerHTML = "";
@@ -971,46 +847,55 @@
   async function runCompute(){
     try{
       setPill($("statusPill"), "Computing…", "warn");
-
-      if(!state){
-        state = await apiDefault($("vehicleType").value || "uav");
-      }
-
+      if(!state) state = await apiDefault($("vehicleType").value || "uav");
       syncUIToState();
       state = await apiCompute(state);
-
-      // reflect computed updates + keep UI clean
-      hydrateUIFromState();
       renderResults();
       update3DFromState();
-
       setPill($("statusPill"), "Live", "good");
     }catch(e){
       console.error(e);
-      setPill($("statusPill"), "Error", "bad");
+      setPill($("statusPill"), "Error (check console)", "bad");
     }
   }
 
   function scheduleCompute(){
     clearTimeout(computeTimer);
-    computeTimer = setTimeout(runCompute, 280);
+    computeTimer = setTimeout(runCompute, 350);
   }
 
   // =======================
-  // Three.js renderer
+  // THREE.JS (robust)
   // =======================
   let scene, camera, renderer, controls;
-  let fuselageMesh, wingMesh, tailMesh, vtailMesh, grid;
+  let fuselageMesh, wingMesh, tailMesh, vtailMesh;
   let threeInited = false;
 
   function initThree(){
     const canvas = $("threeCanvas");
+
+    // If canvas has 0 size at init, wait a tick
+    const rect = canvas.getBoundingClientRect();
+    if(rect.width < 2 || rect.height < 2){
+      requestAnimationFrame(initThree);
+      return;
+    }
+
+    // OrbitControls safety
+    if(!THREE || !THREE.OrbitControls){
+      setPill($("statusPill"), "Three.js controls failed", "bad");
+      console.error("OrbitControls missing. Check script URL.");
+      return;
+    }
+
     renderer = new THREE.WebGLRenderer({ canvas, antialias:true, alpha:true });
     renderer.setPixelRatio(Math.min(window.devicePixelRatio || 1, 2));
+    renderer.setClearColor(0x000000, 0); // transparent
+    renderer.setSize(rect.width, rect.height, false);
 
     scene = new THREE.Scene();
 
-    camera = new THREE.PerspectiveCamera(45, 1, 0.1, 2000);
+    camera = new THREE.PerspectiveCamera(45, rect.width/rect.height, 0.1, 2000);
     camera.position.set(18, 10, 18);
 
     controls = new THREE.OrbitControls(camera, canvas);
@@ -1029,17 +914,13 @@
     const amb = new THREE.AmbientLight(0xffffff, 0.35);
     scene.add(amb);
 
-    grid = new THREE.GridHelper(80, 40, 0x3b82f6, 0x1f2a44);
+    const grid = new THREE.GridHelper(80, 40);
     grid.position.y = 0;
     grid.material.opacity = 0.25;
     grid.material.transparent = true;
     scene.add(grid);
 
-    const mat = new THREE.MeshStandardMaterial({
-      color: 0x60a5fa,
-      metalness: 0.15,
-      roughness: 0.55
-    });
+    const mat = new THREE.MeshStandardMaterial({ color: 0x60a5fa, metalness: 0.15, roughness: 0.55 });
 
     fuselageMesh = new THREE.Mesh(new THREE.BoxGeometry(8, 1.3, 1.3), mat);
     fuselageMesh.position.set(0, 1.3, 0);
@@ -1058,15 +939,14 @@
     scene.add(vtailMesh);
 
     function resize(){
-      const rect = canvas.getBoundingClientRect();
-      const w = Math.max(1, Math.floor(rect.width));
-      const h = Math.max(1, Math.floor(rect.height));
+      const r = canvas.getBoundingClientRect();
+      const w = Math.max(2, Math.floor(r.width));
+      const h = Math.max(2, Math.floor(r.height));
       renderer.setSize(w, h, false);
       camera.aspect = w / h;
       camera.updateProjectionMatrix();
     }
     window.addEventListener("resize", resize);
-    resize();
 
     function animate(){
       requestAnimationFrame(animate);
@@ -1076,6 +956,8 @@
     animate();
 
     threeInited = true;
+    setPill($("renderPill"), "Renderer: ON", "good");
+    update3DFromUI(); // first draw
   }
 
   function updateMeshes(span, area, typeKey){
@@ -1112,7 +994,6 @@
     vtailMesh.geometry = new THREE.BoxGeometry((0.10*hTailChord) * s, vTailH * s, (0.70*hTailChord) * s);
     vtailMesh.position.set((-0.48 * fusL) * s, (1.55 + 0.75 * fusD) * s + (0.5*vTailH*s), 0);
 
-    // display quick UI-based AR/MAC for immediate feedback
     const AR = (span*span) / Math.max(area, 0.01);
     $("miniAR").textContent = `AR: ${num(AR,2)}`;
     $("miniMAC").textContent = `MAC: ${num(cAvg,2)}`;
@@ -1128,11 +1009,10 @@
   function update3DFromState(){
     if(!state) return;
     const typeKey = state.meta?.vehicle_type || $("vehicleType").value || "uav";
-    const span = state.inputs?.geometry?.wing_span_ft?.value ?? 18;
-    const area = state.inputs?.geometry?.wing_area_ft2?.value ?? 24;
+    const span = state.inputs?.geometry?.wing_span_ft?.value ?? parseFloat($("wing_span_num").value) ?? 18;
+    const area = state.inputs?.geometry?.wing_area_ft2?.value ?? parseFloat($("wing_area_num").value) ?? 24;
     updateMeshes(span, area, typeKey);
 
-    // if backend computed AR/MAC exists, show it
     const ar  = state?.computed?.geometry?.aspect_ratio?.value;
     const mac = state?.computed?.geometry?.mac_ft?.value;
     if(ar !== undefined && ar !== null) $("miniAR").textContent  = `AR: ${num(ar,2)}`;
@@ -1154,11 +1034,11 @@
 
   $("vehicleType").addEventListener("change", async ()=>{
     const typeKey = $("vehicleType").value;
+    applyPresetToUI(typeKey);
 
     try{
       setPill($("statusPill"), "Loading…", "warn");
       state = await apiDefault(typeKey);
-      hydrateUIFromState();
       renderResults();
       update3DFromState();
       setPill($("statusPill"), "Live", "good");
@@ -1170,42 +1050,16 @@
 
   $("btnCompute").addEventListener("click", runCompute);
 
-  $("btnSoftReset").addEventListener("click", async ()=>{
-    try{
-      setPill($("statusPill"), "Resetting…", "warn");
-      state = await apiDefault($("vehicleType").value || "uav");
-      hydrateUIFromState();
-      renderResults();
-      update3DFromState();
-      setPill($("statusPill"), "Live", "good");
-    }catch(e){
-      console.error(e);
-      setPill($("statusPill"), "Offline", "bad");
-    }
-  });
-
-  $("btnReset").addEventListener("click", async ()=>{
-    try{
-      setPill($("statusPill"), "Resetting…", "warn");
-      state = await apiDefault($("vehicleType").value || "uav");
-      hydrateUIFromState();
-      renderResults();
-      update3DFromState();
-      setPill($("statusPill"), "Live", "good");
-    }catch(e){
-      console.error(e);
-      setPill($("statusPill"), "Offline", "bad");
-    }
-  });
+  $("btnSoftReset").addEventListener("click", ()=> applyPresetToUI($("vehicleType").value || "uav"));
+  $("btnReset").addEventListener("click", ()=> applyPresetToUI($("vehicleType").value || "uav"));
 
   $("btnExport").addEventListener("click", async ()=>{
     try{
       setPill($("statusPill"), "Exporting…", "warn");
-
       if(!state) state = await apiDefault($("vehicleType").value || "uav");
       syncUIToState();
-
       const blob = await apiExport(state);
+
       const url = URL.createObjectURL(blob);
       const a = document.createElement("a");
       a.href = url;
@@ -1230,30 +1084,33 @@
   // Init
   // =======================
   (async function init(){
-    initThree();
-
-    // Seed aero defaults so fields aren't blank before first hydrate
-    $("taper_ratio").value = 0.55; $("taper_ratio_num").value = 0.55;
-    $("cl_max").value = 1.6;       $("cl_max_num").value = 1.6;
-    $("cd0").value = 0.03;         $("cd0_num").value = 0.03;
-    $("oswald_e").value = 0.80;    $("oswald_e_num").value = 0.80;
-
-    applyPresetToUI("uav");
-    update3DFromUI();
-
     try{
-      setPill($("statusPill"), "Loading…", "warn");
-      state = await apiDefault("uav");
-      hydrateUIFromState();
-      renderResults();
-      update3DFromState();
-      setPill($("statusPill"), "Live", "good");
+      setPill($("statusPill"), "Init…", "warn");
+
+      // seed aero defaults
+      $("taper_ratio").value = 0.55; $("taper_ratio_num").value = 0.55;
+      $("cl_max").value = 1.6;       $("cl_max_num").value = 1.6;
+      $("cd0").value = 0.03;         $("cd0_num").value = 0.03;
+      $("oswald_e").value = 0.80;    $("oswald_e_num").value = 0.80;
+
+      applyPresetToUI("uav");
+
+      initThree(); // <-- must happen after preset so sliders aren't blank
+
+      try{
+        state = await apiDefault("uav");
+        renderResults();
+        update3DFromState();
+        setPill($("statusPill"), "Live", "good");
+      }catch(e){
+        console.warn("Backend offline:", e);
+        setPill($("statusPill"), "Offline", "bad");
+      }
     }catch(e){
       console.error(e);
-      setPill($("statusPill"), "Offline", "bad");
+      setPill($("statusPill"), "Init Error (console)", "bad");
     }
   })();
-</script>
-
+  </script>
 </body>
 </html>
